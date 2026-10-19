@@ -1,0 +1,41 @@
+.task-section {
+  margin-bottom: var(--space-5);
+}
+
+.task-section__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-2);
+}
+
+.task-section__title {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.task-section__title--default {
+  color: var(--color-text-muted);
+}
+
+.task-section__title--danger {
+  color: var(--color-danger);
+}
+
+.task-section__count {
+  font-weight: 400;
+}
+
+.task-section__list {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  list-style: none;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}

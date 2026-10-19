@@ -1,0 +1,23 @@
+.day-progress {
+  margin-bottom: var(--space-5);
+}
+
+.day-progress__label {
+  margin-bottom: var(--space-2);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.day-progress__track {
+  height: 8px;
+  overflow: hidden;
+  border-radius: var(--radius-full);
+  background: var(--color-surface-muted);
+}
+
+.day-progress__bar {
+  height: 100%;
+  border-radius: inherit;
+  background: var(--color-success);
+  transition: width 0.2s ease;
+}

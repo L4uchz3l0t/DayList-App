@@ -1,17 +1,33 @@
-/* Vorläufige Grundstile. Das richtige Designsystem kommt in Phase 2. */
-:root {
-  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  line-height: 1.5;
-  color: #1f2933;
-  background-color: #f7f8fa;
+@import './styles/tokens.css';
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
 body {
   margin: 0;
+  font-family: var(--font-family);
+  font-size: var(--font-size-md);
+  line-height: 1.5;
+  color: var(--color-text);
+  background-color: var(--color-bg);
+  -webkit-font-smoothing: antialiased;
 }
 
-.app {
-  max-width: 40rem;
-  margin: 0 auto;
-  padding: 2rem 1rem;
+button,
+input {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+/* Sichtbarer Fokusrahmen für die Bedienung per Tastatur */
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
 }

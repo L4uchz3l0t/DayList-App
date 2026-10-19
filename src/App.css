@@ -1,0 +1,17 @@
+.app__main {
+  max-width: var(--content-width);
+  margin: 0 auto;
+  /* Platz unten, damit Navigation und Plus-Button nichts verdecken */
+  padding: 0 var(--space-4) calc(var(--nav-height) + 96px);
+}
+
+/* Große Bildschirme: rechts neben der Seitenleiste (220px breit) */
+@media (min-width: 768px) {
+  .app {
+    padding-left: 220px;
+  }
+
+  .app__main {
+    padding: var(--space-4) var(--space-5) var(--space-6);
+  }
+}

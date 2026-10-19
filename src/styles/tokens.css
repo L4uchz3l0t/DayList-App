@@ -1,0 +1,51 @@
+/*
+  Designsystem: alle Farben, Abstände, Rundungen und Schriftgrößen an einer Stelle.
+  Komponenten verwenden nur diese Variablen, damit das Aussehen einheitlich bleibt
+  und später ein dunkles Design einfach ergänzt werden kann.
+*/
+:root {
+  /* Farben */
+  --color-bg: #f6f7f9;
+  --color-surface: #ffffff;
+  --color-surface-muted: #eef0f3;
+  --color-border: #e1e4e8;
+  --color-text: #1d2433;
+  --color-text-muted: #667085;
+  --color-accent: #4f6bed;
+  --color-accent-soft: #e8ecfd;
+  --color-on-accent: #ffffff;
+  --color-danger: #c4423b;
+  --color-danger-soft: #fbeceb;
+  --color-warning: #b7791f;
+  --color-success: #2f9e6e;
+
+  /* Abstände */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+
+  /* Rundungen */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-full: 999px;
+
+  /* Schrift */
+  --font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-size-sm: 0.875rem;
+  --font-size-md: 1rem;
+  --font-size-lg: 1.25rem;
+  --font-size-xl: 1.75rem;
+
+  /* Schatten */
+  --shadow-sm: 0 1px 2px rgb(16 24 40 / 6%);
+  --shadow-lg: 0 8px 24px rgb(16 24 40 / 16%);
+
+  /* Größen */
+  --tap-size: 44px;
+  --content-width: 40rem;
+  --nav-height: 64px;
+}
