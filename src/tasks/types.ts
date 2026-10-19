@@ -10,7 +10,7 @@ export interface Task {
   id: string
   title: string
   status: TaskStatus
-  /** Tag, an dem ich die Aufgabe erledigen möchte. Leer = Aufgabe liegt im Eingang. */
+  /** Tag, an dem ich die Aufgabe erledigen möchte. Leer = Aufgabe liegt unter Irgendwann. */
   plannedDate?: string
   /** Verbindliche Frist. Unabhängig vom geplanten Tag. */
   dueDate?: string

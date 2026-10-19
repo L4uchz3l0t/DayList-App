@@ -128,8 +128,8 @@ describe('getUpcomingTasks', () => {
 })
 
 describe('describePlannedDay', () => {
-  it('benennt Eingang, Heute, Morgen und andere Tage', () => {
-    expect(describePlannedDay(undefined, TODAY)).toBe('Eingang')
+  it('benennt Irgendwann, Heute, Morgen und andere Tage', () => {
+    expect(describePlannedDay(undefined, TODAY)).toBe('Irgendwann')
     expect(describePlannedDay(TODAY, TODAY)).toBe('Heute')
     expect(describePlannedDay('2026-10-20', TODAY)).toBe('Morgen')
     expect(describePlannedDay('2026-10-23', TODAY)).toBe('23. Okt.')

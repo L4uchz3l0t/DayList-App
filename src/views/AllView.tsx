@@ -15,7 +15,7 @@ interface AllViewProps {
   onAdd: () => void
 }
 
-/** Alle Aufgaben durchsuchen: überfällig, geplant, im Eingang und auf Wunsch erledigt. */
+/** Alle Aufgaben durchsuchen: überfällig, geplant, irgendwann und auf Wunsch erledigt. */
 export function AllView({ tasks, todayKey, onToggle, onOpen, onMove, onAdd }: AllViewProps) {
   const [query, setQuery] = useState('')
   const [showDone, setShowDone] = useState(false)
@@ -70,7 +70,7 @@ export function AllView({ tasks, todayKey, onToggle, onOpen, onMove, onAdd }: Al
       )}
       {overdue.length > 0 && <TaskSection title="Überfällig" tone="danger" tasks={overdue} {...sectionProps} />}
       {upcoming.length > 0 && <TaskSection title="Geplant" tasks={upcoming} showPlannedDate {...sectionProps} />}
-      {inbox.length > 0 && <TaskSection title="Eingang" tasks={inbox} {...sectionProps} />}
+      {inbox.length > 0 && <TaskSection title="Irgendwann" tasks={inbox} {...sectionProps} />}
       {showDone && done.length > 0 && (
         <TaskSection title="Erledigt" tone="success" tasks={done} showPlannedDate {...sectionProps} />
       )}

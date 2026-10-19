@@ -14,17 +14,17 @@ interface InboxViewProps {
   onAdd: () => void
 }
 
-/** Eingang: alles, was noch keinem Tag zugeordnet ist. */
+/** Irgendwann: alles, was noch keinem Tag zugeordnet ist (im Code "inbox"). */
 export function InboxView({ tasks, todayKey, onToggle, onOpen, onMove, onAdd }: InboxViewProps) {
   const inbox = getInboxTasks(tasks)
 
   return (
     <div>
-      <p className="view-intro">Hier sammelt sich alles ohne festen Tag. Tippe auf den Kalender, um es einzuplanen.</p>
+      <p className="view-intro">Alles ohne festen Tag. Tippe auf den Kalender, um etwas einzuplanen.</p>
 
       {inbox.open.length === 0 ? (
         <EmptyState
-          title="Der Eingang ist leer."
+          title="Hier liegt gerade nichts."
           text="Tippe hier, um schnell etwas zu notieren."
           onClick={onAdd}
         />

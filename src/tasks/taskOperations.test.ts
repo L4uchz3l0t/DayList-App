@@ -18,7 +18,7 @@ function sampleTask(fields: Partial<Task> = {}): Task {
 }
 
 describe('createTask', () => {
-  it('legt eine offene Aufgabe ohne Datum im Eingang an', () => {
+  it('legt eine offene Aufgabe ohne Datum unter Irgendwann an', () => {
     const task = createTask({ title: '  Milch kaufen  ' }, CREATED)
     expect(task.title).toBe('Milch kaufen')
     expect(task.status).toBe('open')
@@ -106,12 +106,12 @@ describe('toggleTaskStatus', () => {
   })
 })
 
-describe('Einplanen und Eingang', () => {
+describe('Einplanen und Irgendwann', () => {
   it('plant eine Aufgabe für einen Tag ein', () => {
     expect(scheduleTask([sampleTask()], 'a', '2026-10-22', LATER)[0].plannedDate).toBe('2026-10-22')
   })
 
-  it('verschiebt eine Aufgabe in den Eingang, ohne die Frist zu verlieren', () => {
+  it('verschiebt eine Aufgabe nach Irgendwann, ohne die Frist zu verlieren', () => {
     const start = sampleTask({ plannedDate: '2026-10-17', dueDate: '2026-10-25' })
     const [task] = moveTaskToInbox([start], 'a', LATER)
     expect(task.plannedDate).toBeUndefined()

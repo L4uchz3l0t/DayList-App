@@ -8,7 +8,7 @@ import './QuickAdd.css'
 
 interface QuickAddProps {
   todayKey: string
-  /** Vorgewählter Tag ('' = Eingang), zum Beispiel wenn die Schnellaufnahme aus der Woche geöffnet wird */
+  /** Vorgewählter Tag ('' = Irgendwann), zum Beispiel wenn die Schnellaufnahme aus der Woche geöffnet wird */
   initialPlannedDate?: string
   onSave: (input: NewTaskInput) => void
   onClose: () => void
@@ -16,7 +16,7 @@ interface QuickAddProps {
 
 /**
  * Schnellaufnahme: Titel tippen, Enter drücken, fertig.
- * Ohne Auswahl landet die Aufgabe im Eingang. Danach ist das Feld sofort wieder bereit.
+ * Ohne Auswahl landet die Aufgabe unter Irgendwann. Danach ist das Feld sofort wieder bereit.
  * Unter "Mehr Optionen" gibt es dieselben Angaben wie in der Detailansicht.
  */
 export function QuickAdd({ todayKey, initialPlannedDate = '', onSave, onClose }: QuickAddProps) {
@@ -34,7 +34,7 @@ export function QuickAdd({ todayKey, initialPlannedDate = '', onSave, onClose }:
 
   // Ein anderer Tag als Heute/Morgen muss sichtbar sein, auch wenn die Optionen zugeklappt sind
   const dayLabel = describePlannedDay(plannedDate || undefined, todayKey)
-  const isOtherDay = !['Eingang', 'Heute', 'Morgen'].includes(dayLabel)
+  const isOtherDay = !['Irgendwann', 'Heute', 'Morgen'].includes(dayLabel)
 
   function handleSubmit(event: FormEvent) {
     event.preventDefault()

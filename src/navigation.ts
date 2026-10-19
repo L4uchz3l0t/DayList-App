@@ -6,7 +6,7 @@ export type ViewId = 'today' | 'week' | 'inbox' | 'all' | 'settings'
 export const NAV_ITEMS: { id: ViewId; label: string; shortLabel?: string; icon: IconName }[] = [
   { id: 'today', label: 'Heute', icon: 'today' },
   { id: 'week', label: 'Woche', icon: 'week' },
-  { id: 'inbox', label: 'Eingang', icon: 'inbox' },
+  { id: 'inbox', label: 'Irgendwann', icon: 'coffee' },
   { id: 'all', label: 'Alle', icon: 'all' },
   { id: 'settings', label: 'Einstellungen', shortLabel: 'Optionen', icon: 'settings' },
 ]

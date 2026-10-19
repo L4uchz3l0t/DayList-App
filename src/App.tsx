@@ -21,7 +21,7 @@ import './App.css'
 
 /** Rückmeldung nach dem Verschieben, besonders wenn die Aufgabe aus der aktuellen Ansicht verschwindet */
 function describeMove(plannedDate: string | undefined, todayKey: string): string {
-  if (plannedDate === undefined) return 'In den Eingang verschoben'
+  if (plannedDate === undefined) return 'Nach „Irgendwann“ verschoben'
   if (plannedDate === todayKey) return 'Für heute eingeplant'
   return `Verschoben auf ${formatWeekdayDate(plannedDate)}`
 }
@@ -34,7 +34,7 @@ function App() {
   }, [])
   const { tasks, status, reload, addTask, editTask, toggleTask, removeTask, undoRemove } = useTasks(showSaveError)
   const [activeView, setActiveView] = useState<ViewId>('today')
-  /** Vorgewählter Tag der offenen Schnellaufnahme ('' = Eingang), null = geschlossen */
+  /** Vorgewählter Tag der offenen Schnellaufnahme ('' = Irgendwann), null = geschlossen */
   const [quickAddDay, setQuickAddDay] = useState<string | null>(null)
   const [openTaskId, setOpenTaskId] = useState<string | null>(null)
   const [moveTaskId, setMoveTaskId] = useState<string | null>(null)

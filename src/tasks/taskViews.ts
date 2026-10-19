@@ -23,7 +23,7 @@ export function getOverdueTasks(tasks: Task[], todayKey: string): Task[] {
     .sort((a, b) => byPriority(a, b) || a.plannedDate!.localeCompare(b.plannedDate!))
 }
 
-/** Aufgaben im Eingang (ohne geplanten Tag), getrennt nach offen und erledigt. */
+/** Aufgaben unter Irgendwann (ohne geplanten Tag), getrennt nach offen und erledigt. */
 export function getInboxTasks(tasks: Task[]): { open: Task[]; done: Task[] } {
   const inbox = tasks.filter((task) => task.plannedDate === undefined)
   return {
@@ -71,9 +71,9 @@ export function getUpcomingTasks(tasks: Task[], todayKey: string): Task[] {
     .sort((a, b) => a.plannedDate!.localeCompare(b.plannedDate!) || byPriority(a, b))
 }
 
-/** Kurzer Name für einen geplanten Tag: "Eingang", "Heute", "Morgen" oder "21. Okt." */
+/** Kurzer Name für einen geplanten Tag: "Irgendwann", "Heute", "Morgen" oder "21. Okt." */
 export function describePlannedDay(dateKey: string | undefined, todayKey: string): string {
-  if (!dateKey) return 'Eingang'
+  if (!dateKey) return 'Irgendwann'
   if (dateKey === todayKey) return 'Heute'
   if (dateKey === toDateKey(addDays(parseDateKey(todayKey), 1))) return 'Morgen'
   return formatShortDate(dateKey)

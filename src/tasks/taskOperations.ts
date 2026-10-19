@@ -25,7 +25,7 @@ export interface NewTaskInput {
   priority?: TaskPriority
 }
 
-/** Erstellt eine neue, offene Aufgabe. Ohne geplanten Tag landet sie im Eingang. */
+/** Erstellt eine neue, offene Aufgabe. Ohne geplanten Tag landet sie unter Irgendwann. */
 export function createTask(input: NewTaskInput, now: string): Task {
   const task: Task = { id: createId(), title: input.title.trim(), status: 'open', createdAt: now, updatedAt: now }
   if (input.plannedDate) task.plannedDate = input.plannedDate
@@ -68,7 +68,7 @@ export function scheduleTask(tasks: Task[], id: string, dateKey: string, now: st
   return updateTask(tasks, id, { plannedDate: dateKey }, now)
 }
 
-/** Nimmt den geplanten Tag weg: Die Aufgabe liegt dann wieder im Eingang. */
+/** Nimmt den geplanten Tag weg: Die Aufgabe liegt dann wieder unter Irgendwann. */
 export function moveTaskToInbox(tasks: Task[], id: string, now: string): Task[] {
   return updateTask(tasks, id, { plannedDate: undefined }, now)
 }

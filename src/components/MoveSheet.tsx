@@ -7,7 +7,7 @@ import './MoveSheet.css'
 interface MoveSheetProps {
   task: Task
   todayKey: string
-  /** Neuer Tag als "JJJJ-MM-TT", leerer Text = zurück in den Eingang */
+  /** Neuer Tag als "JJJJ-MM-TT", leerer Text = zurück zu Irgendwann */
   onMove: (plannedDate: string) => void
   onClose: () => void
 }
@@ -48,7 +48,7 @@ export function MoveSheet({ task, todayKey, onMove, onClose }: MoveSheetProps) {
           className="chip"
           onClick={() => onMove('')}
         >
-          Eingang
+          Irgendwann
         </button>
       </div>
       <DateField

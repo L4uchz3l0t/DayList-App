@@ -10,7 +10,7 @@ import './TaskFields.css'
 */
 
 interface DayPickerProps {
-  /** Geplanter Tag als "JJJJ-MM-TT", leerer Text = Eingang */
+  /** Geplanter Tag als "JJJJ-MM-TT", leerer Text = Irgendwann (ohne Tag) */
   value: string
   onChange: (value: string) => void
   todayKey: string
@@ -18,11 +18,11 @@ interface DayPickerProps {
   showDateInput?: boolean
 }
 
-/** Auswahl des geplanten Tages: Eingang, Heute, Morgen und optional ein beliebiges Datum. */
+/** Auswahl des geplanten Tages: Irgendwann, Heute, Morgen und optional ein beliebiges Datum. */
 export function DayPicker({ value, onChange, todayKey, showDateInput = false }: DayPickerProps) {
   const labelId = useId()
   const options = [
-    { label: 'Eingang', value: '' },
+    { label: 'Irgendwann', value: '' },
     { label: 'Heute', value: todayKey },
     { label: 'Morgen', value: toDateKey(addDays(parseDateKey(todayKey), 1)) },
   ]
