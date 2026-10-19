@@ -86,7 +86,7 @@ export function QuickAdd({ todayKey, onSave, onClose }: QuickAddProps) {
 
         {showMore && (
           <div className="quick-add__extra">
-            <DueDateField value={dueDate} onChange={setDueDate} />
+            <DueDateField value={dueDate} onChange={setDueDate} todayKey={todayKey} />
             <ImportantToggle value={isImportant} onChange={setImportant} />
           </div>
         )}

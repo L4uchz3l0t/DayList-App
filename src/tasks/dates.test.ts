@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { addDays, toDateKey } from './dates'
+import { addDays, getMonthGrid, toDateKey } from './dates'
 
 describe('toDateKey', () => {
   it('nutzt die lokale Zeit und füllt mit Nullen auf', () => {
@@ -31,5 +31,24 @@ describe('addDays', () => {
     const date = new Date(2026, 9, 19)
     addDays(date, 3)
     expect(toDateKey(date)).toBe('2026-10-19')
+  })
+})
+
+describe('getMonthGrid', () => {
+  it('beginnt die Woche am Montag', () => {
+    // Der 1. Oktober 2026 ist ein Donnerstag: Mo, Di, Mi bleiben leer
+    const grid = getMonthGrid(2026, 9)
+    expect(grid.slice(0, 4)).toEqual([null, null, null, '2026-10-01'])
+    expect(grid.filter(Boolean)).toHaveLength(31)
+  })
+
+  it('kennt Schaltjahre', () => {
+    expect(getMonthGrid(2028, 1).filter(Boolean)).toHaveLength(29)
+    expect(getMonthGrid(2026, 1).filter(Boolean)).toHaveLength(28)
+  })
+
+  it('hat keine Leerfelder, wenn der Monat an einem Montag beginnt', () => {
+    // Der 1. Juni 2026 ist ein Montag
+    expect(getMonthGrid(2026, 5)[0]).toBe('2026-06-01')
   })
 })

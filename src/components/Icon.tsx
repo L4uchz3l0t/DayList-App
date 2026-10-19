@@ -10,6 +10,9 @@ const paths = {
   flag: 'M5 21V4M5 4h11l-2 4 2 4H5',
   close: 'M6 6l12 12M18 6 6 18',
   chevronDown: 'M6 9l6 6 6-6',
+  chevronLeft: 'M15 6l-6 6 6 6',
+  chevronRight: 'M9 6l6 6-6 6',
+  calendar: 'M4 7h16M4 7v12h16V7M4 7V5h16v2M8 3v4M16 3v4',
   moon: 'M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5Z',
   sun: 'M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4M12 7a5 5 0 1 0 0 10 5 5 0 0 0 0-10Z',
 } as const

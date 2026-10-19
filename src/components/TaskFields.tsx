@@ -1,5 +1,6 @@
 import { useId } from 'react'
 import { addDays, parseDateKey, toDateKey } from '../tasks/dates'
+import { DateField } from './DateField'
 import { Icon } from './Icon'
 import './TaskFields.css'
 
@@ -46,12 +47,12 @@ export function DayPicker({ value, onChange, todayKey, showDateInput = false }: 
         ))}
       </div>
       {showDateInput && (
-        <input
-          className="field task-field__date"
-          type="date"
-          aria-label="Anderer Tag"
+        <DateField
+          label="Anderer Tag"
+          placeholder="Anderer Tag …"
           value={value}
-          onChange={(event) => onChange(event.target.value)}
+          onChange={onChange}
+          todayKey={todayKey}
         />
       )}
     </div>
@@ -61,21 +62,16 @@ export function DayPicker({ value, onChange, todayKey, showDateInput = false }: 
 interface DueDateFieldProps {
   value: string
   onChange: (value: string) => void
+  todayKey: string
 }
 
 /** Verbindliche Frist, unabhängig vom geplanten Tag. Leer = keine Frist. */
-export function DueDateField({ value, onChange }: DueDateFieldProps) {
+export function DueDateField({ value, onChange, todayKey }: DueDateFieldProps) {
   return (
     <div className="task-field">
       <span className="task-field__label">Frist (verbindlich, optional)</span>
       <div className="task-field__row">
-        <input
-          className="field task-field__date"
-          type="date"
-          aria-label="Frist"
-          value={value}
-          onChange={(event) => onChange(event.target.value)}
-        />
+        <DateField label="Frist" placeholder="Keine Frist" value={value} onChange={onChange} todayKey={todayKey} />
         {value && (
           <button type="button" className="button button--secondary" onClick={() => onChange('')}>
             Keine Frist

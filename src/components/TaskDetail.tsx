@@ -47,7 +47,7 @@ export function TaskDetail({ task, todayKey, onSave, onToggle, onDelete, onClose
         </label>
 
         <DayPicker value={plannedDate} onChange={setPlannedDate} todayKey={todayKey} showDateInput />
-        <DueDateField value={dueDate} onChange={setDueDate} />
+        <DueDateField value={dueDate} onChange={setDueDate} todayKey={todayKey} />
         <ImportantToggle value={isImportant} onChange={setImportant} />
 
         <div className="task-detail__actions">

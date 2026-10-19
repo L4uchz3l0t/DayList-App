@@ -32,3 +32,27 @@ export function parseDateKey(dateKey: string): Date {
 export function formatShortDate(dateKey: string): string {
   return new Intl.DateTimeFormat('de-DE', { day: 'numeric', month: 'short' }).format(parseDateKey(dateKey))
 }
+
+/**
+ * Alle Tage eines Monats für eine Kalenderansicht, Woche beginnt am Montag.
+ * Leere Felder vor dem 1. des Monats sind `null`. `month` zählt ab 0 (Januar = 0).
+ */
+export function getMonthGrid(year: number, month: number): (string | null)[] {
+  const firstWeekday = (new Date(year, month, 1).getDay() + 6) % 7 // Montag = 0 ... Sonntag = 6
+  const daysInMonth = new Date(year, month + 1, 0).getDate()
+  const grid: (string | null)[] = Array.from({ length: firstWeekday }, () => null)
+  for (let day = 1; day <= daysInMonth; day++) {
+    grid.push(toDateKey(new Date(year, month, day)))
+  }
+  return grid
+}
+
+/** Zum Beispiel "Mo., 19. Okt. 2026" */
+export function formatFullDate(dateKey: string): string {
+  return new Intl.DateTimeFormat('de-DE', {
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  }).format(parseDateKey(dateKey))
+}
