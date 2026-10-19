@@ -19,21 +19,32 @@ function sampleTask(fields: Partial<Task> = {}): Task {
 
 describe('createTask', () => {
   it('legt eine offene Aufgabe ohne Datum im Eingang an', () => {
-    const task = createTask('  Milch kaufen  ', undefined, CREATED)
+    const task = createTask({ title: '  Milch kaufen  ' }, CREATED)
     expect(task.title).toBe('Milch kaufen')
     expect(task.status).toBe('open')
     expect(task.plannedDate).toBeUndefined()
+    expect('dueDate' in task).toBe(false)
+    expect('priority' in task).toBe(false)
     expect(task.createdAt).toBe(CREATED)
     expect(task.updatedAt).toBe(CREATED)
     expect(task.id).not.toBe('')
   })
 
-  it('übernimmt den geplanten Tag', () => {
-    expect(createTask('Arzt', '2026-10-20', CREATED).plannedDate).toBe('2026-10-20')
+  it('übernimmt Tag, Frist und Priorität aus der ausgeklappten Schnellaufnahme', () => {
+    const task = createTask({ title: 'Arzt', plannedDate: '2026-10-20', dueDate: '2026-10-24', priority: 'high' }, CREATED)
+    expect(task.plannedDate).toBe('2026-10-20')
+    expect(task.dueDate).toBe('2026-10-24')
+    expect(task.priority).toBe('high')
+  })
+
+  it('speichert leere Angaben nicht', () => {
+    const task = createTask({ title: 'Arzt', plannedDate: '', dueDate: '' }, CREATED)
+    expect('plannedDate' in task).toBe(false)
+    expect('dueDate' in task).toBe(false)
   })
 
   it('vergibt bei jeder Aufgabe eine neue ID', () => {
-    expect(createTask('A', undefined, CREATED).id).not.toBe(createTask('B', undefined, CREATED).id)
+    expect(createTask({ title: 'A' }, CREATED).id).not.toBe(createTask({ title: 'B' }, CREATED).id)
   })
 })
 

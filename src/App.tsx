@@ -2,11 +2,11 @@ import { useCallback, useState } from 'react'
 import { AddButton } from './components/AddButton'
 import { AppHeader } from './components/AppHeader'
 import { MainNav } from './components/MainNav'
-import { QuickAdd, type QuickAddTarget } from './components/QuickAdd'
+import { QuickAdd } from './components/QuickAdd'
 import { TaskDetail } from './components/TaskDetail'
 import { Toast, type ToastMessage } from './components/Toast'
 import { NAV_ITEMS, type ViewId } from './navigation'
-import { addDays, formatShortDate, toDateKey } from './tasks/dates'
+import { formatShortDate, toDateKey } from './tasks/dates'
 import type { TaskChanges } from './tasks/taskOperations'
 import { useTasks } from './tasks/useTasks'
 import { applyTheme, getInitialTheme, type Theme } from './theme'
@@ -38,12 +38,6 @@ function App() {
     const next = theme === 'dark' ? 'light' : 'dark'
     applyTheme(next)
     setTheme(next)
-  }
-
-  function handleQuickAdd(title: string, target: QuickAddTarget) {
-    const plannedDate =
-      target === 'today' ? todayKey : target === 'tomorrow' ? toDateKey(addDays(today, 1)) : undefined
-    addTask(title, plannedDate)
   }
 
   function handleSaveDetail(id: string, changes: TaskChanges) {
@@ -89,7 +83,7 @@ function App() {
       </main>
 
       <AddButton onClick={() => setQuickAddOpen(true)} />
-      {isQuickAddOpen && <QuickAdd onSave={handleQuickAdd} onClose={closeQuickAdd} />}
+      {isQuickAddOpen && <QuickAdd todayKey={todayKey} onSave={addTask} onClose={closeQuickAdd} />}
       {openTask && (
         <TaskDetail
           key={openTask.id}

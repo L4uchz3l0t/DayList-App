@@ -1,49 +1,63 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
+import { addDays, formatShortDate, parseDateKey, toDateKey } from '../tasks/dates'
+import type { NewTaskInput } from '../tasks/taskOperations'
+import { Icon } from './Icon'
 import { Sheet } from './Sheet'
+import { DayPicker, DueDateField, ImportantToggle } from './TaskFields'
 import './QuickAdd.css'
 
-export type QuickAddTarget = 'inbox' | 'today' | 'tomorrow'
-
-const TARGETS: { id: QuickAddTarget; label: string }[] = [
-  { id: 'inbox', label: 'Eingang' },
-  { id: 'today', label: 'Heute' },
-  { id: 'tomorrow', label: 'Morgen' },
-]
-
 interface QuickAddProps {
-  onSave: (title: string, target: QuickAddTarget) => void
+  todayKey: string
+  onSave: (input: NewTaskInput) => void
   onClose: () => void
 }
 
 /**
  * Schnellaufnahme: Titel tippen, Enter drücken, fertig.
  * Ohne Auswahl landet die Aufgabe im Eingang. Danach ist das Feld sofort wieder bereit.
+ * Unter "Mehr Optionen" gibt es dieselben Angaben wie in der Detailansicht.
  */
-export function QuickAdd({ onSave, onClose }: QuickAddProps) {
+export function QuickAdd({ todayKey, onSave, onClose }: QuickAddProps) {
   const [title, setTitle] = useState('')
-  const [target, setTarget] = useState<QuickAddTarget>('inbox')
-  const [savedTitle, setSavedTitle] = useState<string | null>(null)
+  const [plannedDate, setPlannedDate] = useState('')
+  const [dueDate, setDueDate] = useState('')
+  const [isImportant, setImportant] = useState(false)
+  const [showMore, setShowMore] = useState(false)
+  const [savedMessage, setSavedMessage] = useState<string | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     inputRef.current?.focus()
   }, [])
 
+  function describeDay(dateKey: string): string {
+    if (dateKey === '') return 'Eingang'
+    if (dateKey === todayKey) return 'Heute'
+    if (dateKey === toDateKey(addDays(parseDateKey(todayKey), 1))) return 'Morgen'
+    return formatShortDate(dateKey)
+  }
+
   function handleSubmit(event: FormEvent) {
     event.preventDefault()
     const trimmed = title.trim()
     if (trimmed === '') return
-    onSave(trimmed, target)
-    setSavedTitle(trimmed)
+    onSave({
+      title: trimmed,
+      plannedDate: plannedDate || undefined,
+      dueDate: dueDate || undefined,
+      priority: isImportant ? 'high' : undefined,
+    })
+    setSavedMessage(`✓ „${trimmed}“ gespeichert (${describeDay(plannedDate)})`)
+    // Titel, Frist und Wichtig gelten nur für diese Aufgabe, der Tag bleibt für die nächste stehen
     setTitle('')
+    setDueDate('')
+    setImportant(false)
     inputRef.current?.focus()
   }
 
-  const targetLabel = TARGETS.find((t) => t.id === target)?.label
-
   return (
     <Sheet title="Neue Aufgabe" onClose={onClose}>
-      <form onSubmit={handleSubmit}>
+      <form className="quick-add" onSubmit={handleSubmit}>
         <input
           ref={inputRef}
           className="field"
@@ -54,33 +68,37 @@ export function QuickAdd({ onSave, onClose }: QuickAddProps) {
           value={title}
           onChange={(event) => {
             setTitle(event.target.value)
-            setSavedTitle(null)
+            setSavedMessage(null)
           }}
         />
 
-        <div className="quick-add__row">
-          <div className="chips" role="radiogroup" aria-label="Wann?">
-            {TARGETS.map((t) => (
-              <button
-                key={t.id}
-                type="button"
-                role="radio"
-                aria-checked={target === t.id}
-                className="chip"
-                onClick={() => setTarget(t.id)}
-              >
-                {t.label}
-              </button>
-            ))}
+        <DayPicker value={plannedDate} onChange={setPlannedDate} todayKey={todayKey} showDateInput={showMore} />
+
+        <button
+          type="button"
+          className="quick-add__more"
+          aria-expanded={showMore}
+          onClick={() => setShowMore(!showMore)}
+        >
+          {showMore ? 'Weniger Optionen' : 'Mehr Optionen'}
+          <Icon name="chevronDown" size={18} />
+        </button>
+
+        {showMore && (
+          <div className="quick-add__extra">
+            <DueDateField value={dueDate} onChange={setDueDate} />
+            <ImportantToggle value={isImportant} onChange={setImportant} />
           </div>
+        )}
+
+        <div className="quick-add__footer">
+          <p className="quick-add__status" role="status">
+            {savedMessage ?? ''}
+          </p>
           <button type="submit" className="button button--primary" disabled={title.trim() === ''}>
             Speichern
           </button>
         </div>
-
-        <p className="quick-add__status" role="status">
-          {savedTitle ? `✓ „${savedTitle}“ gespeichert (${targetLabel})` : ''}
-        </p>
       </form>
     </Sheet>
   )

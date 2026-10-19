@@ -17,10 +17,20 @@ export interface TaskChanges {
   priority?: TaskPriority | undefined
 }
 
+/** Angaben für eine neue Aufgabe. Nur der Titel ist Pflicht. */
+export interface NewTaskInput {
+  title: string
+  plannedDate?: string
+  dueDate?: string
+  priority?: TaskPriority
+}
+
 /** Erstellt eine neue, offene Aufgabe. Ohne geplanten Tag landet sie im Eingang. */
-export function createTask(title: string, plannedDate: string | undefined, now: string): Task {
-  const task: Task = { id: createId(), title: title.trim(), status: 'open', createdAt: now, updatedAt: now }
-  if (plannedDate) task.plannedDate = plannedDate
+export function createTask(input: NewTaskInput, now: string): Task {
+  const task: Task = { id: createId(), title: input.title.trim(), status: 'open', createdAt: now, updatedAt: now }
+  if (input.plannedDate) task.plannedDate = input.plannedDate
+  if (input.dueDate) task.dueDate = input.dueDate
+  if (input.priority) task.priority = input.priority
   return task
 }
 

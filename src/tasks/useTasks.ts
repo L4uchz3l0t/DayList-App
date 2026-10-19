@@ -6,6 +6,7 @@ import {
   restoreTask,
   toggleTaskStatus,
   updateTask,
+  type NewTaskInput,
   type TaskChanges,
 } from './taskOperations'
 import type { Task } from './types'
@@ -20,8 +21,8 @@ const nowIso = () => new Date().toISOString()
 export function useTasks(today: Date) {
   const [tasks, setTasks] = useState<Task[]>(() => createSampleTasks(today))
 
-  const addTask = useCallback((title: string, plannedDate: string | undefined) => {
-    setTasks((current) => [...current, createTask(title, plannedDate, nowIso())])
+  const addTask = useCallback((input: NewTaskInput) => {
+    setTasks((current) => [...current, createTask(input, nowIso())])
   }, [])
 
   const editTask = useCallback((id: string, changes: TaskChanges) => {

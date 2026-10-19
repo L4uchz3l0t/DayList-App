@@ -1,9 +1,8 @@
 import { useState, type FormEvent } from 'react'
-import { addDays, parseDateKey, toDateKey } from '../tasks/dates'
 import type { TaskChanges } from '../tasks/taskOperations'
 import type { Task } from '../tasks/types'
-import { Icon } from './Icon'
 import { Sheet } from './Sheet'
+import { DayPicker, DueDateField, ImportantToggle } from './TaskFields'
 import './TaskDetail.css'
 
 interface TaskDetailProps {
@@ -26,7 +25,6 @@ export function TaskDetail({ task, todayKey, onSave, onToggle, onDelete, onClose
   const [isImportant, setImportant] = useState(task.priority === 'high')
   const [confirmDelete, setConfirmDelete] = useState(false)
 
-  const tomorrowKey = toDateKey(addDays(parseDateKey(todayKey), 1))
   const isDone = task.status === 'done'
 
   function handleSubmit(event: FormEvent) {
@@ -40,75 +38,17 @@ export function TaskDetail({ task, todayKey, onSave, onToggle, onDelete, onClose
     })
   }
 
-  const dayOptions = [
-    { label: 'Eingang', value: '' },
-    { label: 'Heute', value: todayKey },
-    { label: 'Morgen', value: tomorrowKey },
-  ]
-
   return (
     <Sheet title="Aufgabe bearbeiten" onClose={onClose}>
       <form className="task-detail" onSubmit={handleSubmit}>
-        <label className="task-detail__group">
-          <span className="task-detail__label">Titel</span>
+        <label className="task-field">
+          <span className="task-field__label">Titel</span>
           <input className="field" type="text" value={title} onChange={(event) => setTitle(event.target.value)} />
         </label>
 
-        <div className="task-detail__group">
-          <span className="task-detail__label" id="planned-label">
-            Geplant für
-          </span>
-          <div className="chips" role="radiogroup" aria-labelledby="planned-label">
-            {dayOptions.map((option) => (
-              <button
-                key={option.label}
-                type="button"
-                role="radio"
-                aria-checked={plannedDate === option.value}
-                className="chip"
-                onClick={() => setPlannedDate(option.value)}
-              >
-                {option.label}
-              </button>
-            ))}
-          </div>
-          <input
-            className="field task-detail__date"
-            type="date"
-            aria-label="Anderer Tag"
-            value={plannedDate}
-            onChange={(event) => setPlannedDate(event.target.value)}
-          />
-        </div>
-
-        <div className="task-detail__group">
-          <span className="task-detail__label">Frist (verbindlich, optional)</span>
-          <div className="task-detail__row">
-            <input
-              className="field task-detail__date"
-              type="date"
-              aria-label="Frist"
-              value={dueDate}
-              onChange={(event) => setDueDate(event.target.value)}
-            />
-            {dueDate && (
-              <button type="button" className="button button--secondary" onClick={() => setDueDate('')}>
-                Keine Frist
-              </button>
-            )}
-          </div>
-        </div>
-
-        <div className="task-detail__group">
-          <button
-            type="button"
-            className="chip task-detail__important"
-            aria-pressed={isImportant}
-            onClick={() => setImportant(!isImportant)}
-          >
-            <Icon name="flag" size={14} /> Wichtig
-          </button>
-        </div>
+        <DayPicker value={plannedDate} onChange={setPlannedDate} todayKey={todayKey} showDateInput />
+        <DueDateField value={dueDate} onChange={setDueDate} />
+        <ImportantToggle value={isImportant} onChange={setImportant} />
 
         <div className="task-detail__actions">
           <button type="submit" className="button button--primary" disabled={title.trim() === ''}>
