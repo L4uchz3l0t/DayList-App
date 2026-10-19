@@ -1,24 +1,95 @@
 /*
   Designsystem: alle Farben, Abstände, Rundungen und Schriftgrößen an einer Stelle.
-  Komponenten verwenden nur diese Variablen, damit das Aussehen einheitlich bleibt
-  und später ein dunkles Design einfach ergänzt werden kann.
+  Komponenten verwenden nur diese Variablen. Das helle und das dunkle Design
+  unterscheiden sich nur hier, nicht in den einzelnen Komponenten.
+
+  Farbrollen:
+  - accent:  Violett, für Heute, Navigation und Schaltflächen
+  - warm:    Koralle, zweite Akzentfarbe im Verlauf von Plus-Button und Fortschritt
+  - danger:  Rot, für Überfälliges
+  - warning: Bernstein, für Fristen und wichtige Aufgaben
+  - success: Grün, für Erledigtes
 */
 :root {
-  /* Farben */
-  --color-bg: #f6f7f9;
-  --color-surface: #ffffff;
-  --color-surface-muted: #eef0f3;
-  --color-border: #e1e4e8;
-  --color-text: #1d2433;
-  --color-text-muted: #667085;
-  --color-accent: #4f6bed;
-  --color-accent-soft: #e8ecfd;
-  --color-on-accent: #ffffff;
-  --color-danger: #c4423b;
-  --color-danger-soft: #fbeceb;
-  --color-warning: #b7791f;
-  --color-success: #2f9e6e;
+  color-scheme: light;
 
+  --color-bg: #f4f0e8;
+  --color-surface: #fffdf9;
+  --color-surface-muted: #ebe5da;
+  --color-border: #e2dacb;
+  --color-text: #1c1a26;
+  --color-text-muted: #6f6a7d;
+  --color-on-accent: #ffffff;
+
+  --color-accent: #6b4ef0;
+  --color-accent-soft: #ece7ff;
+  --color-warm: #ff6a3d;
+  --color-danger: #e0384c;
+  --color-danger-soft: #ffe8ea;
+  --color-warning: #c27c00;
+  --color-warning-soft: #fff1d6;
+  --color-success: #23a26d;
+  --color-success-soft: #e0f5ea;
+
+  --gradient-brand: linear-gradient(135deg, var(--color-accent), var(--color-warm));
+
+  --shadow-sm: 0 1px 2px rgb(40 30 20 / 6%), 0 2px 8px rgb(40 30 20 / 5%);
+  --shadow-lg: 0 10px 28px rgb(107 78 240 / 30%);
+  --backdrop: rgb(28 26 38 / 40%);
+}
+
+/* Dunkles Design: automatisch, wenn das Gerät dunkel eingestellt ist,
+   außer man hat in der App ausdrücklich "hell" gewählt. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+
+    --color-bg: #121019;
+    --color-surface: #1d1a27;
+    --color-surface-muted: #2a2637;
+    --color-border: #312c41;
+    --color-text: #f3f0fa;
+    --color-text-muted: #a39db5;
+    --color-accent: #9b85ff;
+    --color-accent-soft: #2b2450;
+    --color-warm: #ff7d55;
+    --color-danger: #ff6b7d;
+    --color-danger-soft: #3a1c26;
+    --color-warning: #f5b740;
+    --color-warning-soft: #3a2d14;
+    --color-success: #3ccf8e;
+    --color-success-soft: #15342a;
+    --shadow-sm: 0 1px 2px rgb(0 0 0 / 30%);
+    --shadow-lg: 0 10px 28px rgb(155 133 255 / 25%);
+    --backdrop: rgb(0 0 0 / 55%);
+  }
+}
+
+:root[data-theme='dark'] {
+  /* Gleiche Werte wie oben: für die ausdrückliche Wahl "dunkel" in der App */
+  color-scheme: dark;
+
+  --color-bg: #121019;
+  --color-surface: #1d1a27;
+  --color-surface-muted: #2a2637;
+  --color-border: #312c41;
+  --color-text: #f3f0fa;
+  --color-text-muted: #a39db5;
+  --color-accent: #9b85ff;
+  --color-accent-soft: #2b2450;
+  --color-warm: #ff7d55;
+  --color-danger: #ff6b7d;
+  --color-danger-soft: #3a1c26;
+  --color-warning: #f5b740;
+  --color-warning-soft: #3a2d14;
+  --color-success: #3ccf8e;
+  --color-success-soft: #15342a;
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 30%);
+  --shadow-lg: 0 10px 28px rgb(155 133 255 / 25%);
+  --backdrop: rgb(0 0 0 / 55%);
+}
+
+:root {
   /* Abstände */
   --space-1: 4px;
   --space-2: 8px;
@@ -28,24 +99,21 @@
   --space-6: 32px;
 
   /* Rundungen */
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 20px;
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
   --radius-full: 999px;
 
-  /* Schrift */
-  --font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  /* Schrift: eigene Schriftart mit Charakter, Systemschrift als Ersatz */
+  --font-family: 'Bricolage Grotesque Variable', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --font-size-sm: 0.875rem;
-  --font-size-md: 1rem;
-  --font-size-lg: 1.25rem;
-  --font-size-xl: 1.75rem;
-
-  /* Schatten */
-  --shadow-sm: 0 1px 2px rgb(16 24 40 / 6%);
-  --shadow-lg: 0 8px 24px rgb(16 24 40 / 16%);
+  --font-size-md: 1.0625rem;
+  --font-size-lg: 1.375rem;
+  --font-size-xl: 2rem;
+  --font-size-display: 4.5rem;
 
   /* Größen */
   --tap-size: 44px;
   --content-width: 40rem;
-  --nav-height: 64px;
+  --nav-height: 68px;
 }

@@ -1,12 +1,18 @@
+/* Handy: schwebende Leiste unten mit runden Ecken */
 .main-nav {
   position: fixed;
-  inset: auto 0 0 0;
+  right: var(--space-3);
+  bottom: calc(var(--space-3) + env(safe-area-inset-bottom));
+  left: var(--space-3);
   z-index: 10;
   display: flex;
-  height: calc(var(--nav-height) + env(safe-area-inset-bottom));
-  padding-bottom: env(safe-area-inset-bottom);
+  gap: var(--space-1);
+  height: var(--nav-height);
+  padding: var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
   background: var(--color-surface);
-  border-top: 1px solid var(--color-border);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 12%);
 }
 
 .main-nav__item {
@@ -19,11 +25,13 @@
   min-width: 0;
   padding: var(--space-1);
   border: none;
+  border-radius: var(--radius-md);
   background: none;
   color: var(--color-text-muted);
 }
 
 .main-nav__item[aria-current='page'] {
+  background: var(--color-accent-soft);
   color: var(--color-accent);
 }
 
@@ -31,21 +39,23 @@
   max-width: 100%;
   overflow: hidden;
   font-size: 0.6875rem;
+  font-weight: 600;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.main-nav__label--long {
+  display: none;
 }
 
 /* Große Bildschirme: Navigation als Seitenleiste links */
 @media (min-width: 768px) {
   .main-nav {
-    inset: 0 auto 0 0;
+    inset: var(--space-4) auto var(--space-4) var(--space-4);
     flex-direction: column;
-    gap: var(--space-1);
-    width: 220px;
+    width: 200px;
     height: auto;
-    padding: var(--space-6) var(--space-3);
-    border-top: none;
-    border-right: 1px solid var(--color-border);
+    padding: var(--space-3);
   }
 
   .main-nav__item {
@@ -53,19 +63,22 @@
     flex-direction: row;
     justify-content: flex-start;
     gap: var(--space-3);
-    padding: var(--space-2) var(--space-3);
-    border-radius: var(--radius-sm);
+    padding: var(--space-3);
   }
 
-  .main-nav__item:hover {
+  .main-nav__item:hover:not([aria-current='page']) {
     background: var(--color-surface-muted);
-  }
-
-  .main-nav__item[aria-current='page'] {
-    background: var(--color-accent-soft);
   }
 
   .main-nav__label {
     font-size: var(--font-size-md);
+  }
+
+  .main-nav__label--short {
+    display: none;
+  }
+
+  .main-nav__label--long {
+    display: inline;
   }
 }

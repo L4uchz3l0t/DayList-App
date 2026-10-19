@@ -1,23 +1,24 @@
+/* Jede Aufgabe ist eine eigene Karte mit farbigem Rand links (Farbe kommt vom Bereich) */
 .task-item {
   display: flex;
   align-items: flex-start;
   gap: var(--space-3);
-  padding: var(--space-3) var(--space-4);
-  background: var(--color-surface);
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-left: 5px solid var(--tone, var(--color-accent));
+  border-radius: var(--radius-md);
+  background: var(--tone-soft, var(--color-surface));
+  box-shadow: var(--shadow-sm);
 }
 
-.task-item + .task-item {
-  border-top: 1px solid var(--color-border);
-}
-
-/* Der Kreis ist klein, die Tippfläche aber mindestens 44 × 44 Pixel groß */
+/* Der Kreis ist sichtbar 26px groß, die Tippfläche aber mindestens 44 × 44 Pixel */
 .task-item__check {
   flex: none;
   display: grid;
   place-items: center;
   width: var(--tap-size);
   height: var(--tap-size);
-  margin: calc((var(--tap-size) - 24px) / -2);
+  margin: calc((var(--tap-size) - 26px) / -2);
   padding: 0;
   border: none;
   background: none;
@@ -27,20 +28,25 @@
 .task-item__check::before {
   content: '';
   grid-area: 1 / 1;
-  width: 24px;
-  height: 24px;
-  border: 2px solid var(--color-border);
+  width: 26px;
+  height: 26px;
+  border: 2.5px solid var(--tone, var(--color-accent));
   border-radius: var(--radius-full);
   background: var(--color-surface);
+  transition: background-color 0.15s ease;
 }
 
 .task-item__check:hover::before {
-  border-color: var(--color-accent);
+  background: var(--color-surface-muted);
 }
 
 .task-item__check svg {
   grid-area: 1 / 1;
   z-index: 1;
+}
+
+.task-item--done {
+  box-shadow: none;
 }
 
 .task-item--done .task-item__check::before {
@@ -53,10 +59,11 @@
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
+  gap: var(--space-2);
 }
 
 .task-item__title {
+  font-weight: 500;
   overflow-wrap: anywhere;
 }
 
@@ -71,22 +78,28 @@
   gap: var(--space-2);
 }
 
+/* Kleine farbige Etiketten unter dem Titel */
 .task-item__tag {
   display: inline-flex;
   align-items: center;
-  gap: 2px;
-  font-size: 0.75rem;
-  font-weight: 500;
+  gap: 3px;
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-full);
+  font-size: 0.8125rem;
+  font-weight: 600;
 }
 
 .task-item__tag--overdue {
+  background: var(--color-surface);
   color: var(--color-danger);
 }
 
 .task-item__tag--due {
+  background: var(--color-warning-soft);
   color: var(--color-warning);
 }
 
 .task-item__tag--priority {
-  color: var(--color-accent);
+  background: color-mix(in srgb, var(--color-warm) 16%, transparent);
+  color: var(--color-warm);
 }

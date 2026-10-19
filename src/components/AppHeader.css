@@ -2,15 +2,59 @@
   padding: var(--space-5) 0 var(--space-4);
 }
 
+.app-header__top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
 .app-header__date {
-  margin: 0;
-  font-size: var(--font-size-sm);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+/* Die große Tageszahl ist das Erkennungszeichen der App */
+.app-header__day {
+  font-size: var(--font-size-display);
+  font-weight: 800;
+  line-height: 0.9;
+  letter-spacing: -0.04em;
+  background: var(--gradient-brand);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+.app-header__date-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.app-header__weekday {
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+}
+
+.app-header__month {
   color: var(--color-text-muted);
 }
 
+.app-header__theme {
+  display: grid;
+  place-items: center;
+  width: var(--tap-size);
+  height: var(--tap-size);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
 .app-header__title {
-  margin: 0;
+  margin: var(--space-4) 0 0;
   font-size: var(--font-size-xl);
-  font-weight: 700;
-  letter-spacing: -0.01em;
+  font-weight: 800;
+  letter-spacing: -0.02em;
 }

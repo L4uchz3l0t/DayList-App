@@ -1,15 +1,31 @@
 .day-progress {
   margin-bottom: var(--space-5);
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.day-progress__row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: var(--space-3);
 }
 
 .day-progress__label {
-  margin-bottom: var(--space-2);
-  font-size: var(--font-size-sm);
-  color: var(--color-text-muted);
+  font-weight: 600;
+}
+
+.day-progress__percent {
+  font-size: var(--font-size-lg);
+  font-weight: 800;
+  color: var(--color-accent);
 }
 
 .day-progress__track {
-  height: 8px;
+  height: 12px;
   overflow: hidden;
   border-radius: var(--radius-full);
   background: var(--color-surface-muted);
@@ -18,6 +34,6 @@
 .day-progress__bar {
   height: 100%;
   border-radius: inherit;
-  background: var(--color-success);
-  transition: width 0.2s ease;
+  background: var(--gradient-brand);
+  transition: width 0.3s ease;
 }

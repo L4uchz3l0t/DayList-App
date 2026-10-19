@@ -2,13 +2,13 @@
   max-width: var(--content-width);
   margin: 0 auto;
   /* Platz unten, damit Navigation und Plus-Button nichts verdecken */
-  padding: 0 var(--space-4) calc(var(--nav-height) + 96px);
+  padding: 0 var(--space-4) calc(var(--nav-height) + 120px);
 }
 
 /* Große Bildschirme: rechts neben der Seitenleiste (220px breit) */
 @media (min-width: 768px) {
   .app {
-    padding-left: 220px;
+    padding-left: 232px;
   }
 
   .app__main {

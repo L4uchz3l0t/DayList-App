@@ -47,6 +47,7 @@ export function TodayView({ tasks, todayKey, onToggle }: TodayViewProps) {
       {doneToday.length > 0 && (
         <TaskSection
           title="Erledigt"
+          tone="success"
           tasks={showDone ? doneToday : []}
           count={doneToday.length}
           todayKey={todayKey}

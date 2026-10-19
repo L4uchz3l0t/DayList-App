@@ -20,7 +20,8 @@ export function MainNav({ activeView, onSelect }: MainNavProps) {
           onClick={() => onSelect(item.id)}
         >
           <Icon name={item.icon} />
-          <span className="main-nav__label">{item.label}</span>
+          <span className="main-nav__label main-nav__label--short">{item.shortLabel ?? item.label}</span>
+          <span className="main-nav__label main-nav__label--long">{item.label}</span>
         </button>
       ))}
     </nav>

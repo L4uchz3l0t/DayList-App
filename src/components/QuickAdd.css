@@ -5,7 +5,7 @@
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  background: rgb(16 24 40 / 35%);
+  background: var(--backdrop);
 }
 
 .quick-add {
@@ -38,6 +38,7 @@
 .quick-add__heading {
   margin: 0;
   font-size: var(--font-size-lg);
+  font-weight: 800;
 }
 
 .quick-add__close {
@@ -103,9 +104,9 @@
   padding: 0 var(--space-5);
   border: none;
   border-radius: var(--radius-md);
-  background: var(--color-accent);
+  background: var(--gradient-brand);
   color: var(--color-on-accent);
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .quick-add__save:disabled {

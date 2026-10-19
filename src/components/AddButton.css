@@ -1,21 +1,22 @@
 .add-button {
   position: fixed;
   right: var(--space-5);
-  bottom: calc(var(--nav-height) + env(safe-area-inset-bottom) + var(--space-4));
+  bottom: calc(var(--nav-height) + env(safe-area-inset-bottom) + var(--space-6));
   z-index: 20;
   display: grid;
   place-items: center;
-  width: 56px;
-  height: 56px;
+  width: 60px;
+  height: 60px;
   border: none;
-  border-radius: var(--radius-full);
-  background: var(--color-accent);
+  border-radius: 20px;
+  background: var(--gradient-brand);
   color: var(--color-on-accent);
   box-shadow: var(--shadow-lg);
+  transition: transform 0.15s ease;
 }
 
 .add-button:hover {
-  filter: brightness(1.08);
+  transform: translateY(-2px);
 }
 
 @media (min-width: 768px) {

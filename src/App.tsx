@@ -8,6 +8,7 @@ import { createId } from './tasks/createId'
 import { addDays, toDateKey } from './tasks/dates'
 import { createSampleTasks } from './tasks/sampleTasks'
 import type { Task } from './tasks/types'
+import { applyTheme, getInitialTheme, type Theme } from './theme'
 import { PlaceholderView } from './views/PlaceholderView'
 import { TodayView } from './views/TodayView'
 import './App.css'
@@ -18,6 +19,13 @@ function App() {
   const [tasks, setTasks] = useState<Task[]>(() => createSampleTasks(today))
   const [activeView, setActiveView] = useState<ViewId>('today')
   const [isQuickAddOpen, setQuickAddOpen] = useState(false)
+  const [theme, setTheme] = useState<Theme>(getInitialTheme)
+
+  function toggleTheme() {
+    const next = theme === 'dark' ? 'light' : 'dark'
+    applyTheme(next)
+    setTheme(next)
+  }
 
   const todayKey = toDateKey(today)
   const closeQuickAdd = useCallback(() => setQuickAddOpen(false), [])
@@ -48,7 +56,7 @@ function App() {
       <MainNav activeView={activeView} onSelect={setActiveView} />
 
       <main className="app__main">
-        <AppHeader title={viewTitle} today={today} />
+        <AppHeader title={viewTitle} today={today} theme={theme} onToggleTheme={toggleTheme} />
         {activeView === 'today' ? (
           <TodayView tasks={tasks} todayKey={todayKey} onToggle={toggleTask} />
         ) : (
