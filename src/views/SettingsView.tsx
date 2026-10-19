@@ -12,9 +12,9 @@ interface SettingsViewProps {
 export function SettingsView({ themePreference, onThemeChange }: SettingsViewProps) {
   const { t, language, setLanguage } = useI18n()
   const themes: { value: ThemePreference; label: string }[] = [
-    { value: 'system', label: t.settings.designSystem },
     { value: 'light', label: t.settings.designLight },
     { value: 'dark', label: t.settings.designDark },
+    { value: 'system', label: t.settings.designSystem },
   ]
 
   return (

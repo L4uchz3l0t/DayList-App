@@ -11,9 +11,9 @@
     <script>
       // Gewähltes Design sofort setzen, bevor die Seite gezeichnet wird (kein kurzes Aufblitzen)
       try {
-        var stored = localStorage.getItem('theme')
-        var dark = stored ? stored === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches
-        if (stored) document.documentElement.dataset.theme = stored
+        var stored = localStorage.getItem('theme') || 'light'
+        var dark = stored === 'system' ? matchMedia('(prefers-color-scheme: dark)').matches : stored === 'dark'
+        document.documentElement.dataset.theme = stored
         document.querySelector('meta[name="theme-color"]').content = dark ? '#121019' : '#f4f0e8'
       } catch (e) {}
     </script>

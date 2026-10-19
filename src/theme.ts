@@ -7,15 +7,15 @@ const STORAGE_KEY = 'theme'
 /** Farbe der Statusleiste auf dem Handy, passend zum Hintergrund des Designs */
 const THEME_COLORS: Record<Theme, string> = { light: '#f4f0e8', dark: '#121019' }
 
-/** Liest die gespeicherte Wahl. Ohne gespeicherte Wahl gilt die Einstellung des Geräts. */
+/** Liest die gespeicherte Wahl. Ohne gespeicherte Wahl ist die App hell. */
 export function getThemePreference(): ThemePreference {
   try {
     const stored = localStorage.getItem(STORAGE_KEY)
-    if (stored === 'light' || stored === 'dark') return stored
+    if (stored === 'light' || stored === 'dark' || stored === 'system') return stored
   } catch {
-    // Speicher nicht verfügbar (zum Beispiel im privaten Modus): Geräteeinstellung verwenden
+    // Speicher nicht verfügbar (zum Beispiel im privaten Modus): helles Design verwenden
   }
-  return 'system'
+  return 'light'
 }
 
 /** Das tatsächlich sichtbare Design */
@@ -27,12 +27,10 @@ export function resolveTheme(preference: ThemePreference): Theme {
 /** Setzt das Design auf der Seite und merkt sich die Wahl auf diesem Gerät. */
 export function applyThemePreference(preference: ThemePreference) {
   const root = document.documentElement
-  if (preference === 'system') delete root.dataset.theme
-  else root.dataset.theme = preference
+  root.dataset.theme = preference
   document.querySelector('meta[name="theme-color"]')?.setAttribute('content', THEME_COLORS[resolveTheme(preference)])
   try {
-    if (preference === 'system') localStorage.removeItem(STORAGE_KEY)
-    else localStorage.setItem(STORAGE_KEY, preference)
+    localStorage.setItem(STORAGE_KEY, preference)
   } catch {
     // Wahl gilt dann nur bis zum Neuladen
   }
