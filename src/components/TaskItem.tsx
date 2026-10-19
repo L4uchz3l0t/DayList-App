@@ -1,6 +1,7 @@
 import { formatShortDate } from '../tasks/dates'
 import { describePlannedDay, isOverdue as checkOverdue } from '../tasks/taskViews'
 import type { Task } from '../tasks/types'
+import type { DraggableSyntheticListeners } from '@dnd-kit/core'
 import { Icon } from './Icon'
 import './TaskItem.css'
 
@@ -13,6 +14,12 @@ interface TaskItemProps {
   onMove?: (id: string) => void
   /** Geplanten Tag als Etikett zeigen (zum Beispiel in "Alle", wo Aufgaben verschiedener Tage gemischt sind) */
   showPlannedDate?: boolean
+  /** Nur in der Woche: macht die Karte zum Ziehen und Ablegen bereit (siehe DraggableTaskItem) */
+  drag?: {
+    setNodeRef: (element: HTMLElement | null) => void
+    listeners: DraggableSyntheticListeners
+    isDragging: boolean
+  }
 }
 
 /**
@@ -21,7 +28,15 @@ interface TaskItemProps {
  * Überfällige Aufgaben zeigen immer nur ihren ursprünglich geplanten Tag.
  * Die Frist erscheint nicht in der Liste, sondern später in der Detailansicht.
  */
-export function TaskItem({ task, todayKey, onToggle, onOpen, onMove, showPlannedDate = false }: TaskItemProps) {
+export function TaskItem({
+  task,
+  todayKey,
+  onToggle,
+  onOpen,
+  onMove,
+  showPlannedDate = false,
+  drag,
+}: TaskItemProps) {
   const isDone = task.status === 'done'
   const isOverdue = checkOverdue(task, todayKey)
   // "Wichtig" ist bei Überfälligem überflüssig, die rote Markierung reicht
@@ -29,7 +44,11 @@ export function TaskItem({ task, todayKey, onToggle, onOpen, onMove, showPlanned
   const showDate = showPlannedDate && !isOverdue && task.plannedDate !== undefined
 
   return (
-    <li className={`task-item${isDone ? ' task-item--done' : ''}`}>
+    <li
+      ref={drag?.setNodeRef}
+      className={`task-item${isDone ? ' task-item--done' : ''}${drag ? ' task-item--draggable' : ''}${drag?.isDragging ? ' task-item--dragging' : ''}`}
+      {...drag?.listeners}
+    >
       <button
         type="button"
         role="checkbox"

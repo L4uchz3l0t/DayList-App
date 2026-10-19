@@ -93,7 +93,7 @@ function App() {
       case 'today':
         return <TodayView {...viewProps} onAdd={() => setQuickAddDay(todayKey)} />
       case 'week':
-        return <WeekView {...viewProps} onAdd={setQuickAddDay} />
+        return <WeekView {...viewProps} onMoveTo={handleMove} onAdd={setQuickAddDay} />
       case 'inbox':
         return <InboxView {...viewProps} onAdd={() => setQuickAddDay('')} />
       case 'all':

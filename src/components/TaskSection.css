@@ -63,12 +63,33 @@
   list-style: none;
 }
 
-.task-section__toggle {
-  min-height: 32px;
-  padding: 0 var(--space-2);
+/* Ganze Überschriftenzeile ist antippbar, der Pfeil zeigt den Zustand */
+.task-section__title:has(.task-section__collapse) {
+  flex: 1;
+}
+
+.task-section__collapse {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--tap-size);
+  margin: calc((var(--tap-size) - 1.5em) / -2) 0;
+  padding: 0;
   border: none;
-  border-radius: var(--radius-sm);
   background: none;
-  color: var(--color-accent);
-  font-size: var(--font-size-sm);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+}
+
+.task-section__chevron {
+  display: grid;
+  margin-left: auto;
+  color: var(--color-text-muted);
+  transition: transform 0.15s ease;
+}
+
+.task-section__collapse[aria-expanded='false'] .task-section__chevron {
+  transform: rotate(-90deg);
 }

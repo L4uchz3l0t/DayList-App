@@ -132,3 +132,15 @@
   background: var(--color-surface-muted);
   color: var(--tone, var(--color-accent));
 }
+
+/* Ziehen und Ablegen (Woche): kein Textmarkieren oder Kontextmenü beim langen Drücken */
+.task-item--draggable {
+  -webkit-touch-callout: none;
+  user-select: none;
+  touch-action: manipulation;
+}
+
+/* Die Karte bleibt am alten Platz blass stehen, während die Kopie mit dem Finger mitwandert */
+.task-item--dragging {
+  opacity: 0.35;
+}

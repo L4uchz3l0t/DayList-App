@@ -35,6 +35,7 @@ export function TodayView({ tasks, todayKey, onToggle, onOpen, onMove, onAdd }: 
           onToggle={onToggle}
           onOpen={onOpen}
           onMove={onMove}
+          collapsible={{ storageKey: 'today-overdue' }}
         />
       )}
 
@@ -52,10 +53,11 @@ export function TodayView({ tasks, todayKey, onToggle, onOpen, onMove, onAdd }: 
           onToggle={onToggle}
           onOpen={onOpen}
           onMove={onMove}
+          collapsible={{ storageKey: 'today-open' }}
         />
       )}
 
-      <DoneSection tasks={doneToday} todayKey={todayKey} onToggle={onToggle} onOpen={onOpen} />
+      <DoneSection storageKey="today-done" tasks={doneToday} todayKey={todayKey} onToggle={onToggle} onOpen={onOpen} />
     </div>
   )
 }

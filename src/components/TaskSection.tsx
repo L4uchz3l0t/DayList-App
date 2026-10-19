@@ -1,6 +1,9 @@
 import type { ReactNode } from 'react'
 import type { Task } from '../tasks/types'
+import { DraggableTaskItem } from './DraggableTaskItem'
+import { Icon } from './Icon'
 import { TaskItem } from './TaskItem'
+import { useCollapsed } from './useCollapsed'
 import './TaskSection.css'
 
 /** Farbe eines Bereichs: Rot für Überfälliges, Violett für Geplantes, Grün für Erledigtes */
@@ -21,6 +24,10 @@ interface TaskSectionProps {
   showPlannedDate?: boolean
   /** Zusätzlicher Inhalt unter der Liste, zum Beispiel ein Hinweis oder Fristen */
   children?: ReactNode
+  /** Überschrift antippen klappt den Bereich ein und aus. Der Zustand wird unter `storageKey` gemerkt. */
+  collapsible?: { storageKey: string; defaultCollapsed?: boolean }
+  /** Karten lassen sich ziehen (nur innerhalb eines DndContext, zum Beispiel in der Woche) */
+  draggable?: boolean
 }
 
 /** Eine Überschrift mit einer Liste von Aufgaben darunter. */
@@ -36,20 +43,50 @@ export function TaskSection({
   onMove,
   showPlannedDate,
   children,
+  collapsible,
+  draggable = false,
 }: TaskSectionProps) {
+  const [isCollapsed, toggleCollapsed] = useCollapsed(
+    collapsible?.storageKey ?? '',
+    collapsible?.defaultCollapsed ?? false,
+  )
+  const collapsed = collapsible !== undefined && isCollapsed
+
+  const Item = draggable ? DraggableTaskItem : TaskItem
+
+  const heading = (
+    <>
+      <span className="task-section__dot" aria-hidden="true" />
+      {title} <span className="task-section__count">{count ?? tasks.length}</span>
+    </>
+  )
+
   return (
     <section className={`task-section task-section--${tone}`}>
       <div className="task-section__header">
         <h2 className="task-section__title">
-          <span className="task-section__dot" aria-hidden="true" />
-          {title} <span className="task-section__count">{count ?? tasks.length}</span>
+          {collapsible ? (
+            <button
+              type="button"
+              className="task-section__collapse"
+              aria-expanded={!collapsed}
+              onClick={toggleCollapsed}
+            >
+              {heading}
+              <span className="task-section__chevron" aria-hidden="true">
+                <Icon name="chevronDown" size={20} />
+              </span>
+            </button>
+          ) : (
+            heading
+          )}
         </h2>
         {action}
       </div>
-      {tasks.length > 0 && (
+      {!collapsed && tasks.length > 0 && (
         <ul className="task-section__list">
           {tasks.map((task) => (
-            <TaskItem
+            <Item
               key={task.id}
               task={task}
               todayKey={todayKey}
@@ -61,7 +98,7 @@ export function TaskSection({
           ))}
         </ul>
       )}
-      {children}
+      {!collapsed && children}
     </section>
   )
 }

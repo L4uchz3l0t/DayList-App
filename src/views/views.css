@@ -5,6 +5,36 @@
   color: var(--color-text-muted);
 }
 
+/* Woche: jeder Tag ist eine Ablagefläche fürs Ziehen */
+.week-view__day {
+  margin: 0 calc(var(--space-2) * -1);
+  padding: var(--space-2) var(--space-2) 0;
+  border: 2px solid transparent;
+  border-radius: var(--radius-lg);
+  transition: background-color 0.15s, border-color 0.15s;
+}
+
+.week-view__day > .task-section {
+  margin-bottom: var(--space-3);
+}
+
+.week-view__day--over {
+  border-color: var(--color-accent);
+  background: var(--color-accent-soft);
+}
+
+.week-view__overlay {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.week-view__overlay .task-item {
+  box-shadow: var(--shadow-lg);
+  transform: rotate(-1.5deg);
+  cursor: grabbing;
+}
+
 /* Woche: Plus-Knopf neben jedem Tag */
 .week-view__add {
   display: grid;

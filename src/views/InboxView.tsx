@@ -39,7 +39,7 @@ export function InboxView({ tasks, todayKey, onToggle, onOpen, onMove, onAdd }: 
         />
       )}
 
-      <DoneSection tasks={inbox.done} todayKey={todayKey} onToggle={onToggle} onOpen={onOpen} />
+      <DoneSection storageKey="someday-done" tasks={inbox.done} todayKey={todayKey} onToggle={onToggle} onOpen={onOpen} />
     </div>
   )
 }
