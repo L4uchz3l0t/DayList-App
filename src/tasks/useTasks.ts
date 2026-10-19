@@ -1,5 +1,5 @@
-import { useCallback, useState } from 'react'
-import { createSampleTasks } from './sampleTasks'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { loadTasks, removeStoredTask, requestPersistentStorage, saveTask } from '../storage/taskStore'
 import {
   createTask,
   deleteTask,
@@ -13,33 +13,105 @@ import type { Task } from './types'
 
 const nowIso = () => new Date().toISOString()
 
+export type LoadStatus = 'loading' | 'ready' | 'error'
+
 /**
  * Verwaltet die Aufgabenliste für die Oberfläche.
- * Phase 3: Die Liste lebt nur im Arbeitsspeicher (nach dem Neuladen wieder Beispieldaten).
- * Phase 4: Hier wird die Speicherung in IndexedDB angeschlossen, die Oberfläche bleibt gleich.
+ * Beim Start werden die gespeicherten Aufgaben aus IndexedDB geladen.
+ * Jede Änderung wird sofort angezeigt und im Hintergrund gespeichert.
+ * Schlägt das Speichern fehl, meldet sich onSaveError.
  */
-export function useTasks(today: Date) {
-  const [tasks, setTasks] = useState<Task[]>(() => createSampleTasks(today))
+export function useTasks(onSaveError: () => void) {
+  const [tasks, setTasks] = useState<Task[]>([])
+  const [status, setStatus] = useState<LoadStatus>('loading')
 
-  const addTask = useCallback((input: NewTaskInput) => {
-    setTasks((current) => [...current, createTask(input, nowIso())])
+  // Aktuelle Liste und Fehler-Rückmeldung für die Aktionen, ohne sie bei jeder Änderung neu zu erzeugen
+  const tasksRef = useRef(tasks)
+  const onSaveErrorRef = useRef(onSaveError)
+  useEffect(() => {
+    onSaveErrorRef.current = onSaveError
+  })
+
+  const apply = useCallback((next: Task[]) => {
+    tasksRef.current = next
+    setTasks(next)
   }, [])
 
-  const editTask = useCallback((id: string, changes: TaskChanges) => {
-    setTasks((current) => updateTask(current, id, changes, nowIso()))
+  const persist = useCallback((job: Promise<void>) => {
+    job.catch((error: unknown) => {
+      console.error('Speichern fehlgeschlagen', error)
+      onSaveErrorRef.current()
+    })
   }, [])
 
-  const toggleTask = useCallback((id: string) => {
-    setTasks((current) => toggleTaskStatus(current, id, nowIso()))
-  }, [])
+  const load = useCallback(() => {
+    loadTasks()
+      .then((loaded) => {
+        apply(loaded)
+        setStatus('ready')
+      })
+      .catch((error: unknown) => {
+        console.error('Laden fehlgeschlagen', error)
+        setStatus('error')
+      })
+  }, [apply])
 
-  const removeTask = useCallback((id: string) => {
-    setTasks((current) => deleteTask(current, id))
-  }, [])
+  useEffect(() => {
+    load()
+    void requestPersistentStorage()
+  }, [load])
 
-  const undoRemove = useCallback((task: Task) => {
-    setTasks((current) => restoreTask(current, task))
-  }, [])
+  /** Erneuter Ladeversuch nach einem Fehler. */
+  const reload = useCallback(() => {
+    setStatus('loading')
+    load()
+  }, [load])
 
-  return { tasks, addTask, editTask, toggleTask, removeTask, undoRemove }
+  const addTask = useCallback(
+    (input: NewTaskInput) => {
+      const task = createTask(input, nowIso())
+      apply([...tasksRef.current, task])
+      persist(saveTask(task))
+    },
+    [apply, persist],
+  )
+
+  /** Wendet eine Änderung an und speichert die betroffene Aufgabe. */
+  const change = useCallback(
+    (id: string, operation: (current: Task[]) => Task[]) => {
+      const next = operation(tasksRef.current)
+      apply(next)
+      const changed = next.find((task) => task.id === id)
+      if (changed) persist(saveTask(changed))
+    },
+    [apply, persist],
+  )
+
+  const editTask = useCallback(
+    (id: string, changes: TaskChanges) => change(id, (current) => updateTask(current, id, changes, nowIso())),
+    [change],
+  )
+
+  const toggleTask = useCallback(
+    (id: string) => change(id, (current) => toggleTaskStatus(current, id, nowIso())),
+    [change],
+  )
+
+  const removeTask = useCallback(
+    (id: string) => {
+      apply(deleteTask(tasksRef.current, id))
+      persist(removeStoredTask(id))
+    },
+    [apply, persist],
+  )
+
+  const undoRemove = useCallback(
+    (task: Task) => {
+      apply(restoreTask(tasksRef.current, task))
+      persist(saveTask(task))
+    },
+    [apply, persist],
+  )
+
+  return { tasks, status, reload, addTask, editTask, toggleTask, removeTask, undoRemove }
 }

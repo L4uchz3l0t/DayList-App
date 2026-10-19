@@ -45,7 +45,9 @@ export function TodayView({ tasks, todayKey, onToggle, onOpen }: TodayViewProps)
 
       {nothingOpen ? (
         <div className="today-view__empty">
-          <p className="today-view__empty-title">Alles erledigt für heute.</p>
+          <p className="today-view__empty-title">
+            {tasks.length === 0 ? 'Noch keine Aufgaben.' : 'Alles erledigt für heute.'}
+          </p>
           <p className="today-view__empty-text">Neue Aufgaben fügst du mit dem Plus-Button hinzu.</p>
         </div>
       ) : (

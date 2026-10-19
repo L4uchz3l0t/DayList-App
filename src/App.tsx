@@ -16,11 +16,14 @@ import './App.css'
 
 function App() {
   const [today] = useState(() => new Date())
-  const { tasks, addTask, editTask, toggleTask, removeTask, undoRemove } = useTasks(today)
+  const [toast, setToast] = useState<ToastMessage | null>(null)
+  const showSaveError = useCallback(() => {
+    setToast({ id: Date.now(), text: 'Speichern fehlgeschlagen. Bitte lade die Seite neu.' })
+  }, [])
+  const { tasks, status, reload, addTask, editTask, toggleTask, removeTask, undoRemove } = useTasks(showSaveError)
   const [activeView, setActiveView] = useState<ViewId>('today')
   const [isQuickAddOpen, setQuickAddOpen] = useState(false)
   const [openTaskId, setOpenTaskId] = useState<string | null>(null)
-  const [toast, setToast] = useState<ToastMessage | null>(null)
   const [theme, setTheme] = useState<Theme>(getInitialTheme)
 
   const todayKey = toDateKey(today)
@@ -75,14 +78,21 @@ function App() {
 
       <main className="app__main">
         <AppHeader title={viewTitle} today={today} theme={theme} onToggleTheme={toggleTheme} />
-        {activeView === 'today' ? (
+        {status === 'loading' ? (
+          <PlaceholderView text="Aufgaben werden geladen …" />
+        ) : status === 'error' ? (
+          <PlaceholderView
+            text="Deine Aufgaben konnten nicht geladen werden. Im privaten Modus mancher Browser ist das Speichern gesperrt."
+            action={{ label: 'Erneut versuchen', onClick: reload }}
+          />
+        ) : activeView === 'today' ? (
           <TodayView tasks={tasks} todayKey={todayKey} onToggle={toggleTask} onOpen={setOpenTaskId} />
         ) : (
           <PlaceholderView text="Dieser Bereich kommt in einer späteren Phase." />
         )}
       </main>
 
-      <AddButton onClick={() => setQuickAddOpen(true)} />
+      {status === 'ready' && <AddButton onClick={() => setQuickAddOpen(true)} />}
       {isQuickAddOpen && <QuickAdd todayKey={todayKey} onSave={addTask} onClose={closeQuickAdd} />}
       {openTask && (
         <TaskDetail
