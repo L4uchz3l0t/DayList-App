@@ -1,0 +1,141 @@
+import { describe, expect, it } from 'vitest'
+import {
+  describePlannedDay,
+  getInboxTasks,
+  getOverdueTasks,
+  getUpcomingTasks,
+  getWeekDays,
+  searchTasks,
+} from './taskViews'
+import type { Task } from './types'
+
+const TODAY = '2026-10-19'
+
+function task(id: string, fields: Partial<Task> = {}): Task {
+  return {
+    id,
+    title: id,
+    status: 'open',
+    createdAt: '2026-10-01T10:00:00.000Z',
+    updatedAt: '2026-10-01T10:00:00.000Z',
+    ...fields,
+  }
+}
+
+describe('getOverdueTasks', () => {
+  it('zeigt nur offene Aufgaben mit Tag vor heute, wichtige und älteste zuerst', () => {
+    const tasks = [
+      task('gestern', { plannedDate: '2026-10-18' }),
+      task('heute', { plannedDate: TODAY }),
+      task('erledigt', { plannedDate: '2026-10-10', status: 'done' }),
+      task('alt', { plannedDate: '2026-10-05' }),
+      task('wichtig', { plannedDate: '2026-10-17', priority: 'high' }),
+      task('eingang'),
+    ]
+    expect(getOverdueTasks(tasks, TODAY).map((t) => t.id)).toEqual(['wichtig', 'alt', 'gestern'])
+  })
+
+  it('erkennt Überfälliges über Monats- und Jahresgrenzen', () => {
+    const tasks = [task('silvester', { plannedDate: '2026-12-31' })]
+    expect(getOverdueTasks(tasks, '2027-01-01')).toHaveLength(1)
+    expect(getOverdueTasks(tasks, '2026-12-31')).toHaveLength(0)
+  })
+})
+
+describe('getInboxTasks', () => {
+  it('trennt offene und erledigte Aufgaben ohne Tag', () => {
+    const tasks = [task('a'), task('b', { status: 'done' }), task('c', { plannedDate: TODAY })]
+    const inbox = getInboxTasks(tasks)
+    expect(inbox.open.map((t) => t.id)).toEqual(['a'])
+    expect(inbox.done.map((t) => t.id)).toEqual(['b'])
+  })
+})
+
+describe('getWeekDays', () => {
+  it('liefert 7 Tage ab heute', () => {
+    const days = getWeekDays([], TODAY)
+    expect(days.map((d) => d.dateKey)).toEqual([
+      '2026-10-19',
+      '2026-10-20',
+      '2026-10-21',
+      '2026-10-22',
+      '2026-10-23',
+      '2026-10-24',
+      '2026-10-25',
+    ])
+  })
+
+  it('läuft über die Zeitumstellung und den Monatswechsel ohne Lücke', () => {
+    const days = getWeekDays([], '2026-10-28')
+    expect(days.map((d) => d.dateKey)).toEqual([
+      '2026-10-28',
+      '2026-10-29',
+      '2026-10-30',
+      '2026-10-31',
+      '2026-11-01',
+      '2026-11-02',
+      '2026-11-03',
+    ])
+  })
+
+  it('ordnet Aufgaben ihrem Tag zu: offene (wichtige zuerst), dann erledigte', () => {
+    const tasks = [
+      task('erledigt', { plannedDate: '2026-10-20', status: 'done' }),
+      task('normal', { plannedDate: '2026-10-20' }),
+      task('wichtig', { plannedDate: '2026-10-20', priority: 'high' }),
+      task('später', { plannedDate: '2026-10-30' }),
+    ]
+    const tomorrow = getWeekDays(tasks, TODAY)[1]
+    expect(tomorrow.tasks.map((t) => t.id)).toEqual(['wichtig', 'normal', 'erledigt'])
+    expect(getWeekDays(tasks, TODAY).flatMap((d) => d.tasks)).toHaveLength(3)
+  })
+
+  it('zeigt Fristen am Fristtag, getrennt vom geplanten Tag', () => {
+    const tasks = [
+      task('steuer', { plannedDate: '2026-10-20', dueDate: '2026-10-23' }),
+      task('fertig', { dueDate: '2026-10-23', status: 'done' }),
+    ]
+    const days = getWeekDays(tasks, TODAY)
+    expect(days[1].tasks.map((t) => t.id)).toEqual(['steuer'])
+    expect(days[4].deadlines.map((t) => t.id)).toEqual(['steuer'])
+    expect(days[1].deadlines).toEqual([])
+  })
+})
+
+describe('searchTasks', () => {
+  const tasks = [task('a', { title: 'Milch kaufen' }), task('b', { title: 'Steuer ÄNDERN' })]
+
+  it('findet Teile des Titels unabhängig von Groß- und Kleinschreibung', () => {
+    expect(searchTasks(tasks, 'milch').map((t) => t.id)).toEqual(['a'])
+    expect(searchTasks(tasks, ' änder ').map((t) => t.id)).toEqual(['b'])
+  })
+
+  it('gibt bei leerer Suche alles zurück', () => {
+    expect(searchTasks(tasks, '  ')).toHaveLength(2)
+  })
+})
+
+describe('getUpcomingTasks', () => {
+  it('sortiert offene geplante Aufgaben ab heute nach Datum', () => {
+    const tasks = [
+      task('übermorgen', { plannedDate: '2026-10-21' }),
+      task('heute', { plannedDate: TODAY }),
+      task('gestern', { plannedDate: '2026-10-18' }),
+      task('eingang'),
+    ]
+    expect(getUpcomingTasks(tasks, TODAY).map((t) => t.id)).toEqual(['heute', 'übermorgen'])
+  })
+})
+
+describe('describePlannedDay', () => {
+  it('benennt Eingang, Heute, Morgen und andere Tage', () => {
+    expect(describePlannedDay(undefined, TODAY)).toBe('Eingang')
+    expect(describePlannedDay(TODAY, TODAY)).toBe('Heute')
+    expect(describePlannedDay('2026-10-20', TODAY)).toBe('Morgen')
+    expect(describePlannedDay('2026-10-23', TODAY)).toBe('23. Okt.')
+  })
+
+  it('erkennt Morgen auch am Monatsende', () => {
+    expect(describePlannedDay('2026-11-01', '2026-10-31')).toBe('Morgen')
+  })
+})

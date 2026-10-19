@@ -1,0 +1,23 @@
+.move-sheet__task {
+  margin: 0 0 var(--space-4);
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+/* Zwei Spalten auf dem Handy, damit alle Tage ohne Scrollen sichtbar sind */
+.move-sheet__days {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+
+.move-sheet__days .chip {
+  min-height: var(--tap-size);
+}
+
+@media (min-width: 768px) {
+  .move-sheet__days {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}

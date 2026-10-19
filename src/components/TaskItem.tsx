@@ -1,4 +1,5 @@
 import { formatShortDate } from '../tasks/dates'
+import { describePlannedDay, isOverdue as checkOverdue } from '../tasks/taskViews'
 import type { Task } from '../tasks/types'
 import { Icon } from './Icon'
 import './TaskItem.css'
@@ -8,6 +9,10 @@ interface TaskItemProps {
   todayKey: string
   onToggle: (id: string) => void
   onOpen: (id: string) => void
+  /** Zeigt bei offenen Aufgaben einen Knopf zum Verschieben auf einen anderen Tag */
+  onMove?: (id: string) => void
+  /** Geplanten Tag als Etikett zeigen (zum Beispiel in "Alle", wo Aufgaben verschiedener Tage gemischt sind) */
+  showPlannedDate?: boolean
 }
 
 /**
@@ -16,11 +21,12 @@ interface TaskItemProps {
  * Überfällige Aufgaben zeigen immer nur ihren ursprünglich geplanten Tag.
  * Die Frist erscheint nicht in der Liste, sondern später in der Detailansicht.
  */
-export function TaskItem({ task, todayKey, onToggle, onOpen }: TaskItemProps) {
+export function TaskItem({ task, todayKey, onToggle, onOpen, onMove, showPlannedDate = false }: TaskItemProps) {
   const isDone = task.status === 'done'
-  const isOverdue = !isDone && task.plannedDate !== undefined && task.plannedDate < todayKey
+  const isOverdue = checkOverdue(task, todayKey)
   // "Wichtig" ist bei Überfälligem überflüssig, die rote Markierung reicht
   const showPriority = task.priority === 'high' && !isOverdue
+  const showDate = showPlannedDate && !isOverdue && task.plannedDate !== undefined
 
   return (
     <li className={`task-item${isDone ? ' task-item--done' : ''}`}>
@@ -37,11 +43,16 @@ export function TaskItem({ task, todayKey, onToggle, onOpen }: TaskItemProps) {
 
       <button type="button" className="task-item__body" onClick={() => onOpen(task.id)}>
         <span className="task-item__title">{task.title}</span>
-        {(isOverdue || showPriority) && (
+        {(isOverdue || showPriority || showDate) && (
           <span className="task-item__meta">
             {isOverdue && task.plannedDate && (
               <span className="task-item__tag task-item__tag--overdue">
                 geplant {formatShortDate(task.plannedDate)}
+              </span>
+            )}
+            {showDate && (
+              <span className="task-item__tag task-item__tag--date">
+                {describePlannedDay(task.plannedDate, todayKey)}
               </span>
             )}
             {showPriority && (
@@ -52,6 +63,18 @@ export function TaskItem({ task, todayKey, onToggle, onOpen }: TaskItemProps) {
           </span>
         )}
       </button>
+
+      {onMove && !isDone && (
+        <button
+          type="button"
+          className="task-item__move"
+          aria-label={task.plannedDate ? `„${task.title}“ verschieben` : `„${task.title}“ einplanen`}
+          title={task.plannedDate ? 'Verschieben' : 'Einplanen'}
+          onClick={() => onMove(task.id)}
+        >
+          <Icon name="move" size={20} />
+        </button>
+      )}
     </li>
   )
 }

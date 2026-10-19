@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
-import { addDays, formatShortDate, parseDateKey, toDateKey } from '../tasks/dates'
 import type { NewTaskInput } from '../tasks/taskOperations'
+import { describePlannedDay } from '../tasks/taskViews'
 import { Icon } from './Icon'
 import { Sheet } from './Sheet'
 import { DayPicker, DueDateField, ImportantToggle } from './TaskFields'
@@ -8,6 +8,8 @@ import './QuickAdd.css'
 
 interface QuickAddProps {
   todayKey: string
+  /** Vorgewählter Tag ('' = Eingang), zum Beispiel wenn die Schnellaufnahme aus der Woche geöffnet wird */
+  initialPlannedDate?: string
   onSave: (input: NewTaskInput) => void
   onClose: () => void
 }
@@ -17,9 +19,9 @@ interface QuickAddProps {
  * Ohne Auswahl landet die Aufgabe im Eingang. Danach ist das Feld sofort wieder bereit.
  * Unter "Mehr Optionen" gibt es dieselben Angaben wie in der Detailansicht.
  */
-export function QuickAdd({ todayKey, onSave, onClose }: QuickAddProps) {
+export function QuickAdd({ todayKey, initialPlannedDate = '', onSave, onClose }: QuickAddProps) {
   const [title, setTitle] = useState('')
-  const [plannedDate, setPlannedDate] = useState('')
+  const [plannedDate, setPlannedDate] = useState(initialPlannedDate)
   const [dueDate, setDueDate] = useState('')
   const [isImportant, setImportant] = useState(false)
   const [showMore, setShowMore] = useState(false)
@@ -30,12 +32,9 @@ export function QuickAdd({ todayKey, onSave, onClose }: QuickAddProps) {
     inputRef.current?.focus()
   }, [])
 
-  function describeDay(dateKey: string): string {
-    if (dateKey === '') return 'Eingang'
-    if (dateKey === todayKey) return 'Heute'
-    if (dateKey === toDateKey(addDays(parseDateKey(todayKey), 1))) return 'Morgen'
-    return formatShortDate(dateKey)
-  }
+  // Ein anderer Tag als Heute/Morgen muss sichtbar sein, auch wenn die Optionen zugeklappt sind
+  const dayLabel = describePlannedDay(plannedDate || undefined, todayKey)
+  const isOtherDay = !['Eingang', 'Heute', 'Morgen'].includes(dayLabel)
 
   function handleSubmit(event: FormEvent) {
     event.preventDefault()
@@ -47,7 +46,7 @@ export function QuickAdd({ todayKey, onSave, onClose }: QuickAddProps) {
       dueDate: dueDate || undefined,
       priority: isImportant ? 'high' : undefined,
     })
-    setSavedMessage(`✓ „${trimmed}“ gespeichert (${describeDay(plannedDate)})`)
+    setSavedMessage(`✓ „${trimmed}“ gespeichert (${describePlannedDay(plannedDate || undefined, todayKey)})`)
     // Titel, Frist und Wichtig gelten nur für diese Aufgabe, der Tag bleibt für die nächste stehen
     setTitle('')
     setDueDate('')
@@ -72,7 +71,7 @@ export function QuickAdd({ todayKey, onSave, onClose }: QuickAddProps) {
           }}
         />
 
-        <DayPicker value={plannedDate} onChange={setPlannedDate} todayKey={todayKey} showDateInput={showMore} />
+        <DayPicker value={plannedDate} onChange={setPlannedDate} todayKey={todayKey} showDateInput={showMore || isOtherDay} />
 
         <button
           type="button"

@@ -17,10 +17,26 @@ interface TaskSectionProps {
   count?: number
   /** Optionaler Inhalt rechts neben der Überschrift, zum Beispiel ein Knopf */
   action?: ReactNode
+  onMove?: (id: string) => void
+  showPlannedDate?: boolean
+  /** Zusätzlicher Inhalt unter der Liste, zum Beispiel ein Hinweis oder Fristen */
+  children?: ReactNode
 }
 
 /** Eine Überschrift mit einer Liste von Aufgaben darunter. */
-export function TaskSection({ title, tasks, todayKey, onToggle, onOpen, tone = 'accent', count, action }: TaskSectionProps) {
+export function TaskSection({
+  title,
+  tasks,
+  todayKey,
+  onToggle,
+  onOpen,
+  tone = 'accent',
+  count,
+  action,
+  onMove,
+  showPlannedDate,
+  children,
+}: TaskSectionProps) {
   return (
     <section className={`task-section task-section--${tone}`}>
       <div className="task-section__header">
@@ -33,10 +49,19 @@ export function TaskSection({ title, tasks, todayKey, onToggle, onOpen, tone = '
       {tasks.length > 0 && (
         <ul className="task-section__list">
           {tasks.map((task) => (
-            <TaskItem key={task.id} task={task} todayKey={todayKey} onToggle={onToggle} onOpen={onOpen} />
+            <TaskItem
+              key={task.id}
+              task={task}
+              todayKey={todayKey}
+              onToggle={onToggle}
+              onOpen={onOpen}
+              onMove={onMove}
+              showPlannedDate={showPlannedDate}
+            />
           ))}
         </ul>
       )}
+      {children}
     </section>
   )
 }

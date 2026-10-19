@@ -56,3 +56,21 @@ export function formatFullDate(dateKey: string): string {
     year: 'numeric',
   }).format(parseDateKey(dateKey))
 }
+
+/** Zum Beispiel "Mi., 21. Okt." */
+export function formatWeekdayDate(dateKey: string): string {
+  return new Intl.DateTimeFormat('de-DE', { weekday: 'short', day: 'numeric', month: 'short' }).format(
+    parseDateKey(dateKey),
+  )
+}
+
+/** Zum Beispiel "Mittwoch" */
+export function formatWeekday(dateKey: string): string {
+  return new Intl.DateTimeFormat('de-DE', { weekday: 'long' }).format(parseDateKey(dateKey))
+}
+
+/** Millisekunden bis zum nächsten Mitternacht (lokale Zeit, auch an Tagen mit Zeitumstellung). */
+export function msUntilNextDay(now: Date): number {
+  const nextMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1)
+  return nextMidnight.getTime() - now.getTime()
+}

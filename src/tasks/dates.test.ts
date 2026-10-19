@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { addDays, getMonthGrid, toDateKey } from './dates'
+import { addDays, getMonthGrid, msUntilNextDay, toDateKey } from './dates'
 
 describe('toDateKey', () => {
   it('nutzt die lokale Zeit und füllt mit Nullen auf', () => {
@@ -50,5 +50,20 @@ describe('getMonthGrid', () => {
   it('hat keine Leerfelder, wenn der Monat an einem Montag beginnt', () => {
     // Der 1. Juni 2026 ist ein Montag
     expect(getMonthGrid(2026, 5)[0]).toBe('2026-06-01')
+  })
+})
+
+describe('msUntilNextDay', () => {
+  it('rechnet bis Mitternacht', () => {
+    expect(msUntilNextDay(new Date(2026, 9, 19, 23, 59, 0))).toBe(60_000)
+  })
+
+  it('berücksichtigt die Zeitumstellung (25.10.2026 hat 25 Stunden)', () => {
+    expect(msUntilNextDay(new Date(2026, 9, 25, 0, 0, 0))).toBe(25 * 60 * 60 * 1000)
+  })
+
+  it('landet genau auf dem nächsten Tag', () => {
+    const now = new Date(2026, 11, 31, 15, 30)
+    expect(toDateKey(new Date(now.getTime() + msUntilNextDay(now)))).toBe('2027-01-01')
   })
 })

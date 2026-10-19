@@ -107,3 +107,28 @@
   background: color-mix(in srgb, var(--color-warm) 16%, transparent);
   color: var(--color-warm);
 }
+
+.task-item__tag--date {
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+}
+
+/* Verschieben-Knopf rechts: dezent, aber mit voller Tippfläche */
+.task-item__move {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: var(--tap-size);
+  height: var(--tap-size);
+  margin: calc((var(--tap-size) - 26px) / -2) calc(var(--space-2) * -1) 0 0;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--color-text-muted);
+}
+
+.task-item__move:hover {
+  background: var(--color-surface-muted);
+  color: var(--tone, var(--color-accent));
+}
