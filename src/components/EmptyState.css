@@ -3,9 +3,10 @@
   width: 100%;
   margin-bottom: var(--space-5);
   padding: var(--space-6) var(--space-4);
-  border: 1px dashed var(--color-border);
+  /* Kräftiger Rand und eigene Fläche, damit das leere Feld sich vom Hintergrund abhebt */
+  border: 2px dashed color-mix(in srgb, var(--color-accent) 40%, var(--color-border));
   border-radius: var(--radius-md);
-  background: none;
+  background: var(--color-surface);
   color: inherit;
   font: inherit;
   text-align: center;
