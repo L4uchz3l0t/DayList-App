@@ -17,15 +17,17 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg', 'apple-touch-icon.png'],
       manifest: {
-        name: 'DayList – Meine Aufgaben',
+        // Der Name erscheint auf dem Startbildschirm, den das Handy beim Öffnen zeigt
+        name: 'DayList',
         short_name: 'DayList',
         description: 'Meine persönliche Alltags- und Aufgaben-App',
         lang: 'de',
         start_url: base,
         scope: base,
         display: 'standalone',
-        background_color: '#f4f0e8',
-        theme_color: '#f4f0e8',
+        // Startbildschirm: dunkler App-Hintergrund, auf dem das Verlaufs-Symbol leuchtet
+        background_color: '#121019',
+        theme_color: '#121019',
         icons: [
           { src: 'pwa-192x192.png', sizes: '192x192', type: 'image/png' },
           { src: 'pwa-512x512.png', sizes: '512x512', type: 'image/png' },

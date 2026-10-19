@@ -11,7 +11,9 @@
   - success: Grün, für Erledigtes
 */
 :root {
-  color-scheme: light;
+  /* "only" verbietet dem Browser, die Seite selbst abzudunkeln (Chrome auf Android macht das sonst
+     bei eingeschaltetem Dark Mode). Das dunkle Design kommt ausschließlich von uns, siehe unten. */
+  color-scheme: only light;
 
   --color-bg: #f4f0e8;
   --color-surface: #fffdf9;
