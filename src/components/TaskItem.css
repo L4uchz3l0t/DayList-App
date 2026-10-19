@@ -54,14 +54,17 @@
   background: var(--color-success);
 }
 
-.task-item__title {
+.task-item__body {
   flex: 1;
   min-width: 0;
-  padding-top: 1px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.task-item__title {
   font-weight: 500;
-  /* Lange Wörter mit Bindestrich trennen statt mitten im Wort abzuschneiden */
-  overflow-wrap: break-word;
-  hyphens: auto;
+  overflow-wrap: anywhere;
 }
 
 .task-item--done .task-item__title {
@@ -69,39 +72,21 @@
   text-decoration: line-through;
 }
 
-/* Etiketten rechts in der Karte, übereinander */
-.task-item__tags {
-  flex: none;
+.task-item__meta {
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
+  flex-wrap: wrap;
   gap: var(--space-2);
-  max-width: 45%;
 }
 
+/* Kleine farbige Etiketten unter dem Titel */
 .task-item__tag {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  min-width: 76px;
-  padding: var(--space-1) var(--space-3);
-  border-radius: var(--radius-sm);
-  line-height: 1.25;
-  text-align: right;
-}
-
-.task-item__tag-label {
-  font-size: 0.6875rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  opacity: 0.8;
-}
-
-.task-item__tag-value {
-  font-size: var(--font-size-sm);
-  font-weight: 700;
-  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-full);
+  font-size: 0.8125rem;
+  font-weight: 600;
 }
 
 .task-item__tag--overdue {
@@ -115,12 +100,6 @@
 }
 
 .task-item__tag--priority {
-  flex-direction: row;
-  align-items: center;
-  gap: var(--space-1);
-  min-width: 0;
   background: color-mix(in srgb, var(--color-warm) 16%, transparent);
   color: var(--color-warm);
-  font-size: var(--font-size-sm);
-  font-weight: 700;
 }
