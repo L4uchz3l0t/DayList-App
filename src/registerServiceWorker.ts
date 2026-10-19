@@ -6,7 +6,8 @@
   nach Updates gesucht.
 */
 export function registerServiceWorker() {
-  if (!('serviceWorker' in navigator)) return
+  // Im Entwicklungsmodus (npm run dev) gibt es keinen Service Worker
+  if (import.meta.env.DEV || !('serviceWorker' in navigator)) return
 
   // Neu laden nur, wenn eine alte Version abgelöst wurde, nicht bei der allerersten Installation
   let controller = navigator.serviceWorker.controller

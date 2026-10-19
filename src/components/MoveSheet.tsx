@@ -11,13 +11,15 @@ interface MoveSheetProps {
   /** Neuer Tag als "JJJJ-MM-TT", leerer Text = zurück zu Irgendwann */
   onMove: (plannedDate: string) => void
   onClose: () => void
+  /** Das Fenster blendet gerade aus */
+  closing?: boolean
 }
 
 /**
  * Schnelles Verschieben: ein Tipp auf einen Tag der nächsten Woche genügt.
  * Für spätere Tage gibt es den Kalender.
  */
-export function MoveSheet({ task, todayKey, onMove, onClose }: MoveSheetProps) {
+export function MoveSheet({ task, todayKey, onMove, onClose, closing }: MoveSheetProps) {
   const { t } = useI18n()
   const start = parseDateKey(todayKey)
   const days = Array.from({ length: 7 }, (_, index) => {
@@ -28,7 +30,7 @@ export function MoveSheet({ task, todayKey, onMove, onClose }: MoveSheetProps) {
   const current = task.plannedDate ?? ''
 
   return (
-    <Sheet title={task.plannedDate ? t.move.titleMove : t.move.titleSchedule} onClose={onClose}>
+    <Sheet title={task.plannedDate ? t.move.titleMove : t.move.titleSchedule} onClose={onClose} closing={closing}>
       <p className="move-sheet__task">„{task.title}“</p>
       <div className="move-sheet__days" role="radiogroup" aria-label={t.move.newDay}>
         {days.map((day) => (

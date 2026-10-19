@@ -11,17 +11,19 @@ export interface ToastMessage {
 interface ToastProps {
   message: ToastMessage
   onDismiss: () => void
+  /** Die Meldung blendet gerade aus */
+  closing?: boolean
 }
 
 /** Kurze Rückmeldung am unteren Rand, verschwindet nach einigen Sekunden von selbst. */
-export function Toast({ message, onDismiss }: ToastProps) {
+export function Toast({ message, onDismiss, closing = false }: ToastProps) {
   useEffect(() => {
     const timer = window.setTimeout(onDismiss, 6000)
     return () => window.clearTimeout(timer)
   }, [message.id, onDismiss])
 
   return (
-    <div className="toast" role="status">
+    <div className={`toast${closing ? ' toast--closing' : ''}`} role="status">
       <span className="toast__text">{message.text}</span>
       {message.action && (
         <button

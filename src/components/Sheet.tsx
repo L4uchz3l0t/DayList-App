@@ -7,13 +7,15 @@ interface SheetProps {
   title: string
   onClose: () => void
   children: ReactNode
+  /** Das Fenster blendet gerade aus */
+  closing?: boolean
 }
 
 /**
  * Ein Fenster, das auf dem Handy von unten hereinkommt und am Computer mittig erscheint.
  * Schließt mit Escape, dem X oder einem Tipp daneben.
  */
-export function Sheet({ title, onClose, children }: SheetProps) {
+export function Sheet({ title, onClose, children, closing = false }: SheetProps) {
   const { t } = useI18n()
   useEffect(() => {
     const closeOnEscape = (event: KeyboardEvent) => {
@@ -24,7 +26,7 @@ export function Sheet({ title, onClose, children }: SheetProps) {
   }, [onClose])
 
   return (
-    <div className="sheet__backdrop" onClick={onClose}>
+    <div className={`sheet__backdrop${closing ? ' sheet__backdrop--closing' : ''}`} onClick={onClose}>
       <div
         className="sheet"
         role="dialog"

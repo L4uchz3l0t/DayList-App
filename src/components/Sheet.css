@@ -6,6 +6,12 @@
   align-items: flex-end;
   justify-content: center;
   background: var(--backdrop);
+  animation: fade-in var(--duration-enter) var(--ease-out);
+}
+
+.sheet__backdrop--closing {
+  pointer-events: none;
+  animation: fade-out var(--duration-exit) var(--ease-in) forwards;
 }
 
 .sheet {
@@ -17,6 +23,24 @@
   border-radius: var(--radius-lg) var(--radius-lg) 0 0;
   background: var(--color-surface);
   box-shadow: var(--shadow-lg);
+  animation: sheet-in var(--duration-enter) var(--ease-out);
+}
+
+/* Auf dem Handy gleitet das Fenster von unten herein */
+@keyframes sheet-in {
+  from {
+    transform: translateY(40px);
+  }
+}
+
+.sheet__backdrop--closing .sheet {
+  animation: sheet-out var(--duration-exit) var(--ease-in) forwards;
+}
+
+@keyframes sheet-out {
+  to {
+    transform: translateY(40px);
+  }
 }
 
 @media (min-width: 768px) {

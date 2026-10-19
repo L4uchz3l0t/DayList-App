@@ -6,6 +6,7 @@ import { MoveSheet } from './components/MoveSheet'
 import { QuickAdd } from './components/QuickAdd'
 import { TaskDetail } from './components/TaskDetail'
 import { Toast, type ToastMessage } from './components/Toast'
+import { usePresence } from './usePresence'
 import { NAV_ITEMS, type ViewId } from './navigation'
 import { formatWeekdayDate, toDateKey } from './tasks/dates'
 import { useI18n } from './i18n/useI18n'
@@ -48,6 +49,13 @@ function App() {
   const todayKey = toDateKey(today)
   const openTask = tasks.find((task) => task.id === openTaskId)
   const moveTask = tasks.find((task) => task.id === moveTaskId)
+  // Geschlossene Fenster und Meldungen bleiben kurz zum Ausblenden sichtbar
+  const quickAdd = usePresence(quickAddDay)
+  const detail = usePresence(openTask ?? null)
+  const move = usePresence(moveTask ?? null)
+  const toastPresence = usePresence(toast)
+  const detailTask = detail.shown
+  const moveSheetTask = move.shown
 
   const closeQuickAdd = useCallback(() => setQuickAddDay(null), [])
   const closeDetail = useCallback(() => setOpenTaskId(null), [])
@@ -122,38 +130,56 @@ function App() {
             action={{ label: t.common.retry, onClick: reload }}
           />
         ) : (
-          renderView()
+          // Neuer Schlüssel pro Ansicht: beim Wechsel blendet die Ansicht sanft ein
+          <div key={activeView} className="view-enter">
+            {renderView()}
+          </div>
         )}
       </main>
 
       {status === 'ready' && <AddButton onClick={() => setQuickAddDay(activeView === 'today' ? todayKey : '')} />}
-      {quickAddDay !== null && (
-        <QuickAdd todayKey={todayKey} initialPlannedDate={quickAddDay} onSave={addTask} onClose={closeQuickAdd} />
-      )}
-      {openTask && (
-        <TaskDetail
-          key={openTask.id}
-          task={openTask}
+      {quickAdd.shown !== null && (
+        <QuickAdd
           todayKey={todayKey}
-          onSave={(changes) => handleSaveDetail(openTask.id, changes)}
+          initialPlannedDate={quickAdd.shown}
+          onSave={addTask}
+          onClose={closeQuickAdd}
+          closing={quickAdd.closing}
+        />
+      )}
+      {detailTask && (
+        <TaskDetail
+          key={detailTask.id}
+          task={detailTask}
+          todayKey={todayKey}
+          onSave={(changes) => handleSaveDetail(detailTask.id, changes)}
           onToggle={() => {
-            toggleTask(openTask.id)
+            toggleTask(detailTask.id)
             setOpenTaskId(null)
           }}
-          onDelete={() => handleDelete(openTask.id)}
+          onDelete={() => handleDelete(detailTask.id)}
           onClose={closeDetail}
+          closing={detail.closing}
         />
       )}
-      {moveTask && (
+      {moveSheetTask && (
         <MoveSheet
-          key={moveTask.id}
-          task={moveTask}
+          key={moveSheetTask.id}
+          task={moveSheetTask}
           todayKey={todayKey}
-          onMove={(plannedDate) => handleMove(moveTask.id, plannedDate)}
+          onMove={(plannedDate) => handleMove(moveSheetTask.id, plannedDate)}
           onClose={closeMove}
+          closing={move.closing}
         />
       )}
-      {toast && <Toast key={toast.id} message={toast} onDismiss={dismissToast} />}
+      {toastPresence.shown && (
+        <Toast
+          key={toastPresence.shown.id}
+          message={toastPresence.shown}
+          onDismiss={dismissToast}
+          closing={toastPresence.closing}
+        />
+      )}
     </div>
   )
 }

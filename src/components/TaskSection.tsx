@@ -61,6 +61,27 @@ export function TaskSection({
     </>
   )
 
+  const content = (
+    <>
+      {tasks.length > 0 && (
+        <ul className="task-section__list">
+          {tasks.map((task) => (
+            <Item
+              key={task.id}
+              task={task}
+              todayKey={todayKey}
+              onToggle={onToggle}
+              onOpen={onOpen}
+              onMove={onMove}
+              showPlannedDate={showPlannedDate}
+            />
+          ))}
+        </ul>
+      )}
+      {children}
+    </>
+  )
+
   return (
     <section className={`task-section task-section--${tone}`}>
       <div className="task-section__header">
@@ -83,22 +104,14 @@ export function TaskSection({
         </h2>
         {action}
       </div>
-      {!collapsed && tasks.length > 0 && (
-        <ul className="task-section__list">
-          {tasks.map((task) => (
-            <Item
-              key={task.id}
-              task={task}
-              todayKey={todayKey}
-              onToggle={onToggle}
-              onOpen={onOpen}
-              onMove={onMove}
-              showPlannedDate={showPlannedDate}
-            />
-          ))}
-        </ul>
+      {collapsible ? (
+        // Bleibt im Dokument, damit Auf- und Zuklappen weich animiert werden kann
+        <div className="task-section__body" data-collapsed={collapsed} inert={collapsed}>
+          <div className="task-section__inner">{content}</div>
+        </div>
+      ) : (
+        content
       )}
-      {!collapsed && children}
     </section>
   )
 }

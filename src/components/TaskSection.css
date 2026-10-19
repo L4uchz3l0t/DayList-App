@@ -87,9 +87,30 @@
   display: grid;
   margin-left: auto;
   color: var(--color-text-muted);
-  transition: transform 0.15s ease;
+  transition: transform var(--duration-enter) var(--ease-out);
 }
 
 .task-section__collapse[aria-expanded='false'] .task-section__chevron {
   transform: rotate(-90deg);
+}
+
+/* Weiches Auf- und Zuklappen: die Zeilenhöhe wächst von 0 auf die volle Höhe */
+.task-section__body {
+  display: grid;
+  grid-template-rows: 1fr;
+  transition:
+    grid-template-rows var(--duration-enter) var(--ease-out),
+    opacity var(--duration-enter) var(--ease-out);
+}
+
+.task-section__body[data-collapsed='true'] {
+  grid-template-rows: 0fr;
+  opacity: 0;
+}
+
+.task-section__inner {
+  min-height: 0;
+  /* Schatten der Karten dürfen etwas über den Rand ragen */
+  overflow: clip;
+  overflow-clip-margin: var(--space-2);
 }

@@ -33,6 +33,12 @@
   --color-success: #23a26d;
   --color-success-soft: #e0f5ea;
 
+  /* Bewegung: Einblenden etwas langsamer als Ausblenden wirkt ruhiger */
+  --duration-enter: 240ms;
+  --duration-exit: 180ms;
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+
   --gradient-brand: linear-gradient(135deg, var(--color-accent), var(--color-warm));
 
   --shadow-sm: 0 1px 2px rgb(40 30 20 / 6%), 0 2px 8px rgb(40 30 20 / 5%);

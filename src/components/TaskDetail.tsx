@@ -13,13 +13,15 @@ interface TaskDetailProps {
   onToggle: () => void
   onDelete: () => void
   onClose: () => void
+  /** Das Fenster blendet gerade aus */
+  closing?: boolean
 }
 
 /**
  * Detailansicht einer Aufgabe: Titel, Tag, Frist und Wichtigkeit ändern, erledigen oder löschen.
  * Änderungen werden erst mit "Speichern" übernommen. Schließen verwirft sie.
  */
-export function TaskDetail({ task, todayKey, onSave, onToggle, onDelete, onClose }: TaskDetailProps) {
+export function TaskDetail({ task, todayKey, onSave, onToggle, onDelete, onClose, closing }: TaskDetailProps) {
   const { t } = useI18n()
   const [title, setTitle] = useState(task.title)
   const [plannedDate, setPlannedDate] = useState(task.plannedDate ?? '')
@@ -41,7 +43,7 @@ export function TaskDetail({ task, todayKey, onSave, onToggle, onDelete, onClose
   }
 
   return (
-    <Sheet title={t.detail.title} onClose={onClose}>
+    <Sheet title={t.detail.title} onClose={onClose} closing={closing}>
       <form className="task-detail" onSubmit={handleSubmit}>
         <label className="task-field">
           <span className="task-field__label">{t.detail.titleField}</span>

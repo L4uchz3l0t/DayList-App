@@ -13,6 +13,8 @@ interface QuickAddProps {
   initialPlannedDate?: string
   onSave: (input: NewTaskInput) => void
   onClose: () => void
+  /** Das Fenster blendet gerade aus */
+  closing?: boolean
 }
 
 /**
@@ -20,7 +22,7 @@ interface QuickAddProps {
  * Ohne Auswahl landet die Aufgabe unter Irgendwann. Danach ist das Feld sofort wieder bereit.
  * Unter "Mehr Optionen" gibt es dieselben Angaben wie in der Detailansicht.
  */
-export function QuickAdd({ todayKey, initialPlannedDate = '', onSave, onClose }: QuickAddProps) {
+export function QuickAdd({ todayKey, initialPlannedDate = '', onSave, onClose, closing }: QuickAddProps) {
   const { t } = useI18n()
   const [title, setTitle] = useState('')
   const [plannedDate, setPlannedDate] = useState(initialPlannedDate)
@@ -57,7 +59,7 @@ export function QuickAdd({ todayKey, initialPlannedDate = '', onSave, onClose }:
   }
 
   return (
-    <Sheet title={t.quickAdd.title} onClose={onClose}>
+    <Sheet title={t.quickAdd.title} onClose={onClose} closing={closing}>
       <form className="quick-add" onSubmit={handleSubmit}>
         <input
           ref={inputRef}

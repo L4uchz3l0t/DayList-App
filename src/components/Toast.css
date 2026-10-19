@@ -16,6 +16,12 @@
   background: var(--color-text);
   color: var(--color-bg);
   box-shadow: var(--shadow-lg);
+  animation: rise-in var(--duration-enter) var(--ease-out);
+}
+
+.toast--closing {
+  pointer-events: none;
+  animation: sink-out var(--duration-exit) var(--ease-in) forwards;
 }
 
 .toast__text {
