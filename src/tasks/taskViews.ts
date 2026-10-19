@@ -71,10 +71,25 @@ export function getUpcomingTasks(tasks: Task[], todayKey: string): Task[] {
     .sort((a, b) => a.plannedDate!.localeCompare(b.plannedDate!) || byPriority(a, b))
 }
 
+export type DayKind = 'someday' | 'today' | 'tomorrow' | 'other'
+
+/** Ordnet einen geplanten Tag ein: ohne Tag, heute, morgen oder ein anderer Tag. */
+export function getDayKind(dateKey: string | undefined, todayKey: string): DayKind {
+  if (!dateKey) return 'someday'
+  if (dateKey === todayKey) return 'today'
+  if (dateKey === toDateKey(addDays(parseDateKey(todayKey), 1))) return 'tomorrow'
+  return 'other'
+}
+
+const GERMAN_DAY_WORDS = { someday: 'Irgendwann', today: 'Heute', tomorrow: 'Morgen' }
+
 /** Kurzer Name für einen geplanten Tag: "Irgendwann", "Heute", "Morgen" oder "21. Okt." */
-export function describePlannedDay(dateKey: string | undefined, todayKey: string): string {
-  if (!dateKey) return 'Irgendwann'
-  if (dateKey === todayKey) return 'Heute'
-  if (dateKey === toDateKey(addDays(parseDateKey(todayKey), 1))) return 'Morgen'
-  return formatShortDate(dateKey)
+export function describePlannedDay(
+  dateKey: string | undefined,
+  todayKey: string,
+  words: { someday: string; today: string; tomorrow: string } = GERMAN_DAY_WORDS,
+  locale = 'de-DE',
+): string {
+  const kind = getDayKind(dateKey, todayKey)
+  return kind === 'other' ? formatShortDate(dateKey!, locale) : words[kind]
 }

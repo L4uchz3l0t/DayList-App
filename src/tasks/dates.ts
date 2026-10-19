@@ -14,8 +14,8 @@ export function addDays(date: Date, days: number): Date {
 }
 
 /** Zum Beispiel "Montag, 19. Oktober" */
-export function formatLongDate(date: Date): string {
-  return new Intl.DateTimeFormat('de-DE', {
+export function formatLongDate(date: Date, locale = 'de-DE'): string {
+  return new Intl.DateTimeFormat(locale, {
     weekday: 'long',
     day: 'numeric',
     month: 'long',
@@ -29,8 +29,8 @@ export function parseDateKey(dateKey: string): Date {
 }
 
 /** Zum Beispiel "17. Okt." */
-export function formatShortDate(dateKey: string): string {
-  return new Intl.DateTimeFormat('de-DE', { day: 'numeric', month: 'short' }).format(parseDateKey(dateKey))
+export function formatShortDate(dateKey: string, locale = 'de-DE'): string {
+  return new Intl.DateTimeFormat(locale, { day: 'numeric', month: 'short' }).format(parseDateKey(dateKey))
 }
 
 /**
@@ -48,8 +48,8 @@ export function getMonthGrid(year: number, month: number): (string | null)[] {
 }
 
 /** Zum Beispiel "Mo., 19. Okt. 2026" */
-export function formatFullDate(dateKey: string): string {
-  return new Intl.DateTimeFormat('de-DE', {
+export function formatFullDate(dateKey: string, locale = 'de-DE'): string {
+  return new Intl.DateTimeFormat(locale, {
     weekday: 'short',
     day: 'numeric',
     month: 'short',
@@ -58,19 +58,31 @@ export function formatFullDate(dateKey: string): string {
 }
 
 /** Zum Beispiel "Mi., 21. Okt." */
-export function formatWeekdayDate(dateKey: string): string {
-  return new Intl.DateTimeFormat('de-DE', { weekday: 'short', day: 'numeric', month: 'short' }).format(
+export function formatWeekdayDate(dateKey: string, locale = 'de-DE'): string {
+  return new Intl.DateTimeFormat(locale, { weekday: 'short', day: 'numeric', month: 'short' }).format(
     parseDateKey(dateKey),
   )
 }
 
 /** Zum Beispiel "Mittwoch" */
-export function formatWeekday(dateKey: string): string {
-  return new Intl.DateTimeFormat('de-DE', { weekday: 'long' }).format(parseDateKey(dateKey))
+export function formatWeekday(dateKey: string, locale = 'de-DE'): string {
+  return new Intl.DateTimeFormat(locale, { weekday: 'long' }).format(parseDateKey(dateKey))
 }
 
 /** Millisekunden bis zum nächsten Mitternacht (lokale Zeit, auch an Tagen mit Zeitumstellung). */
 export function msUntilNextDay(now: Date): number {
   const nextMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1)
   return nextMidnight.getTime() - now.getTime()
+}
+
+/** Kurze Wochentagsnamen ab Montag für die Kalender-Kopfzeile, zum Beispiel "Mo", "Di" oder "Mon", "Tue" */
+export function getWeekdayNames(locale = 'de-DE'): string[] {
+  const format = new Intl.DateTimeFormat(locale, { weekday: 'short' })
+  // Der 5. Januar 2026 ist ein Montag
+  return Array.from({ length: 7 }, (_, index) => format.format(new Date(2026, 0, 5 + index)).replace('.', ''))
+}
+
+/** Monat und Jahr, zum Beispiel "Oktober 2026" */
+export function formatMonthYear(year: number, month: number, locale = 'de-DE'): string {
+  return new Intl.DateTimeFormat(locale, { month: 'long', year: 'numeric' }).format(new Date(year, month, 1))
 }

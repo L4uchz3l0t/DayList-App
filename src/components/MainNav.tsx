@@ -1,6 +1,7 @@
 import { NAV_ITEMS, type ViewId } from '../navigation'
 import { Icon } from './Icon'
 import './MainNav.css'
+import { useI18n } from '../i18n/useI18n'
 
 interface MainNavProps {
   activeView: ViewId
@@ -9,8 +10,9 @@ interface MainNavProps {
 
 /** Hauptnavigation: auf dem Handy unten, auf großen Bildschirmen links. */
 export function MainNav({ activeView, onSelect }: MainNavProps) {
+  const { t } = useI18n()
   return (
-    <nav className="main-nav" aria-label="Hauptnavigation">
+    <nav className="main-nav" aria-label={t.nav.label}>
       {NAV_ITEMS.map((item) => (
         <button
           key={item.id}
@@ -20,8 +22,8 @@ export function MainNav({ activeView, onSelect }: MainNavProps) {
           onClick={() => onSelect(item.id)}
         >
           <Icon name={item.icon} />
-          <span className="main-nav__label main-nav__label--short">{item.shortLabel ?? item.label}</span>
-          <span className="main-nav__label main-nav__label--long">{item.label}</span>
+          <span className="main-nav__label main-nav__label--short">{t.nav[item.shortLabelKey ?? item.labelKey]}</span>
+          <span className="main-nav__label main-nav__label--long">{t.nav[item.labelKey]}</span>
         </button>
       ))}
     </nav>

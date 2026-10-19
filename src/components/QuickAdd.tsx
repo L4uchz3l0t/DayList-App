@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import type { NewTaskInput } from '../tasks/taskOperations'
-import { describePlannedDay } from '../tasks/taskViews'
+import { describePlannedDay, getDayKind } from '../tasks/taskViews'
 import { Icon } from './Icon'
 import { Sheet } from './Sheet'
 import { DayPicker, DueDateField, ImportantToggle } from './TaskFields'
 import './QuickAdd.css'
+import { useI18n } from '../i18n/useI18n'
 
 interface QuickAddProps {
   todayKey: string
@@ -20,6 +21,7 @@ interface QuickAddProps {
  * Unter "Mehr Optionen" gibt es dieselben Angaben wie in der Detailansicht.
  */
 export function QuickAdd({ todayKey, initialPlannedDate = '', onSave, onClose }: QuickAddProps) {
+  const { t } = useI18n()
   const [title, setTitle] = useState('')
   const [plannedDate, setPlannedDate] = useState(initialPlannedDate)
   const [dueDate, setDueDate] = useState('')
@@ -33,8 +35,8 @@ export function QuickAdd({ todayKey, initialPlannedDate = '', onSave, onClose }:
   }, [])
 
   // Ein anderer Tag als Heute/Morgen muss sichtbar sein, auch wenn die Optionen zugeklappt sind
-  const dayLabel = describePlannedDay(plannedDate || undefined, todayKey)
-  const isOtherDay = !['Irgendwann', 'Heute', 'Morgen'].includes(dayLabel)
+  const dayLabel = describePlannedDay(plannedDate || undefined, todayKey, t.days, t.locale)
+  const isOtherDay = getDayKind(plannedDate || undefined, todayKey) === 'other'
 
   function handleSubmit(event: FormEvent) {
     event.preventDefault()
@@ -46,7 +48,7 @@ export function QuickAdd({ todayKey, initialPlannedDate = '', onSave, onClose }:
       dueDate: dueDate || undefined,
       priority: isImportant ? 'high' : undefined,
     })
-    setSavedMessage(`✓ „${trimmed}“ gespeichert (${describePlannedDay(plannedDate || undefined, todayKey)})`)
+    setSavedMessage(t.quickAdd.saved(trimmed, dayLabel))
     // Titel, Frist und Wichtig gelten nur für diese Aufgabe, der Tag bleibt für die nächste stehen
     setTitle('')
     setDueDate('')
@@ -55,14 +57,14 @@ export function QuickAdd({ todayKey, initialPlannedDate = '', onSave, onClose }:
   }
 
   return (
-    <Sheet title="Neue Aufgabe" onClose={onClose}>
+    <Sheet title={t.quickAdd.title} onClose={onClose}>
       <form className="quick-add" onSubmit={handleSubmit}>
         <input
           ref={inputRef}
           className="field"
           type="text"
-          placeholder="Was möchtest du nicht vergessen?"
-          aria-label="Titel der Aufgabe"
+          placeholder={t.quickAdd.placeholder}
+          aria-label={t.quickAdd.inputLabel}
           enterKeyHint="done"
           value={title}
           onChange={(event) => {
@@ -79,7 +81,7 @@ export function QuickAdd({ todayKey, initialPlannedDate = '', onSave, onClose }:
           aria-expanded={showMore}
           onClick={() => setShowMore(!showMore)}
         >
-          {showMore ? 'Weniger Optionen' : 'Mehr Optionen'}
+          {showMore ? t.quickAdd.less : t.quickAdd.more}
           <Icon name="chevronDown" size={18} />
         </button>
 
@@ -95,7 +97,7 @@ export function QuickAdd({ todayKey, initialPlannedDate = '', onSave, onClose }:
             {savedMessage ?? ''}
           </p>
           <button type="submit" className="button button--primary" disabled={title.trim() === ''}>
-            Speichern
+            {t.common.save}
           </button>
         </div>
       </form>

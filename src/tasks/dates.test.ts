@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { addDays, getMonthGrid, msUntilNextDay, toDateKey } from './dates'
+import { addDays, getMonthGrid, getWeekdayNames, msUntilNextDay, toDateKey } from './dates'
 
 describe('toDateKey', () => {
   it('nutzt die lokale Zeit und füllt mit Nullen auf', () => {
@@ -65,5 +65,12 @@ describe('msUntilNextDay', () => {
   it('landet genau auf dem nächsten Tag', () => {
     const now = new Date(2026, 11, 31, 15, 30)
     expect(toDateKey(new Date(now.getTime() + msUntilNextDay(now)))).toBe('2027-01-01')
+  })
+})
+
+describe('getWeekdayNames', () => {
+  it('beginnt am Montag, in der gewählten Sprache', () => {
+    expect(getWeekdayNames('de-DE')).toEqual(['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'])
+    expect(getWeekdayNames('en-GB')[0]).toBe('Mon')
   })
 })

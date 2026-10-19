@@ -135,6 +135,12 @@ describe('describePlannedDay', () => {
     expect(describePlannedDay('2026-10-23', TODAY)).toBe('23. Okt.')
   })
 
+  it('kann andere Sprachen', () => {
+    const en = { someday: 'Someday', today: 'Today', tomorrow: 'Tomorrow' }
+    expect(describePlannedDay(undefined, TODAY, en, 'en-GB')).toBe('Someday')
+    expect(describePlannedDay('2026-10-23', TODAY, en, 'en-GB')).toBe('23 Oct')
+  })
+
   it('erkennt Morgen auch am Monatsende', () => {
     expect(describePlannedDay('2026-11-01', '2026-10-31')).toBe('Morgen')
   })

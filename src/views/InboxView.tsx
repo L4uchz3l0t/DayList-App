@@ -4,6 +4,7 @@ import { TaskSection } from '../components/TaskSection'
 import { getInboxTasks } from '../tasks/taskViews'
 import type { Task } from '../tasks/types'
 import './views.css'
+import { useI18n } from '../i18n/useI18n'
 
 interface InboxViewProps {
   tasks: Task[]
@@ -16,21 +17,22 @@ interface InboxViewProps {
 
 /** Irgendwann: alles, was noch keinem Tag zugeordnet ist (im Code "inbox"). */
 export function InboxView({ tasks, todayKey, onToggle, onOpen, onMove, onAdd }: InboxViewProps) {
+  const { t } = useI18n()
   const inbox = getInboxTasks(tasks)
 
   return (
     <div>
-      <p className="view-intro">Alles ohne festen Tag. Tippe auf den Kalender, um etwas einzuplanen.</p>
+      <p className="view-intro">{t.someday.intro}</p>
 
       {inbox.open.length === 0 ? (
         <EmptyState
-          title="Hier liegt gerade nichts."
-          text="Tippe hier, um schnell etwas zu notieren."
+          title={t.empty.somedayEmpty}
+          text={t.empty.somedayTap}
           onClick={onAdd}
         />
       ) : (
         <TaskSection
-          title="Ohne Tag"
+          title={t.sections.noDay}
           tasks={inbox.open}
           todayKey={todayKey}
           onToggle={onToggle}

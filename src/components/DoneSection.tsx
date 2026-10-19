@@ -1,5 +1,6 @@
 import type { Task } from '../tasks/types'
 import { TaskSection } from './TaskSection'
+import { useI18n } from '../i18n/useI18n'
 
 interface DoneSectionProps {
   tasks: Task[]
@@ -12,11 +13,12 @@ interface DoneSectionProps {
 
 /** Erledigte Aufgaben, standardmäßig eingeklappt, damit die Liste übersichtlich bleibt. */
 export function DoneSection({ tasks, todayKey, onToggle, onOpen, storageKey }: DoneSectionProps) {
+  const { t } = useI18n()
   if (tasks.length === 0) return null
 
   return (
     <TaskSection
-      title="Erledigt"
+      title={t.sections.done}
       tone="success"
       tasks={tasks}
       todayKey={todayKey}

@@ -1,6 +1,7 @@
 import { useEffect, type ReactNode } from 'react'
 import { Icon } from './Icon'
 import './Sheet.css'
+import { useI18n } from '../i18n/useI18n'
 
 interface SheetProps {
   title: string
@@ -13,6 +14,7 @@ interface SheetProps {
  * Schließt mit Escape, dem X oder einem Tipp daneben.
  */
 export function Sheet({ title, onClose, children }: SheetProps) {
+  const { t } = useI18n()
   useEffect(() => {
     const closeOnEscape = (event: KeyboardEvent) => {
       if (event.key === 'Escape') onClose()
@@ -32,7 +34,7 @@ export function Sheet({ title, onClose, children }: SheetProps) {
       >
         <div className="sheet__header">
           <h2 className="sheet__heading">{title}</h2>
-          <button type="button" className="sheet__close" aria-label="Schließen" onClick={onClose}>
+          <button type="button" className="sheet__close" aria-label={t.common.close} onClick={onClose}>
             <Icon name="close" size={20} />
           </button>
         </div>

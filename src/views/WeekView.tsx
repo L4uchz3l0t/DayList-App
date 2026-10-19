@@ -19,6 +19,7 @@ import { formatShortDate, formatWeekday, formatWeekdayDate } from '../tasks/date
 import { getOverdueTasks, getWeekDays } from '../tasks/taskViews'
 import type { Task } from '../tasks/types'
 import './views.css'
+import { useI18n } from '../i18n/useI18n'
 
 interface WeekViewProps {
   tasks: Task[]
@@ -48,6 +49,7 @@ function DropDay({ dateKey, children }: { dateKey: string; children: ReactNode }
  * auf dem Handy nach kurzem Gedrückthalten (damit normales Scrollen weiter funktioniert).
  */
 export function WeekView({ tasks, todayKey, onToggle, onOpen, onMove, onMoveTo, onAdd }: WeekViewProps) {
+  const { t } = useI18n()
   const overdue = getOverdueTasks(tasks, todayKey)
   const days = getWeekDays(tasks, todayKey)
   const [draggedId, setDraggedId] = useState<string | null>(null)
@@ -60,14 +62,14 @@ export function WeekView({ tasks, todayKey, onToggle, onOpen, onMove, onMoveTo, 
     useSensor(TouchSensor, { activationConstraint: { delay: 250, tolerance: 8 } }),
   )
 
-  const titleOf = (id: string | number) => tasks.find((task) => task.id === id)?.title ?? 'Aufgabe'
-  const dayOf = (id: string | number) => formatWeekdayDate(String(id))
+  const titleOf = (id: string | number) => tasks.find((task) => task.id === id)?.title ?? ''
+  const dayOf = (id: string | number) => formatWeekdayDate(String(id), t.locale)
   const announcements: Announcements = {
-    onDragStart: ({ active }) => `„${titleOf(active.id)}“ aufgenommen.`,
-    onDragOver: ({ active, over }) => (over ? `„${titleOf(active.id)}“ über ${dayOf(over.id)}.` : undefined),
+    onDragStart: ({ active }) => t.week.picked(titleOf(active.id)),
+    onDragOver: ({ active, over }) => (over ? t.week.over(titleOf(active.id), dayOf(over.id)) : undefined),
     onDragEnd: ({ active, over }) =>
-      over ? `„${titleOf(active.id)}“ auf ${dayOf(over.id)} gelegt.` : `„${titleOf(active.id)}“ nicht verschoben.`,
-    onDragCancel: ({ active }) => `Verschieben von „${titleOf(active.id)}“ abgebrochen.`,
+      over ? t.week.dropped(titleOf(active.id), dayOf(over.id)) : t.week.notMoved(titleOf(active.id)),
+    onDragCancel: ({ active }) => t.week.cancelled(titleOf(active.id)),
   }
 
   function handleDragStart(event: DragStartEvent) {
@@ -94,19 +96,19 @@ export function WeekView({ tasks, todayKey, onToggle, onOpen, onMove, onMoveTo, 
       accessibility={{
         announcements,
         screenReaderInstructions: {
-          draggable: 'Zum Verschieben lieber den Kalender-Knopf rechts an der Aufgabe verwenden.',
+          draggable: t.week.dragHint,
         },
       }}
     >
-      {overdue.length > 0 && <TaskSection title="Überfällig" tone="danger" tasks={overdue} {...sectionProps} />}
+      {overdue.length > 0 && <TaskSection title={t.sections.overdue} tone="danger" tasks={overdue} {...sectionProps} />}
 
       {days.map((day, index) => {
-        const name = index === 0 ? 'Heute' : index === 1 ? 'Morgen' : formatWeekday(day.dateKey)
+        const name = index === 0 ? t.days.today : index === 1 ? t.days.tomorrow : formatWeekday(day.dateKey, t.locale)
         const openCount = day.tasks.filter((task) => task.status === 'open').length
         return (
           <DropDay key={day.dateKey} dateKey={day.dateKey}>
             <TaskSection
-              title={`${name} · ${formatShortDate(day.dateKey)}`}
+              title={`${name} · ${formatShortDate(day.dateKey, t.locale)}`}
               tasks={day.tasks}
               count={openCount}
               {...sectionProps}
@@ -114,7 +116,7 @@ export function WeekView({ tasks, todayKey, onToggle, onOpen, onMove, onMoveTo, 
                 <button
                   type="button"
                   className="week-view__add"
-                  aria-label={`Aufgabe für ${formatWeekdayDate(day.dateKey)} hinzufügen`}
+                  aria-label={t.week.addFor(formatWeekdayDate(day.dateKey, t.locale))}
                   onClick={() => onAdd(day.dateKey)}
                 >
                   <Icon name="plus" size={20} />
@@ -123,7 +125,7 @@ export function WeekView({ tasks, todayKey, onToggle, onOpen, onMove, onMoveTo, 
             >
               {day.tasks.length === 0 && (
                 <EmptyState
-                  title={draggedId ? 'Hier ablegen' : 'Nichts geplant'}
+                  title={draggedId ? t.empty.dropHere : t.empty.nothingPlanned}
                   compact
                   onClick={() => onAdd(day.dateKey)}
                 />
@@ -132,7 +134,7 @@ export function WeekView({ tasks, todayKey, onToggle, onOpen, onMove, onMoveTo, 
                 <button key={task.id} type="button" className="week-view__deadline" onClick={() => onOpen(task.id)}>
                   <Icon name="clock" size={16} />
                   <span>
-                    Frist: <strong>{task.title}</strong>
+                    {t.week.deadline} <strong>{task.title}</strong>
                   </span>
                 </button>
               ))}

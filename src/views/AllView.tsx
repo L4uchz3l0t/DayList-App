@@ -5,6 +5,7 @@ import { TaskSection } from '../components/TaskSection'
 import { getInboxTasks, getOverdueTasks, getUpcomingTasks, searchTasks } from '../tasks/taskViews'
 import type { Task } from '../tasks/types'
 import './views.css'
+import { useI18n } from '../i18n/useI18n'
 
 interface AllViewProps {
   tasks: Task[]
@@ -17,12 +18,13 @@ interface AllViewProps {
 
 /** Alle Aufgaben durchsuchen: überfällig, geplant, irgendwann und auf Wunsch erledigt. */
 export function AllView({ tasks, todayKey, onToggle, onOpen, onMove, onAdd }: AllViewProps) {
+  const { t } = useI18n()
   const [query, setQuery] = useState('')
   const [showDone, setShowDone] = useState(false)
 
   if (tasks.length === 0) {
     return (
-      <EmptyState title="Noch keine Aufgaben." text="Tippe hier, um eine neue Aufgabe hinzuzufügen." onClick={onAdd} />
+      <EmptyState title={t.empty.noTasks} text={t.empty.tapToAdd} onClick={onAdd} />
     )
   }
 
@@ -46,8 +48,8 @@ export function AllView({ tasks, todayKey, onToggle, onOpen, onMove, onAdd }: Al
           <input
             className="field"
             type="search"
-            placeholder="Aufgaben durchsuchen …"
-            aria-label="Aufgaben durchsuchen"
+            placeholder={t.all.search}
+            aria-label={t.all.searchLabel}
             value={query}
             onChange={(event) => setQuery(event.target.value)}
           />
@@ -58,21 +60,21 @@ export function AllView({ tasks, todayKey, onToggle, onOpen, onMove, onAdd }: Al
           aria-pressed={showDone}
           onClick={() => setShowDone(!showDone)}
         >
-          Erledigte zeigen
+          {t.all.showDone}
         </button>
       </div>
 
       {visibleCount === 0 && (
         <EmptyState
-          title={query.trim() ? `Nichts gefunden für „${query.trim()}“.` : 'Keine offenen Aufgaben.'}
-          text={!showDone && done.length > 0 ? `${done.length} erledigte Aufgaben sind ausgeblendet.` : undefined}
+          title={query.trim() ? t.empty.notFound(query.trim()) : t.empty.noOpen}
+          text={!showDone && done.length > 0 ? t.empty.doneHidden(done.length) : undefined}
         />
       )}
-      {overdue.length > 0 && <TaskSection title="Überfällig" tone="danger" tasks={overdue} {...sectionProps} />}
-      {upcoming.length > 0 && <TaskSection title="Geplant" tasks={upcoming} showPlannedDate {...sectionProps} />}
-      {inbox.length > 0 && <TaskSection title="Irgendwann" tasks={inbox} {...sectionProps} />}
+      {overdue.length > 0 && <TaskSection title={t.sections.overdue} tone="danger" tasks={overdue} {...sectionProps} />}
+      {upcoming.length > 0 && <TaskSection title={t.sections.planned} tasks={upcoming} showPlannedDate {...sectionProps} />}
+      {inbox.length > 0 && <TaskSection title={t.days.someday} tasks={inbox} {...sectionProps} />}
       {showDone && done.length > 0 && (
-        <TaskSection title="Erledigt" tone="success" tasks={done} showPlannedDate {...sectionProps} />
+        <TaskSection title={t.sections.done} tone="success" tasks={done} showPlannedDate {...sectionProps} />
       )}
     </div>
   )

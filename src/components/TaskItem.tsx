@@ -4,6 +4,7 @@ import type { Task } from '../tasks/types'
 import type { DraggableSyntheticListeners } from '@dnd-kit/core'
 import { Icon } from './Icon'
 import './TaskItem.css'
+import { useI18n } from '../i18n/useI18n'
 
 interface TaskItemProps {
   task: Task
@@ -37,6 +38,7 @@ export function TaskItem({
   showPlannedDate = false,
   drag,
 }: TaskItemProps) {
+  const { t } = useI18n()
   const isDone = task.status === 'done'
   const isOverdue = checkOverdue(task, todayKey)
   // "Wichtig" ist bei Überfälligem überflüssig, die rote Markierung reicht
@@ -53,7 +55,7 @@ export function TaskItem({
         type="button"
         role="checkbox"
         aria-checked={isDone}
-        aria-label={isDone ? `„${task.title}“ wieder öffnen` : `„${task.title}“ erledigen`}
+        aria-label={isDone ? t.task.reopen(task.title) : t.task.complete(task.title)}
         className="task-item__check"
         onClick={() => onToggle(task.id)}
       >
@@ -66,17 +68,17 @@ export function TaskItem({
           <span className="task-item__meta">
             {isOverdue && task.plannedDate && (
               <span className="task-item__tag task-item__tag--overdue">
-                geplant {formatShortDate(task.plannedDate)}
+                {t.task.plannedOn(formatShortDate(task.plannedDate, t.locale))}
               </span>
             )}
             {showDate && (
               <span className="task-item__tag task-item__tag--date">
-                {describePlannedDay(task.plannedDate, todayKey)}
+                {describePlannedDay(task.plannedDate, todayKey, t.days, t.locale)}
               </span>
             )}
             {showPriority && (
               <span className="task-item__tag task-item__tag--priority">
-                <Icon name="flag" size={12} /> Wichtig
+                <Icon name="flag" size={12} /> {t.common.important}
               </span>
             )}
           </span>
@@ -87,8 +89,8 @@ export function TaskItem({
         <button
           type="button"
           className="task-item__move"
-          aria-label={task.plannedDate ? `„${task.title}“ verschieben` : `„${task.title}“ einplanen`}
-          title={task.plannedDate ? 'Verschieben' : 'Einplanen'}
+          aria-label={task.plannedDate ? t.task.move(task.title) : t.task.schedule(task.title)}
+          title={task.plannedDate ? t.task.moveShort : t.task.scheduleShort}
           onClick={() => onMove(task.id)}
         >
           <Icon name="move" size={20} />

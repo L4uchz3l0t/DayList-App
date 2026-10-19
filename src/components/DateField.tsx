@@ -1,9 +1,8 @@
 import { useState } from 'react'
-import { formatFullDate, getMonthGrid, parseDateKey } from '../tasks/dates'
+import { formatFullDate, formatMonthYear, getMonthGrid, getWeekdayNames, parseDateKey } from '../tasks/dates'
 import { Icon } from './Icon'
 import './DateField.css'
-
-const WEEKDAYS = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So']
+import { useI18n } from '../i18n/useI18n'
 
 interface DateFieldProps {
   /** Gewähltes Datum als "JJJJ-MM-TT", leerer Text = kein Datum */
@@ -19,7 +18,8 @@ interface DateFieldProps {
  * Ein Tipp auf das Feld klappt den Kalender auf, ein Tipp auf einen Tag wählt ihn aus.
  * (Der eingebaute Kalender des Browsers lässt sich kaum gestalten und zeigt je nach Gerät andere Formate.)
  */
-export function DateField({ value, onChange, todayKey, label, placeholder = 'Datum wählen' }: DateFieldProps) {
+export function DateField({ value, onChange, todayKey, label, placeholder }: DateFieldProps) {
+  const { t } = useI18n()
   const [isOpen, setOpen] = useState(false)
   const start = parseDateKey(value || todayKey)
   const [shownYear, setShownYear] = useState(start.getFullYear())
@@ -39,37 +39,35 @@ export function DateField({ value, onChange, todayKey, label, placeholder = 'Dat
     setShownMonth(date.getMonth())
   }
 
-  const monthTitle = new Intl.DateTimeFormat('de-DE', { month: 'long', year: 'numeric' }).format(
-    new Date(shownYear, shownMonth, 1),
-  )
+  const monthTitle = formatMonthYear(shownYear, shownMonth, t.locale)
 
   return (
     <div className="date-field">
       <button
         type="button"
         className={`field date-field__button${value ? '' : ' date-field__button--empty'}`}
-        aria-label={`${label}: ${value ? formatFullDate(value) : 'kein Datum'}`}
+        aria-label={`${label}: ${value ? formatFullDate(value, t.locale) : t.fields.noDate}`}
         aria-expanded={isOpen}
         onClick={openCalendar}
       >
         <Icon name="calendar" size={18} />
-        {value ? formatFullDate(value) : placeholder}
+        {value ? formatFullDate(value, t.locale) : (placeholder ?? t.fields.pickDate)}
       </button>
 
       {isOpen && (
-        <div className="calendar" role="group" aria-label={`Kalender ${label}`}>
+        <div className="calendar" role="group" aria-label={t.fields.calendar(label)}>
           <div className="calendar__header">
-            <button type="button" className="calendar__nav" aria-label="Vorheriger Monat" onClick={() => changeMonth(-1)}>
+            <button type="button" className="calendar__nav" aria-label={t.fields.prevMonth} onClick={() => changeMonth(-1)}>
               <Icon name="chevronLeft" size={18} />
             </button>
             <span className="calendar__title">{monthTitle}</span>
-            <button type="button" className="calendar__nav" aria-label="Nächster Monat" onClick={() => changeMonth(1)}>
+            <button type="button" className="calendar__nav" aria-label={t.fields.nextMonth} onClick={() => changeMonth(1)}>
               <Icon name="chevronRight" size={18} />
             </button>
           </div>
 
           <div className="calendar__grid">
-            {WEEKDAYS.map((day) => (
+            {getWeekdayNames(t.locale).map((day) => (
               <span key={day} className="calendar__weekday">
                 {day}
               </span>
@@ -86,7 +84,7 @@ export function DateField({ value, onChange, todayKey, label, placeholder = 'Dat
                     dateKey === todayKey ? 'calendar__day--today' : '',
                     dateKey < todayKey ? 'calendar__day--past' : '',
                   ].join(' ')}
-                  aria-label={formatFullDate(dateKey)}
+                  aria-label={formatFullDate(dateKey, t.locale)}
                   aria-pressed={dateKey === value}
                   onClick={() => {
                     onChange(dateKey)

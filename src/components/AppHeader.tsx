@@ -1,6 +1,7 @@
 import type { Theme } from '../theme'
 import { Icon } from './Icon'
 import './AppHeader.css'
+import { useI18n } from '../i18n/useI18n'
 
 interface AppHeaderProps {
   title: string
@@ -10,8 +11,9 @@ interface AppHeaderProps {
 }
 
 export function AppHeader({ title, today, theme, onToggleTheme }: AppHeaderProps) {
-  const weekday = today.toLocaleDateString('de-DE', { weekday: 'long' })
-  const monthYear = today.toLocaleDateString('de-DE', { month: 'long', year: 'numeric' })
+  const { t } = useI18n()
+  const weekday = today.toLocaleDateString(t.locale, { weekday: 'long' })
+  const monthYear = today.toLocaleDateString(t.locale, { month: 'long', year: 'numeric' })
 
   return (
     <header className="app-header">
@@ -26,7 +28,7 @@ export function AppHeader({ title, today, theme, onToggleTheme }: AppHeaderProps
         <button
           type="button"
           className="app-header__theme"
-          aria-label={theme === 'dark' ? 'Helles Design einschalten' : 'Dunkles Design einschalten'}
+          aria-label={theme === 'dark' ? t.header.lightOn : t.header.darkOn}
           onClick={onToggleTheme}
         >
           <Icon name={theme === 'dark' ? 'sun' : 'moon'} size={20} />

@@ -8,37 +8,42 @@ import { TaskDetail } from './components/TaskDetail'
 import { Toast, type ToastMessage } from './components/Toast'
 import { NAV_ITEMS, type ViewId } from './navigation'
 import { formatWeekdayDate, toDateKey } from './tasks/dates'
+import { useI18n } from './i18n/useI18n'
+import type { Messages } from './i18n/messages'
 import type { TaskChanges } from './tasks/taskOperations'
 import { useTasks } from './tasks/useTasks'
-import { applyTheme, getInitialTheme, type Theme } from './theme'
+import { applyThemePreference, getThemePreference, resolveTheme, type ThemePreference } from './theme'
 import { useToday } from './useToday'
 import { AllView } from './views/AllView'
 import { InboxView } from './views/InboxView'
 import { PlaceholderView } from './views/PlaceholderView'
+import { SettingsView } from './views/SettingsView'
 import { TodayView } from './views/TodayView'
 import { WeekView } from './views/WeekView'
 import './App.css'
 
 /** Rückmeldung nach dem Verschieben, besonders wenn die Aufgabe aus der aktuellen Ansicht verschwindet */
-function describeMove(plannedDate: string | undefined, todayKey: string): string {
-  if (plannedDate === undefined) return 'Nach „Irgendwann“ verschoben'
-  if (plannedDate === todayKey) return 'Für heute eingeplant'
-  return `Verschoben auf ${formatWeekdayDate(plannedDate)}`
+function describeMove(plannedDate: string | undefined, todayKey: string, t: Messages): string {
+  if (plannedDate === undefined) return t.toast.toSomeday
+  if (plannedDate === todayKey) return t.toast.toToday
+  return t.toast.movedTo(formatWeekdayDate(plannedDate, t.locale))
 }
 
 function App() {
   const today = useToday()
+  const { t } = useI18n()
   const [toast, setToast] = useState<ToastMessage | null>(null)
   const showSaveError = useCallback(() => {
-    setToast({ id: Date.now(), text: 'Speichern fehlgeschlagen. Bitte lade die Seite neu.' })
-  }, [])
+    setToast({ id: Date.now(), text: t.status.saveError })
+  }, [t])
   const { tasks, status, reload, addTask, editTask, toggleTask, removeTask, undoRemove } = useTasks(showSaveError)
   const [activeView, setActiveView] = useState<ViewId>('today')
   /** Vorgewählter Tag der offenen Schnellaufnahme ('' = Irgendwann), null = geschlossen */
   const [quickAddDay, setQuickAddDay] = useState<string | null>(null)
   const [openTaskId, setOpenTaskId] = useState<string | null>(null)
   const [moveTaskId, setMoveTaskId] = useState<string | null>(null)
-  const [theme, setTheme] = useState<Theme>(getInitialTheme)
+  const [themePreference, setThemePreference] = useState<ThemePreference>(getThemePreference)
+  const theme = resolveTheme(themePreference)
 
   const todayKey = toDateKey(today)
   const openTask = tasks.find((task) => task.id === openTaskId)
@@ -53,17 +58,16 @@ function App() {
     setToast({ id: Date.now(), text, action })
   }
 
-  function toggleTheme() {
-    const next = theme === 'dark' ? 'light' : 'dark'
-    applyTheme(next)
-    setTheme(next)
+  function changeTheme(preference: ThemePreference) {
+    applyThemePreference(preference)
+    setThemePreference(preference)
   }
 
   function handleSaveDetail(id: string, changes: TaskChanges) {
     const before = tasks.find((task) => task.id === id)
     editTask(id, changes)
     setOpenTaskId(null)
-    showToast(before && before.plannedDate !== changes.plannedDate ? describeMove(changes.plannedDate, todayKey) : 'Gespeichert')
+    showToast(before && before.plannedDate !== changes.plannedDate ? describeMove(changes.plannedDate, todayKey, t) : t.toast.saved)
   }
 
   function handleMove(id: string, plannedDate: string) {
@@ -71,21 +75,22 @@ function App() {
     setMoveTaskId(null)
     if (!before || (before.plannedDate ?? '') === plannedDate) return
     editTask(id, { plannedDate: plannedDate || undefined })
-    showToast(describeMove(plannedDate || undefined, todayKey), {
-      label: 'Rückgängig',
+    showToast(describeMove(plannedDate || undefined, todayKey, t), {
+      label: t.common.undo,
       onClick: () => editTask(id, { plannedDate: before.plannedDate }),
     })
   }
 
   function handleDelete(id: string) {
-    const task = tasks.find((t) => t.id === id)
+    const task = tasks.find((candidate) => candidate.id === id)
     if (!task) return
     removeTask(id)
     setOpenTaskId(null)
-    showToast(`„${task.title}“ gelöscht`, { label: 'Rückgängig', onClick: () => undoRemove(task) })
+    showToast(t.toast.deleted(task.title), { label: t.common.undo, onClick: () => undoRemove(task) })
   }
 
-  const viewTitle = NAV_ITEMS.find((item) => item.id === activeView)?.label ?? ''
+  const navItem = NAV_ITEMS.find((item) => item.id === activeView)
+  const viewTitle = navItem ? t.nav[navItem.labelKey] : ''
   const viewProps = { tasks, todayKey, onToggle: toggleTask, onOpen: setOpenTaskId, onMove: setMoveTaskId }
 
   function renderView() {
@@ -99,7 +104,7 @@ function App() {
       case 'all':
         return <AllView {...viewProps} onAdd={() => setQuickAddDay('')} />
       case 'settings':
-        return <PlaceholderView text="Die Einstellungen kommen in einer späteren Phase." />
+        return <SettingsView themePreference={themePreference} onThemeChange={changeTheme} />
     }
   }
 
@@ -108,13 +113,13 @@ function App() {
       <MainNav activeView={activeView} onSelect={setActiveView} />
 
       <main className="app__main">
-        <AppHeader title={viewTitle} today={today} theme={theme} onToggleTheme={toggleTheme} />
+        <AppHeader title={viewTitle} today={today} theme={theme} onToggleTheme={() => changeTheme(theme === 'dark' ? 'light' : 'dark')} />
         {status === 'loading' ? (
-          <PlaceholderView text="Aufgaben werden geladen …" />
+          <PlaceholderView text={t.status.loading} />
         ) : status === 'error' ? (
           <PlaceholderView
-            text="Deine Aufgaben konnten nicht geladen werden. Im privaten Modus mancher Browser ist das Speichern gesperrt."
-            action={{ label: 'Erneut versuchen', onClick: reload }}
+            text={t.status.loadError}
+            action={{ label: t.common.retry, onClick: reload }}
           />
         ) : (
           renderView()

@@ -4,6 +4,7 @@ import type { Task } from '../tasks/types'
 import { Sheet } from './Sheet'
 import { DayPicker, DueDateField, ImportantToggle } from './TaskFields'
 import './TaskDetail.css'
+import { useI18n } from '../i18n/useI18n'
 
 interface TaskDetailProps {
   task: Task
@@ -19,6 +20,7 @@ interface TaskDetailProps {
  * Änderungen werden erst mit "Speichern" übernommen. Schließen verwirft sie.
  */
 export function TaskDetail({ task, todayKey, onSave, onToggle, onDelete, onClose }: TaskDetailProps) {
+  const { t } = useI18n()
   const [title, setTitle] = useState(task.title)
   const [plannedDate, setPlannedDate] = useState(task.plannedDate ?? '')
   const [dueDate, setDueDate] = useState(task.dueDate ?? '')
@@ -39,10 +41,10 @@ export function TaskDetail({ task, todayKey, onSave, onToggle, onDelete, onClose
   }
 
   return (
-    <Sheet title="Aufgabe bearbeiten" onClose={onClose}>
+    <Sheet title={t.detail.title} onClose={onClose}>
       <form className="task-detail" onSubmit={handleSubmit}>
         <label className="task-field">
-          <span className="task-field__label">Titel</span>
+          <span className="task-field__label">{t.detail.titleField}</span>
           <input className="field" type="text" value={title} onChange={(event) => setTitle(event.target.value)} />
         </label>
 
@@ -52,17 +54,17 @@ export function TaskDetail({ task, todayKey, onSave, onToggle, onDelete, onClose
 
         <div className="task-detail__actions">
           <button type="submit" className="button button--primary" disabled={title.trim() === ''}>
-            Speichern
+            {t.common.save}
           </button>
           <button type="button" className="button button--secondary" onClick={onToggle}>
-            {isDone ? 'Wieder öffnen' : 'Erledigt'}
+            {isDone ? t.detail.reopen : t.detail.done}
           </button>
           <button
             type="button"
             className={`button ${confirmDelete ? 'button--danger-strong' : 'button--danger'} task-detail__delete`}
             onClick={() => (confirmDelete ? onDelete() : setConfirmDelete(true))}
           >
-            {confirmDelete ? 'Wirklich löschen?' : 'Löschen'}
+            {confirmDelete ? t.detail.confirmDelete : t.detail.delete}
           </button>
         </div>
       </form>
