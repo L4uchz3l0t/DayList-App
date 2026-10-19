@@ -22,10 +22,13 @@ export function formatLongDate(date: Date): string {
   }).format(date)
 }
 
+/** Wandelt den Text "JJJJ-MM-TT" zurück in ein Datum (Mitternacht, lokale Zeitzone). */
+export function parseDateKey(dateKey: string): Date {
+  const [year, month, day] = dateKey.split('-').map(Number)
+  return new Date(year, month - 1, day)
+}
+
 /** Zum Beispiel "17. Okt." */
 export function formatShortDate(dateKey: string): string {
-  const [year, month, day] = dateKey.split('-').map(Number)
-  return new Intl.DateTimeFormat('de-DE', { day: 'numeric', month: 'short' }).format(
-    new Date(year, month - 1, day),
-  )
+  return new Intl.DateTimeFormat('de-DE', { day: 'numeric', month: 'short' }).format(parseDateKey(dateKey))
 }

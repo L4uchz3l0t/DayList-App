@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
-import { Icon } from './Icon'
+import { Sheet } from './Sheet'
 import './QuickAdd.css'
 
 export type QuickAddTarget = 'inbox' | 'today' | 'tomorrow'
@@ -27,12 +27,7 @@ export function QuickAdd({ onSave, onClose }: QuickAddProps) {
 
   useEffect(() => {
     inputRef.current?.focus()
-    const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') onClose()
-    }
-    window.addEventListener('keydown', closeOnEscape)
-    return () => window.removeEventListener('keydown', closeOnEscape)
-  }, [onClose])
+  }, [])
 
   function handleSubmit(event: FormEvent) {
     event.preventDefault()
@@ -47,25 +42,11 @@ export function QuickAdd({ onSave, onClose }: QuickAddProps) {
   const targetLabel = TARGETS.find((t) => t.id === target)?.label
 
   return (
-    <div className="quick-add__backdrop" onClick={onClose}>
-      <form
-        className="quick-add"
-        role="dialog"
-        aria-modal="true"
-        aria-label="Neue Aufgabe"
-        onClick={(event) => event.stopPropagation()}
-        onSubmit={handleSubmit}
-      >
-        <div className="quick-add__header">
-          <h2 className="quick-add__heading">Neue Aufgabe</h2>
-          <button type="button" className="quick-add__close" aria-label="Schließen" onClick={onClose}>
-            <Icon name="close" size={20} />
-          </button>
-        </div>
-
+    <Sheet title="Neue Aufgabe" onClose={onClose}>
+      <form onSubmit={handleSubmit}>
         <input
           ref={inputRef}
-          className="quick-add__input"
+          className="field"
           type="text"
           placeholder="Was möchtest du nicht vergessen?"
           aria-label="Titel der Aufgabe"
@@ -78,21 +59,21 @@ export function QuickAdd({ onSave, onClose }: QuickAddProps) {
         />
 
         <div className="quick-add__row">
-          <div className="quick-add__targets" role="radiogroup" aria-label="Wann?">
+          <div className="chips" role="radiogroup" aria-label="Wann?">
             {TARGETS.map((t) => (
               <button
                 key={t.id}
                 type="button"
                 role="radio"
                 aria-checked={target === t.id}
-                className="quick-add__chip"
+                className="chip"
                 onClick={() => setTarget(t.id)}
               >
                 {t.label}
               </button>
             ))}
           </div>
-          <button type="submit" className="quick-add__save" disabled={title.trim() === ''}>
+          <button type="submit" className="button button--primary" disabled={title.trim() === ''}>
             Speichern
           </button>
         </div>
@@ -101,6 +82,6 @@ export function QuickAdd({ onSave, onClose }: QuickAddProps) {
           {savedTitle ? `✓ „${savedTitle}“ gespeichert (${targetLabel})` : ''}
         </p>
       </form>
-    </div>
+    </Sheet>
   )
 }

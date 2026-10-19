@@ -14,3 +14,4 @@ Persönliche Alltags- und Aufgaben-App (React, TypeScript, Vite).
 
 - `npm run build` prüft die Typen und baut die fertige App in den Ordner `dist`.
 - `npm run lint` sucht nach typischen Code-Fehlern.
+- `npm test` führt die automatischen Tests aus (Aufgaben-Aktionen und Datumslogik).

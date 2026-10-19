@@ -11,6 +11,7 @@ interface TaskSectionProps {
   tasks: Task[]
   todayKey: string
   onToggle: (id: string) => void
+  onOpen: (id: string) => void
   tone?: SectionTone
   /** Angezeigte Anzahl, falls sie von der sichtbaren Liste abweicht (zum Beispiel bei ausgeblendeten Aufgaben) */
   count?: number
@@ -19,7 +20,7 @@ interface TaskSectionProps {
 }
 
 /** Eine Überschrift mit einer Liste von Aufgaben darunter. */
-export function TaskSection({ title, tasks, todayKey, onToggle, tone = 'accent', count, action }: TaskSectionProps) {
+export function TaskSection({ title, tasks, todayKey, onToggle, onOpen, tone = 'accent', count, action }: TaskSectionProps) {
   return (
     <section className={`task-section task-section--${tone}`}>
       <div className="task-section__header">
@@ -32,7 +33,7 @@ export function TaskSection({ title, tasks, todayKey, onToggle, tone = 'accent',
       {tasks.length > 0 && (
         <ul className="task-section__list">
           {tasks.map((task) => (
-            <TaskItem key={task.id} task={task} todayKey={todayKey} onToggle={onToggle} />
+            <TaskItem key={task.id} task={task} todayKey={todayKey} onToggle={onToggle} onOpen={onOpen} />
           ))}
         </ul>
       )}

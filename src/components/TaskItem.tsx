@@ -7,14 +7,16 @@ interface TaskItemProps {
   task: Task
   todayKey: string
   onToggle: (id: string) => void
+  onOpen: (id: string) => void
 }
 
 /**
- * Eine Zeile in der Aufgabenliste. Ein Tipp auf den Kreis erledigt die Aufgabe.
+ * Eine Zeile in der Aufgabenliste. Ein Tipp auf den Kreis erledigt die Aufgabe,
+ * ein Tipp auf den Text öffnet die Detailansicht.
  * Überfällige Aufgaben zeigen immer nur ihren ursprünglich geplanten Tag.
  * Die Frist erscheint nicht in der Liste, sondern später in der Detailansicht.
  */
-export function TaskItem({ task, todayKey, onToggle }: TaskItemProps) {
+export function TaskItem({ task, todayKey, onToggle, onOpen }: TaskItemProps) {
   const isDone = task.status === 'done'
   const isOverdue = !isDone && task.plannedDate !== undefined && task.plannedDate < todayKey
   // "Wichtig" ist bei Überfälligem überflüssig, die rote Markierung reicht
@@ -33,7 +35,7 @@ export function TaskItem({ task, todayKey, onToggle }: TaskItemProps) {
         {isDone && <Icon name="check" size={16} />}
       </button>
 
-      <div className="task-item__body">
+      <button type="button" className="task-item__body" onClick={() => onOpen(task.id)}>
         <span className="task-item__title">{task.title}</span>
         {(isOverdue || showPriority) && (
           <span className="task-item__meta">
@@ -49,7 +51,7 @@ export function TaskItem({ task, todayKey, onToggle }: TaskItemProps) {
             )}
           </span>
         )}
-      </div>
+      </button>
     </li>
   )
 }

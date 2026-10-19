@@ -8,6 +8,7 @@ interface TodayViewProps {
   tasks: Task[]
   todayKey: string
   onToggle: (id: string) => void
+  onOpen: (id: string) => void
 }
 
 /** Wichtige Aufgaben zuerst, sonst bleibt die Reihenfolge erhalten. */
@@ -15,7 +16,7 @@ function byPriority(a: Task, b: Task): number {
   return Number(b.priority === 'high') - Number(a.priority === 'high')
 }
 
-export function TodayView({ tasks, todayKey, onToggle }: TodayViewProps) {
+export function TodayView({ tasks, todayKey, onToggle, onOpen }: TodayViewProps) {
   const [showDone, setShowDone] = useState(false)
 
   const overdue = tasks
@@ -32,7 +33,14 @@ export function TodayView({ tasks, todayKey, onToggle }: TodayViewProps) {
       <DayProgress done={doneToday.length} total={plannedToday.length} />
 
       {overdue.length > 0 && (
-        <TaskSection title="Überfällig" tone="danger" tasks={overdue} todayKey={todayKey} onToggle={onToggle} />
+        <TaskSection
+          title="Überfällig"
+          tone="danger"
+          tasks={overdue}
+          todayKey={todayKey}
+          onToggle={onToggle}
+          onOpen={onOpen}
+        />
       )}
 
       {nothingOpen ? (
@@ -41,7 +49,7 @@ export function TodayView({ tasks, todayKey, onToggle }: TodayViewProps) {
           <p className="today-view__empty-text">Neue Aufgaben fügst du mit dem Plus-Button hinzu.</p>
         </div>
       ) : (
-        <TaskSection title="Heute" tasks={openToday} todayKey={todayKey} onToggle={onToggle} />
+        <TaskSection title="Heute" tasks={openToday} todayKey={todayKey} onToggle={onToggle} onOpen={onOpen} />
       )}
 
       {doneToday.length > 0 && (
@@ -52,6 +60,7 @@ export function TodayView({ tasks, todayKey, onToggle }: TodayViewProps) {
           count={doneToday.length}
           todayKey={todayKey}
           onToggle={onToggle}
+          onOpen={onOpen}
           action={
             <button type="button" className="today-view__toggle" onClick={() => setShowDone(!showDone)}>
               {showDone ? 'Ausblenden' : 'Anzeigen'}

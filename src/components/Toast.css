@@ -1,0 +1,43 @@
+.toast {
+  position: fixed;
+  right: var(--space-4);
+  /* Über dem Plus-Button, damit dieser immer erreichbar bleibt */
+  bottom: calc(var(--nav-height) + env(safe-area-inset-bottom) + var(--space-6) + 72px);
+  left: var(--space-4);
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  max-width: calc(var(--content-width) - var(--space-6));
+  margin: 0 auto;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--color-text);
+  color: var(--color-bg);
+  box-shadow: var(--shadow-lg);
+}
+
+.toast__text {
+  font-weight: 500;
+}
+
+.toast__action {
+  flex: none;
+  min-height: 36px;
+  padding: 0 var(--space-3);
+  border: none;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+}
+
+@media (min-width: 768px) {
+  .toast {
+    bottom: var(--space-6);
+    right: calc(var(--space-6) + 76px);
+    left: 232px;
+  }
+}
