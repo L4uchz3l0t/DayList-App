@@ -22,10 +22,26 @@ export function formatLongDate(date: Date): string {
   }).format(date)
 }
 
-/** Zum Beispiel "17. Okt." */
-export function formatShortDate(dateKey: string): string {
+/** Wandelt den Text "JJJJ-MM-TT" zurück in ein Datum (Mitternacht, lokale Zeitzone). */
+export function parseDateKey(dateKey: string): Date {
   const [year, month, day] = dateKey.split('-').map(Number)
-  return new Intl.DateTimeFormat('de-DE', { day: 'numeric', month: 'short' }).format(
-    new Date(year, month - 1, day),
+  return new Date(year, month - 1, day)
+}
+
+/** Anzahl der Kalendertage von `fromKey` bis `toKey` (negativ, wenn `toKey` früher liegt). */
+export function daysBetween(fromKey: string, toKey: string): number {
+  const msPerDay = 24 * 60 * 60 * 1000
+  // Runden gleicht Sommer- und Winterzeit aus (Tage mit 23 oder 25 Stunden)
+  return Math.round((parseDateKey(toKey).getTime() - parseDateKey(fromKey).getTime()) / msPerDay)
+}
+
+/** Gut lesbare Tagesangabe: "Heute", "Gestern", "Morgen" oder zum Beispiel "Sa., 17. Okt." */
+export function formatDayLabel(dateKey: string, todayKey: string): string {
+  const offset = daysBetween(todayKey, dateKey)
+  if (offset === 0) return 'Heute'
+  if (offset === -1) return 'Gestern'
+  if (offset === 1) return 'Morgen'
+  return new Intl.DateTimeFormat('de-DE', { weekday: 'short', day: 'numeric', month: 'short' }).format(
+    parseDateKey(dateKey),
   )
 }
