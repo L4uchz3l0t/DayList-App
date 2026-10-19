@@ -9,6 +9,7 @@ interface TodayViewProps {
   todayKey: string
   onToggle: (id: string) => void
   onOpen: (id: string) => void
+  onAdd: () => void
 }
 
 /** Wichtige Aufgaben zuerst, sonst bleibt die Reihenfolge erhalten. */
@@ -16,7 +17,7 @@ function byPriority(a: Task, b: Task): number {
   return Number(b.priority === 'high') - Number(a.priority === 'high')
 }
 
-export function TodayView({ tasks, todayKey, onToggle, onOpen }: TodayViewProps) {
+export function TodayView({ tasks, todayKey, onToggle, onOpen, onAdd }: TodayViewProps) {
   const [showDone, setShowDone] = useState(false)
 
   const overdue = tasks
@@ -44,12 +45,12 @@ export function TodayView({ tasks, todayKey, onToggle, onOpen }: TodayViewProps)
       )}
 
       {nothingOpen ? (
-        <div className="today-view__empty">
-          <p className="today-view__empty-title">
+        <button type="button" className="today-view__empty" onClick={onAdd}>
+          <span className="today-view__empty-title">
             {tasks.length === 0 ? 'Noch keine Aufgaben.' : 'Alles erledigt für heute.'}
-          </p>
-          <p className="today-view__empty-text">Neue Aufgaben fügst du mit dem Plus-Button hinzu.</p>
-        </div>
+          </span>
+          <span className="today-view__empty-text">Tippe hier, um eine neue Aufgabe hinzuzufügen.</span>
+        </button>
       ) : (
         <TaskSection title="Heute" tasks={openToday} todayKey={todayKey} onToggle={onToggle} onOpen={onOpen} />
       )}

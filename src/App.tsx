@@ -86,7 +86,13 @@ function App() {
             action={{ label: 'Erneut versuchen', onClick: reload }}
           />
         ) : activeView === 'today' ? (
-          <TodayView tasks={tasks} todayKey={todayKey} onToggle={toggleTask} onOpen={setOpenTaskId} />
+          <TodayView
+            tasks={tasks}
+            todayKey={todayKey}
+            onToggle={toggleTask}
+            onOpen={setOpenTaskId}
+            onAdd={() => setQuickAddOpen(true)}
+          />
         ) : (
           <PlaceholderView text="Dieser Bereich kommt in einer späteren Phase." />
         )}

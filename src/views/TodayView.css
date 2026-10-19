@@ -1,17 +1,32 @@
 .today-view__empty {
+  display: block;
+  width: 100%;
   margin-bottom: var(--space-5);
   padding: var(--space-6) var(--space-4);
   border: 1px dashed var(--color-border);
   border-radius: var(--radius-md);
+  background: none;
+  color: inherit;
+  font: inherit;
   text-align: center;
+  cursor: pointer;
+  transition: border-color 0.15s, background-color 0.15s;
+}
+
+.today-view__empty:hover,
+.today-view__empty:focus-visible {
+  border-color: var(--color-accent);
+  background: var(--color-accent-soft);
 }
 
 .today-view__empty-title {
+  display: block;
   margin: 0 0 var(--space-1);
   font-weight: 600;
 }
 
 .today-view__empty-text {
+  display: block;
   margin: 0;
   font-size: var(--font-size-sm);
   color: var(--color-text-muted);
