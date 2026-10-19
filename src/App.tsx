@@ -121,7 +121,7 @@ function App() {
         )}
       </main>
 
-      {status === 'ready' && <AddButton onClick={() => setQuickAddDay('')} />}
+      {status === 'ready' && <AddButton onClick={() => setQuickAddDay(activeView === 'today' ? todayKey : '')} />}
       {quickAddDay !== null && (
         <QuickAdd todayKey={todayKey} initialPlannedDate={quickAddDay} onSave={addTask} onClose={closeQuickAdd} />
       )}
