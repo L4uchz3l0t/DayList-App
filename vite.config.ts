@@ -15,6 +15,8 @@ export default defineConfig({
     VitePWA({
       // Neue Versionen werden beim nächsten Öffnen still übernommen
       registerType: 'autoUpdate',
+      // Anmeldung passiert in src/registerServiceWorker.ts (mit Update-Prüfung bei Rückkehr in die App)
+      injectRegister: false,
       includeAssets: ['favicon.svg', 'apple-touch-icon.png'],
       manifest: {
         // Der Name erscheint auf dem Startbildschirm, den das Handy beim Öffnen zeigt
@@ -37,6 +39,9 @@ export default defineConfig({
       workbox: {
         // App-Dateien (Code, Styles, Schrift, Symbole) auf dem Gerät speichern
         globPatterns: ['**/*.{js,css,html,svg,png,woff2}'],
+        // Eine neue Version übernimmt sofort alle offenen Fenster der App
+        clientsClaim: true,
+        skipWaiting: true,
       },
     }),
   ],
