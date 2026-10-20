@@ -2,6 +2,12 @@ import { useState, type FormEvent } from 'react'
 import type { CloudSync } from '../sync/useCloudSync'
 import { useI18n } from '../i18n/useI18n'
 
+/** Zu viele Anmelde-E-Mails in kurzer Zeit (Supabase antwortet mit 429) */
+function isRateLimit(error: unknown): boolean {
+  const { status, code } = (error ?? {}) as { status?: number; code?: string }
+  return status === 429 || (typeof code === 'string' && code.includes('rate_limit'))
+}
+
 interface CloudSettingsProps {
   cloud: CloudSync
 }
@@ -30,7 +36,14 @@ export function CloudSettings({ cloud }: CloudSettingsProps) {
       setCode('')
     } catch (error) {
       console.error('Code verschicken fehlgeschlagen', error)
-      setMessage(t.cloud.sendFailed)
+      if (isRateLimit(error)) {
+        // Supabase verschickt nur wenige E-Mails pro Stunde. Der Link aus der letzten E-Mail gilt aber noch.
+        setCodeSentTo(address)
+        setCode('')
+        setMessage(t.cloud.rateLimited)
+      } else {
+        setMessage(t.cloud.sendFailed)
+      }
     } finally {
       setBusy(false)
     }
@@ -96,7 +109,7 @@ export function CloudSettings({ cloud }: CloudSettingsProps) {
       <h2 className="settings__heading">{t.cloud.heading}</h2>
       {codeSentTo ? (
         <form className="settings__form" onSubmit={handleVerify}>
-          <p className="settings__text">{t.cloud.codeSent(codeSentTo)}</p>
+          {message !== t.cloud.rateLimited && <p className="settings__text">{t.cloud.codeSent(codeSentTo)}</p>}
           <p className="settings__text">{t.cloud.codeHint}</p>
           <label className="task-field">
             <span className="task-field__label">{t.cloud.codeLabel}</span>

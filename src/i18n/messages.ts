@@ -148,6 +148,8 @@ export const de = {
     syncNow: 'Jetzt sichern',
     signOut: 'Abmelden',
     sendFailed: 'Die E-Mail konnte nicht verschickt werden. Prüfe die Adresse und versuch es gleich noch einmal.',
+    rateLimited:
+      'Gerade wurden zu viele Anmelde-E-Mails verschickt. Nimm den Link aus der letzten E-Mail, die du bekommen und noch nicht benutzt hast, oder versuch es in einer Stunde noch einmal.',
     wrongCode: 'Der Link stimmt nicht oder wurde schon benutzt. Lass dir einen neuen schicken.',
   },
   backup: {
@@ -296,6 +298,8 @@ export const en: Messages = {
     syncNow: 'Back up now',
     signOut: 'Sign out',
     sendFailed: 'The email could not be sent. Check the address and try again in a moment.',
+    rateLimited:
+      'Too many sign-in emails were sent just now. Use the link from the last email you received and have not used yet, or try again in an hour.',
     wrongCode: 'The link is wrong or has already been used. Request a new one.',
   },
   backup: {
