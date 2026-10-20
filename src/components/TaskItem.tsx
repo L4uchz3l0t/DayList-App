@@ -44,6 +44,7 @@ export function TaskItem({
   // "Wichtig" ist bei Überfälligem überflüssig, die rote Markierung reicht
   const showPriority = task.priority === 'high' && !isOverdue
   const showDate = showPlannedDate && !isOverdue && task.plannedDate !== undefined
+  const showTime = task.time !== undefined && task.plannedDate !== undefined && !isDone
 
   return (
     <li
@@ -64,7 +65,7 @@ export function TaskItem({
 
       <button type="button" className="task-item__body" onClick={() => onOpen(task.id)}>
         <span className="task-item__title">{task.title}</span>
-        {(isOverdue || showPriority || showDate) && (
+        {(isOverdue || showPriority || showDate || showTime) && (
           <span className="task-item__meta">
             {isOverdue && task.plannedDate && (
               <span className="task-item__tag task-item__tag--overdue">
@@ -74,6 +75,12 @@ export function TaskItem({
             {showDate && (
               <span className="task-item__tag task-item__tag--date">
                 {describePlannedDay(task.plannedDate, todayKey, t.days, t.locale)}
+              </span>
+            )}
+            {showTime && (
+              <span className="task-item__tag task-item__tag--time">
+                <Icon name={task.reminder !== undefined ? 'bell' : 'clock'} size={12} /> {t.task.at(task.time!)}
+                {task.reminder !== undefined && <span className="visually-hidden">, {t.task.withReminder}</span>}
               </span>
             )}
             {showPriority && (

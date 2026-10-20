@@ -135,3 +135,35 @@ describe('Löschen und Wiederherstellen', () => {
     expect(restoreTask([task], task)).toHaveLength(1)
   })
 })
+
+describe('Uhrzeit und Erinnerung', () => {
+  // Die Tests laufen mit TZ=Europe/Berlin: am 20. Oktober gilt Sommerzeit (UTC+2), am 26. Oktober Winterzeit (UTC+1)
+  it('berechnet den Erinnerungszeitpunkt in der Zeitzone des Geräts', () => {
+    const task = createTask({ title: 'Arzt', plannedDate: '2026-10-20', time: '14:30', reminder: 30 }, CREATED)
+    expect(task.remindAt).toBe('2026-10-20T12:00:00.000Z')
+    const winter = createTask({ title: 'Arzt', plannedDate: '2026-10-26', time: '14:30', reminder: 0 }, CREATED)
+    expect(winter.remindAt).toBe('2026-10-26T13:30:00.000Z')
+  })
+
+  it('erinnert am Vortag, wenn der Vorlauf über Mitternacht reicht', () => {
+    const task = createTask({ title: 'Zug', plannedDate: '2026-10-20', time: '08:00', reminder: 24 * 60 }, CREATED)
+    expect(task.remindAt).toBe('2026-10-19T06:00:00.000Z')
+  })
+
+  it('hat ohne Uhrzeit oder Erinnerung keinen Zeitpunkt', () => {
+    expect(createTask({ title: 'a', plannedDate: '2026-10-20', time: '14:30' }, CREATED).remindAt).toBeUndefined()
+    expect(createTask({ title: 'a', plannedDate: '2026-10-20', reminder: 0 }, CREATED).remindAt).toBeUndefined()
+    expect(createTask({ title: 'a', time: '14:30', reminder: 0 }, CREATED).remindAt).toBeUndefined()
+  })
+
+  it('verschiebt die Erinnerung mit, wenn die Aufgabe auf einen anderen Tag kommt', () => {
+    const task = createTask({ title: 'Arzt', plannedDate: '2026-10-20', time: '14:30', reminder: 0 }, CREATED)
+    const [moved] = scheduleTask([task], task.id, '2026-10-21', LATER)
+    expect(moved.remindAt).toBe('2026-10-21T12:30:00.000Z')
+    const [inbox] = moveTaskToInbox([task], task.id, LATER)
+    expect(inbox.remindAt).toBeUndefined()
+    const [noReminder] = updateTask([task], task.id, { reminder: undefined }, LATER)
+    expect(noReminder.remindAt).toBeUndefined()
+    expect(noReminder.time).toBe('14:30')
+  })
+})

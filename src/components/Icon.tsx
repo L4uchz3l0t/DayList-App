@@ -14,6 +14,7 @@ const paths = {
   chevronRight: 'M9 6l6 6-6 6',
   calendar: 'M4 7h16M4 7v12h16V7M4 7V5h16v2M8 3v4M16 3v4',
   move: 'M4 7h16M4 7v12h16V7M4 7V5h16v2M8 3v4M16 3v4M9 13h6M13 11l2 2-2 2',
+  bell: 'M6 16V11a6 6 0 1 1 12 0v5l1.5 2h-15ZM10 20.5a2 2 0 0 0 4 0',
   clock: 'M12 7v5l3 2M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18Z',
   search: 'M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14ZM20 20l-4-4',
   moon: 'M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5Z',

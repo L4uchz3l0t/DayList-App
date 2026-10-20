@@ -3,6 +3,7 @@ import { LANGUAGE_NAMES, type Language } from '../i18n/messages'
 import type { ThemePreference } from '../theme'
 import { BackupSettings } from '../components/BackupSettings'
 import { CloudSettings } from '../components/CloudSettings'
+import { ReminderSettings } from '../components/ReminderSettings'
 import type { CloudSync } from '../sync/useCloudSync'
 import type { MergeResult } from '../storage/backup'
 import type { Task } from '../tasks/types'
@@ -18,7 +19,7 @@ interface SettingsViewProps {
   cloud: CloudSync
 }
 
-/** Einstellungen: Sprache, Design und Datensicherung. Weitere (zum Beispiel Erinnerungen) folgen später. */
+/** Einstellungen: Sprache, Design, Datensicherung und Erinnerungen. */
 export function SettingsView({
   themePreference,
   onThemeChange,
@@ -79,6 +80,7 @@ export function SettingsView({
       </section>
 
       {cloud.available && <CloudSettings cloud={cloud} />}
+      {cloud.available && <ReminderSettings signedIn={cloud.email !== null} />}
 
       <BackupSettings tasks={tasks} todayKey={todayKey} onImport={onImport} onMessage={onMessage} />
 

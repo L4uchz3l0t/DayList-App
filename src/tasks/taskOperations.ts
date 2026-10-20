@@ -15,6 +15,8 @@ export interface TaskChanges {
   plannedDate?: string | undefined
   dueDate?: string | undefined
   priority?: TaskPriority | undefined
+  time?: string | undefined
+  reminder?: number | undefined
 }
 
 /** Angaben für eine neue Aufgabe. Nur der Titel ist Pflicht. */
@@ -23,6 +25,21 @@ export interface NewTaskInput {
   plannedDate?: string
   dueDate?: string
   priority?: TaskPriority
+  time?: string
+  reminder?: number
+}
+
+/**
+ * Berechnet den Zeitpunkt der Erinnerung aus geplantem Tag, Uhrzeit und Vorlauf in der Zeitzone dieses Geräts.
+ * Ohne Tag, Uhrzeit oder Erinnerung gibt es keinen Zeitpunkt.
+ */
+export function withRemindAt(task: Task): Task {
+  const { remindAt: _old, ...rest } = task
+  if (!task.plannedDate || !task.time || task.reminder === undefined) return rest
+  const [year, month, day] = task.plannedDate.split('-').map(Number)
+  const [hours, minutes] = task.time.split(':').map(Number)
+  const at = new Date(year, month - 1, day, hours, minutes - task.reminder)
+  return { ...rest, remindAt: at.toISOString() }
 }
 
 /** Erstellt eine neue, offene Aufgabe. Ohne geplanten Tag landet sie unter Irgendwann. */
@@ -31,7 +48,9 @@ export function createTask(input: NewTaskInput, now: string): Task {
   if (input.plannedDate) task.plannedDate = input.plannedDate
   if (input.dueDate) task.dueDate = input.dueDate
   if (input.priority) task.priority = input.priority
-  return task
+  if (input.time) task.time = input.time
+  if (input.reminder !== undefined) task.reminder = input.reminder
+  return withRemindAt(task)
 }
 
 /** Ändert eine Aufgabe. Ein leerer Titel wird ignoriert, damit keine namenlosen Aufgaben entstehen. */
@@ -42,17 +61,17 @@ export function updateTask(tasks: Task[], id: string, changes: TaskChanges, now:
     const updated: Task = { ...task, updatedAt: now }
     if (changes.title !== undefined && changes.title.trim() !== '') updated.title = changes.title.trim()
     if (changes.status !== undefined) updated.status = changes.status
-    for (const key of ['plannedDate', 'dueDate', 'priority'] as const) {
+    for (const key of ['plannedDate', 'dueDate', 'priority', 'time', 'reminder'] as const) {
       if (!(key in changes)) continue
       const value = changes[key]
       if (value === undefined || value === '') {
         delete updated[key]
       } else {
-        // TypeScript weiß hier nicht, welcher der drei Schlüssel es ist, daher die Umwandlung
-        ;(updated as unknown as Record<string, string>)[key] = value
+        // TypeScript weiß hier nicht, welcher der Schlüssel es ist, daher die Umwandlung
+        ;(updated as unknown as Record<string, string | number>)[key] = value
       }
     }
-    return updated
+    return withRemindAt(updated)
   })
 }
 

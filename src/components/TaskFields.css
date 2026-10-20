@@ -29,3 +29,8 @@
   background: color-mix(in srgb, var(--color-warm) 16%, transparent);
   color: var(--color-warm);
 }
+
+.task-field__time {
+  width: auto;
+  min-width: 8rem;
+}

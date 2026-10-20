@@ -3,7 +3,7 @@ import type { NewTaskInput } from '../tasks/taskOperations'
 import { describePlannedDay, getDayKind } from '../tasks/taskViews'
 import { Icon } from './Icon'
 import { Sheet } from './Sheet'
-import { DayPicker, DueDateField, ImportantToggle } from './TaskFields'
+import { DayPicker, DueDateField, ImportantToggle, TimeField } from './TaskFields'
 import './QuickAdd.css'
 import { useI18n } from '../i18n/useI18n'
 
@@ -45,6 +45,8 @@ export function QuickAdd({
   const [plannedDate, setPlannedDate] = useState(initialPlannedDate)
   const [dueDate, setDueDate] = useState('')
   const [isImportant, setImportant] = useState(false)
+  const [time, setTime] = useState('')
+  const [reminder, setReminder] = useState<number | undefined>(undefined)
   const [showMore, setShowMore] = useState(false)
   const [savedMessage, setSavedMessage] = useState<string | null>(null)
   const [minimized, setMinimized] = useState(false)
@@ -67,6 +69,8 @@ export function QuickAdd({
       plannedDate: plannedDate || undefined,
       dueDate: dueDate || undefined,
       priority: isImportant ? 'high' : undefined,
+      time: plannedDate && time ? time : undefined,
+      reminder: plannedDate && time ? reminder : undefined,
     })
     const message = t.quickAdd.saved(trimmed, dayLabel)
     if (closeAfterSave) {
@@ -75,10 +79,12 @@ export function QuickAdd({
       return
     }
     setSavedMessage(message)
-    // Titel, Frist und Wichtig gelten nur für diese Aufgabe, der Tag bleibt für die nächste stehen
+    // Titel, Uhrzeit, Frist und Wichtig gelten nur für diese Aufgabe, der Tag bleibt für die nächste stehen
     setTitle('')
     setDueDate('')
     setImportant(false)
+    setTime('')
+    setReminder(undefined)
     setShowMore(false)
     // Einklappen und Tastatur schließen, damit die Liste dahinter wieder sichtbar ist
     setMinimized(true)
@@ -125,6 +131,9 @@ export function QuickAdd({
 
             {showMore && (
               <div className="quick-add__extra">
+                {plannedDate && (
+                  <TimeField time={time} reminder={reminder} onTimeChange={setTime} onReminderChange={setReminder} />
+                )}
                 <DueDateField value={dueDate} onChange={setDueDate} todayKey={todayKey} />
                 <ImportantToggle value={isImportant} onChange={setImportant} />
               </div>

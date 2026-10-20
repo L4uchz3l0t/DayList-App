@@ -80,6 +80,8 @@ export const de = {
     moveShort: 'Verschieben',
     scheduleShort: 'Einplanen',
     plannedOn: (date: string) => `geplant ${date}`,
+    at: (time: string) => `${time} Uhr`,
+    withReminder: 'mit Erinnerung',
   },
   quickAdd: {
     title: 'Neue Aufgabe',
@@ -109,6 +111,19 @@ export const de = {
     calendar: (label: string) => `Kalender ${label}`,
     prevMonth: 'Vorheriger Monat',
     nextMonth: 'Nächster Monat',
+    time: 'Uhrzeit (optional)',
+    noTime: 'Keine Uhrzeit',
+    reminder: 'Erinnerung',
+    reminderOption: (minutes: number | undefined) =>
+      minutes === undefined
+        ? 'Keine'
+        : minutes === 0
+          ? 'Zur Uhrzeit'
+          : minutes < 60
+            ? `${minutes} Min. vorher`
+            : minutes < 24 * 60
+              ? `${minutes / 60} Std. vorher`
+              : `${minutes / (24 * 60)} Tag vorher`,
   },
   move: { titleMove: 'Verschieben', titleSchedule: 'Einplanen', newDay: 'Neuer Tag' },
   toast: {
@@ -150,6 +165,22 @@ export const de = {
     rateLimited:
       'Gerade wurden zu viele Anmelde-E-Mails verschickt. Nimm den Code aus der letzten E-Mail, oder versuch es später noch einmal.',
     wrongCode: 'Der Code stimmt nicht oder ist abgelaufen. Lass dir einen neuen schicken.',
+  },
+  reminders: {
+    heading: 'Erinnerungen',
+    intro:
+      'Erinnerungen kommen als Benachrichtigung auf dieses Gerät, auch wenn die App geschlossen ist. Stell dafür bei einer Aufgabe eine Uhrzeit und eine Erinnerung ein.',
+    needsSignIn: 'Melde dich zuerst oben bei der automatischen Sicherung an. Der Erinnerungsdienst arbeitet mit deinen gesicherten Aufgaben.',
+    needsInstall:
+      'Auf dem iPhone und iPad gehen Benachrichtigungen nur, wenn DayList auf dem Home-Bildschirm liegt (Teilen → Zum Home-Bildschirm). Öffne die App dann von dort.',
+    unsupported: 'Dieser Browser kann leider keine Benachrichtigungen empfangen.',
+    denied: 'Benachrichtigungen sind für DayList blockiert. Erlaube sie in den Einstellungen des Browsers oder Handys und öffne die App neu.',
+    on: 'Erinnerungen sind auf diesem Gerät eingeschaltet.',
+    enable: 'Erinnerungen einschalten',
+    disable: 'Ausschalten',
+    test: 'Test-Nachricht schicken',
+    testSent: 'Test verschickt. Die Nachricht sollte gleich erscheinen.',
+    failed: 'Das hat nicht geklappt. Ist der Erinnerungsdienst in Supabase eingerichtet?',
   },
   backup: {
     heading: 'Sicherung als Datei',
@@ -230,6 +261,8 @@ export const en: Messages = {
     moveShort: 'Move',
     scheduleShort: 'Schedule',
     plannedOn: (date) => `planned ${date}`,
+    at: (time) => time,
+    withReminder: 'with reminder',
   },
   quickAdd: {
     title: 'New task',
@@ -259,6 +292,19 @@ export const en: Messages = {
     calendar: (label) => `Calendar ${label}`,
     prevMonth: 'Previous month',
     nextMonth: 'Next month',
+    time: 'Time (optional)',
+    noTime: 'No time',
+    reminder: 'Reminder',
+    reminderOption: (minutes) =>
+      minutes === undefined
+        ? 'None'
+        : minutes === 0
+          ? 'At the time'
+          : minutes < 60
+            ? `${minutes} min before`
+            : minutes < 24 * 60
+              ? `${minutes / 60} h before`
+              : `${minutes / (24 * 60)} day before`,
   },
   move: { titleMove: 'Move', titleSchedule: 'Schedule', newDay: 'New day' },
   toast: {
@@ -299,6 +345,21 @@ export const en: Messages = {
     rateLimited:
       'Too many sign-in emails were sent just now. Use the code from the last email, or try again later.',
     wrongCode: 'The code is wrong or has expired. Request a new one.',
+  },
+  reminders: {
+    heading: 'Reminders',
+    intro: 'Reminders arrive as notifications on this device, even when the app is closed. Set a time and a reminder on a task.',
+    needsSignIn: 'Sign in to automatic backup above first. The reminder service works with your backed-up tasks.',
+    needsInstall:
+      'On iPhone and iPad, notifications only work when DayList is on the home screen (Share → Add to Home Screen). Then open the app from there.',
+    unsupported: 'This browser cannot receive notifications.',
+    denied: 'Notifications are blocked for DayList. Allow them in your browser or phone settings and reopen the app.',
+    on: 'Reminders are turned on for this device.',
+    enable: 'Turn on reminders',
+    disable: 'Turn off',
+    test: 'Send test notification',
+    testSent: 'Test sent. The notification should appear shortly.',
+    failed: 'That did not work. Is the reminder service set up in Supabase?',
   },
   backup: {
     heading: 'Backup file',

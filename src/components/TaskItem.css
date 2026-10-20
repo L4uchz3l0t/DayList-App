@@ -114,6 +114,11 @@
   color: var(--color-text-muted);
 }
 
+.task-item__tag--time {
+  background: var(--color-success-soft);
+  color: var(--color-success);
+}
+
 /* Verschieben-Knopf rechts: dezent, aber mit voller Tippfläche */
 .task-item__move {
   flex: none;

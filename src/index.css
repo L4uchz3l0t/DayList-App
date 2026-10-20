@@ -80,3 +80,13 @@ button {
     transition-duration: 1ms !important;
   }
 }
+
+/* Nur für Bildschirmleser: unsichtbar, wird aber vorgelesen */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}

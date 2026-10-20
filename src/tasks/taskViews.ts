@@ -11,6 +11,14 @@ export function byPriority(a: Task, b: Task): number {
   return Number(b.priority === 'high') - Number(a.priority === 'high')
 }
 
+/** Aufgaben mit Uhrzeit zuerst und nach Uhrzeit sortiert, danach wichtige zuerst. */
+export function byTimeAndPriority(a: Task, b: Task): number {
+  if (a.time && b.time) return a.time.localeCompare(b.time) || byPriority(a, b)
+  if (a.time) return -1
+  if (b.time) return 1
+  return byPriority(a, b)
+}
+
 /** Offen und der geplante Tag liegt vor heute. */
 export function isOverdue(task: Task, todayKey: string): boolean {
   return task.status === 'open' && task.plannedDate !== undefined && task.plannedDate < todayKey
@@ -46,7 +54,7 @@ export function getDay(tasks: Task[], dateKey: string): WeekDay {
   return {
     dateKey,
     tasks: [
-      ...planned.filter((task) => task.status === 'open').sort(byPriority),
+      ...planned.filter((task) => task.status === 'open').sort(byTimeAndPriority),
       ...planned.filter((task) => task.status === 'done'),
     ],
     deadlines: tasks.filter((task) => task.status === 'open' && task.dueDate === dateKey),

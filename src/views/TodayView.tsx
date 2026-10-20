@@ -2,7 +2,7 @@ import { DayProgress } from '../components/DayProgress'
 import { DoneSection } from '../components/DoneSection'
 import { EmptyState } from '../components/EmptyState'
 import { TaskSection } from '../components/TaskSection'
-import { byPriority, getOverdueTasks } from '../tasks/taskViews'
+import { byTimeAndPriority, getOverdueTasks } from '../tasks/taskViews'
 import type { Task } from '../tasks/types'
 import { useI18n } from '../i18n/useI18n'
 
@@ -19,7 +19,7 @@ export function TodayView({ tasks, todayKey, onToggle, onOpen, onMove, onAdd }: 
   const { t } = useI18n()
   const overdue = getOverdueTasks(tasks, todayKey)
   const plannedToday = tasks.filter((task) => task.plannedDate === todayKey)
-  const openToday = plannedToday.filter((task) => task.status === 'open').sort(byPriority)
+  const openToday = plannedToday.filter((task) => task.status === 'open').sort(byTimeAndPriority)
   const doneToday = plannedToday.filter((task) => task.status === 'done')
 
   const nothingOpen = overdue.length === 0 && openToday.length === 0

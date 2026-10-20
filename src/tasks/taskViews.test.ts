@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  byTimeAndPriority,
   countTasksByDay,
   describePlannedDay,
   getInboxTasks,
@@ -163,5 +164,17 @@ describe('Kalender', () => {
 
   it('färbt Tage mit mehr Aufgaben kräftiger', () => {
     expect([0, 1, 2, 3, 4, 5, 6, 12].map(heatLevel)).toEqual([0, 1, 2, 2, 3, 3, 4, 4])
+  })
+})
+
+describe('byTimeAndPriority', () => {
+  it('zeigt Aufgaben mit Uhrzeit zuerst, nach Uhrzeit sortiert', () => {
+    const sorted = [
+      task('ohne'),
+      task('wichtig', { priority: 'high' }),
+      task('spät', { time: '18:00' }),
+      task('früh', { time: '08:15' }),
+    ].sort(byTimeAndPriority)
+    expect(sorted.map((t) => t.id)).toEqual(['früh', 'spät', 'wichtig', 'ohne'])
   })
 })

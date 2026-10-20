@@ -15,6 +15,15 @@ export interface Task {
   /** Verbindliche Frist. Unabhängig vom geplanten Tag. */
   dueDate?: string
   priority?: TaskPriority
+  /** Uhrzeit am geplanten Tag als "HH:MM". Leer = irgendwann am Tag. */
+  time?: string
+  /** Erinnerung so viele Minuten vor der Uhrzeit (0 = genau zur Uhrzeit). Leer = keine Erinnerung. */
+  reminder?: number
+  /**
+   * Zeitpunkt der Erinnerung (ISO-Zeitstempel), wird aus Tag, Uhrzeit und Erinnerung berechnet.
+   * Der Erinnerungsdienst in der Cloud braucht ihn, weil er die Zeitzone des Geräts nicht kennt.
+   */
+  remindAt?: string
   /** Zeitpunkt der Erstellung (ISO-Zeitstempel) */
   createdAt: string
   /** Zeitpunkt der letzten Änderung (ISO-Zeitstempel) */

@@ -42,6 +42,8 @@ export default defineConfig({
         // Eine neue Version übernimmt sofort alle offenen Fenster der App
         clientsClaim: true,
         skipWaiting: true,
+        // Erinnerungen als Push-Benachrichtigung anzeigen (public/push-handler.js)
+        importScripts: ['push-handler.js'],
       },
     }),
   ],

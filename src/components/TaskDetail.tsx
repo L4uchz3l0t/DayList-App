@@ -2,7 +2,7 @@ import { useState, type FormEvent } from 'react'
 import type { TaskChanges } from '../tasks/taskOperations'
 import type { Task } from '../tasks/types'
 import { Sheet } from './Sheet'
-import { DayPicker, DueDateField, ImportantToggle } from './TaskFields'
+import { DayPicker, DueDateField, ImportantToggle, TimeField } from './TaskFields'
 import './TaskDetail.css'
 import { useI18n } from '../i18n/useI18n'
 
@@ -18,7 +18,7 @@ interface TaskDetailProps {
 }
 
 /**
- * Detailansicht einer Aufgabe: Titel, Tag, Frist und Wichtigkeit ändern, erledigen oder löschen.
+ * Detailansicht einer Aufgabe: Titel, Tag, Uhrzeit mit Erinnerung, Frist und Wichtigkeit ändern, erledigen oder löschen.
  * Änderungen werden erst mit "Speichern" übernommen. Schließen verwirft sie.
  */
 export function TaskDetail({ task, todayKey, onSave, onToggle, onDelete, onClose, closing }: TaskDetailProps) {
@@ -27,6 +27,8 @@ export function TaskDetail({ task, todayKey, onSave, onToggle, onDelete, onClose
   const [plannedDate, setPlannedDate] = useState(task.plannedDate ?? '')
   const [dueDate, setDueDate] = useState(task.dueDate ?? '')
   const [isImportant, setImportant] = useState(task.priority === 'high')
+  const [time, setTime] = useState(task.time ?? '')
+  const [reminder, setReminder] = useState(task.reminder)
   const [confirmDelete, setConfirmDelete] = useState(false)
 
   const isDone = task.status === 'done'
@@ -39,6 +41,8 @@ export function TaskDetail({ task, todayKey, onSave, onToggle, onDelete, onClose
       plannedDate: plannedDate || undefined,
       dueDate: dueDate || undefined,
       priority: isImportant ? 'high' : undefined,
+      time: time || undefined,
+      reminder: time ? reminder : undefined,
     })
   }
 
@@ -51,6 +55,9 @@ export function TaskDetail({ task, todayKey, onSave, onToggle, onDelete, onClose
         </label>
 
         <DayPicker value={plannedDate} onChange={setPlannedDate} todayKey={todayKey} showDateInput />
+        {plannedDate && (
+          <TimeField time={time} reminder={reminder} onTimeChange={setTime} onReminderChange={setReminder} />
+        )}
         <DueDateField value={dueDate} onChange={setDueDate} todayKey={todayKey} />
         <ImportantToggle value={isImportant} onChange={setImportant} />
 

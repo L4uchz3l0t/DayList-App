@@ -1,4 +1,5 @@
 import type { Task, TaskPriority } from '../tasks/types'
+import { withRemindAt } from '../tasks/taskOperations'
 
 /*
   Datensicherung als Datei: alle Aufgaben werden als JSON-Text gespeichert und können
@@ -30,6 +31,7 @@ export function backupFileName(dateKey: string, prefix = 'daylist-sicherung'): s
 }
 
 const DATE_KEY = /^\d{4}-\d{2}-\d{2}$/
+const TIME = /^\d{2}:\d{2}$/
 const PRIORITIES: TaskPriority[] = ['low', 'normal', 'high']
 
 /** Prüft eine einzelne Aufgabe aus der Datei und übernimmt nur bekannte Felder. */
@@ -62,7 +64,10 @@ function readTask(value: unknown): Task {
   if (plannedDate) task.plannedDate = plannedDate
   if (dueDate) task.dueDate = dueDate
   if (raw.priority) task.priority = raw.priority as TaskPriority
-  return task
+  // Uhrzeit und Erinnerung: Ungültiges wird still weggelassen, die Aufgabe bleibt erhalten
+  if (typeof raw.time === 'string' && TIME.test(raw.time)) task.time = raw.time
+  if (typeof raw.reminder === 'number' && Number.isInteger(raw.reminder) && raw.reminder >= 0) task.reminder = raw.reminder
+  return withRemindAt(task)
 }
 
 /** Liest den Text einer Sicherungsdatei. Wirft InvalidBackupError, wenn es keine DayList-Sicherung ist. */

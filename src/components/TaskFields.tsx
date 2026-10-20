@@ -104,3 +104,61 @@ export function ImportantToggle({ value, onChange }: ImportantToggleProps) {
     </button>
   )
 }
+
+/** Auswahl für die Erinnerung: Minuten vor der Uhrzeit, `undefined` = keine Erinnerung */
+const REMINDER_OPTIONS = [undefined, 0, 10, 30, 60, 24 * 60] as const
+
+interface TimeFieldProps {
+  /** Uhrzeit als "HH:MM", leerer Text = keine Uhrzeit */
+  time: string
+  reminder: number | undefined
+  onTimeChange: (value: string) => void
+  onReminderChange: (value: number | undefined) => void
+}
+
+/** Uhrzeit am geplanten Tag und, sobald eine Uhrzeit gewählt ist, die Erinnerung dazu. */
+export function TimeField({ time, reminder, onTimeChange, onReminderChange }: TimeFieldProps) {
+  const { t } = useI18n()
+  const reminderLabelId = useId()
+  return (
+    <div className="task-field">
+      <label className="task-field">
+        <span className="task-field__label">{t.fields.time}</span>
+        <span className="task-field__row">
+          <input
+            className="field task-field__time"
+            type="time"
+            value={time}
+            onChange={(event) => onTimeChange(event.target.value)}
+          />
+          {time && (
+            <button type="button" className="button button--secondary" onClick={() => onTimeChange('')}>
+              {t.fields.noTime}
+            </button>
+          )}
+        </span>
+      </label>
+      {time && (
+        <>
+          <span className="task-field__label" id={reminderLabelId}>
+            {t.fields.reminder}
+          </span>
+          <div className="chips" role="radiogroup" aria-labelledby={reminderLabelId}>
+            {REMINDER_OPTIONS.map((minutes) => (
+              <button
+                key={minutes ?? 'keine'}
+                type="button"
+                role="radio"
+                aria-checked={reminder === minutes}
+                className="chip"
+                onClick={() => onReminderChange(minutes)}
+              >
+                {t.fields.reminderOption(minutes)}
+              </button>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  )
+}
