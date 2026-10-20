@@ -5,8 +5,8 @@
   was die Regeln der Tabelle zulassen (jedes Konto sieht nur seine eigenen Aufgaben).
   Solange die Werte leer sind, ist die automatische Sicherung in der App ausgeblendet.
 */
-const PROJECT_URL = ''
-const PUBLISHABLE_KEY = ''
+const PROJECT_URL = 'https://lagujegkqtgqandkzxjj.supabase.co'
+const PUBLISHABLE_KEY = 'sb_publishable_J6RR4SZquSnZ3FnSsjBlZQ_R6dWhXEO'
 
 // Für Tests lassen sich beide Werte beim Bauen über Umgebungsvariablen ersetzen
 export const SUPABASE_URL: string = import.meta.env.VITE_SUPABASE_URL || PROJECT_URL
