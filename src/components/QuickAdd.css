@@ -4,6 +4,32 @@
   gap: var(--space-4);
 }
 
+/* Der untere Teil (Optionen, Speichern) klappt weich weg, wenn das Fenster zum Rand rutscht */
+.quick-add__expandable {
+  display: grid;
+  grid-template-rows: 1fr;
+  transition:
+    grid-template-rows var(--duration-enter) var(--ease-out),
+    opacity var(--duration-enter) var(--ease-out),
+    margin-top var(--duration-enter) var(--ease-out);
+}
+
+.quick-add__expandable[data-collapsed='true'] {
+  grid-template-rows: 0fr;
+  /* Auch den Abstand zum Feld darüber einklappen */
+  margin-top: calc(var(--space-4) * -1);
+  opacity: 0;
+}
+
+.quick-add__expandable-inner {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-height: 0;
+  overflow: clip;
+  overflow-clip-margin: var(--space-2);
+}
+
 .quick-add__more {
   display: inline-flex;
   align-items: center;

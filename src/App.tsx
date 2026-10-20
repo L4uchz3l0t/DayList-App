@@ -144,6 +144,8 @@ function App() {
           initialPlannedDate={quickAdd.shown}
           onSave={addTask}
           onClose={closeQuickAdd}
+          closeAfterSave={activeView === 'today'}
+          onSaved={showToast}
           closing={quickAdd.closing}
         />
       )}

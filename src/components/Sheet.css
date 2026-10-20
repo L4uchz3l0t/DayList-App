@@ -7,6 +7,17 @@
   justify-content: center;
   background: var(--backdrop);
   animation: fade-in var(--duration-enter) var(--ease-out);
+  transition: background-color var(--duration-enter) var(--ease-out);
+}
+
+/* Eingeklappt: nichts abdunkeln, Tipps gehen an die App dahinter, nur das Fenster selbst bleibt bedienbar */
+.sheet__backdrop--minimized {
+  background: transparent;
+  pointer-events: none;
+}
+
+.sheet__backdrop--minimized .sheet {
+  pointer-events: auto;
 }
 
 .sheet__backdrop--closing {
@@ -51,6 +62,13 @@
 
   .sheet {
     border-radius: var(--radius-lg);
+  }
+
+  /* Am Computer rutscht das eingeklappte Fenster ebenfalls an den unteren Rand */
+  .sheet__backdrop--minimized {
+    align-items: flex-end;
+    padding-top: 0;
+    padding-bottom: var(--space-6);
   }
 }
 
