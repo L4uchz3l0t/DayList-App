@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import type { Session } from '@supabase/supabase-js'
+import type { EmailOtpType, Session } from '@supabase/supabase-js'
 import type { Task } from '../tasks/types'
 import { isCloudConfigured } from './cloudConfig'
 import { fetchRemoteRows, pushRows } from './cloudStore'
@@ -33,6 +33,21 @@ export interface CloudSync {
   verifyCode: (email: string, code: string) => Promise<void>
   signOut: () => Promise<void>
   syncNow: () => void
+}
+
+/** Liest Schlüssel und Art aus einem Anmeldelink von Supabase (…/auth/v1/verify?token=…&type=magiclink). */
+export function readEmailLink(text: string): { tokenHash: string; type: EmailOtpType } | null {
+  let url: URL
+  try {
+    url = new URL(text.trim())
+  } catch {
+    return null
+  }
+  const tokenHash = url.searchParams.get('token') ?? url.searchParams.get('token_hash')
+  const type = url.searchParams.get('type')
+  const types: EmailOtpType[] = ['magiclink', 'signup', 'email', 'invite', 'recovery', 'email_change']
+  if (!tokenHash || !types.includes(type as EmailOtpType)) return null
+  return { tokenHash, type: type as EmailOtpType }
 }
 
 function readLastSync(): string | null {
@@ -188,7 +203,11 @@ export function useCloudSync(
     const client = getSupabase()
     if (!client) return
     const supabase = await client
-    const { data, error } = await supabase.auth.verifyOtp({ email, token: code, type: 'email' })
+    // Eingefügter Link aus der E-Mail: der Schlüssel steht darin als "token"
+    const link = readEmailLink(code)
+    const { data, error } = link
+      ? await supabase.auth.verifyOtp({ token_hash: link.tokenHash, type: link.type })
+      : await supabase.auth.verifyOtp({ email, token: code, type: 'email' })
     if (error) throw error
     setSession(data.session)
   }, [])

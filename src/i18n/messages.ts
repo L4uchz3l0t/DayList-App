@@ -134,8 +134,9 @@ export const de = {
     sendCode: 'Anmeldelink schicken',
     codeSent: (email: string) =>
       `Wir haben dir eine E-Mail an ${email} geschickt. Tippe auf diesem Gerät auf den Link darin. Geht dabei ein Browser-Fenster auf, wechsle danach einfach zurück in die App.`,
-    codeHint: 'Steht in der E-Mail stattdessen ein Code, kannst du ihn hier eingeben:',
-    codeLabel: 'Code aus der E-Mail',
+    codeHint:
+      'Geht der Link in einem anderen Browser oder auf einem anderen Gerät auf? Dann kopiere den Link aus der E-Mail (gedrückt halten oder Rechtsklick → Link-Adresse kopieren) und füge ihn hier ein:',
+    codeLabel: 'Link aus der E-Mail',
     signIn: 'Anmelden',
     otherEmail: 'Andere Adresse',
     signedInAs: (email: string) => `Angemeldet als ${email}`,
@@ -147,7 +148,7 @@ export const de = {
     syncNow: 'Jetzt sichern',
     signOut: 'Abmelden',
     sendFailed: 'Die E-Mail konnte nicht verschickt werden. Prüfe die Adresse und versuch es gleich noch einmal.',
-    wrongCode: 'Der Code stimmt nicht oder ist abgelaufen.',
+    wrongCode: 'Der Link stimmt nicht oder wurde schon benutzt. Lass dir einen neuen schicken.',
   },
   backup: {
     heading: 'Sicherung als Datei',
@@ -281,8 +282,9 @@ export const en: Messages = {
     sendCode: 'Send sign-in link',
     codeSent: (email) =>
       `We sent an email to ${email}. Tap the link in it on this device. If a browser window opens, just switch back to the app afterwards.`,
-    codeHint: 'If the email contains a code instead, you can enter it here:',
-    codeLabel: 'Code from the email',
+    codeHint:
+      'Does the link open in a different browser or on another device? Then copy the link from the email (long-press or right-click → copy link address) and paste it here:',
+    codeLabel: 'Link from the email',
     signIn: 'Sign in',
     otherEmail: 'Different address',
     signedInAs: (email) => `Signed in as ${email}`,
@@ -294,7 +296,7 @@ export const en: Messages = {
     syncNow: 'Back up now',
     signOut: 'Sign out',
     sendFailed: 'The email could not be sent. Check the address and try again in a moment.',
-    wrongCode: 'The code is wrong or has expired.',
+    wrongCode: 'The link is wrong or has already been used. Request a new one.',
   },
   backup: {
     heading: 'Backup file',

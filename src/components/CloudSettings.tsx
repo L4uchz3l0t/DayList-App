@@ -103,8 +103,8 @@ export function CloudSettings({ cloud }: CloudSettingsProps) {
             <input
               className="field"
               type="text"
-              inputMode="numeric"
-              autoComplete="one-time-code"
+              autoComplete="off"
+              spellCheck={false}
               value={code}
               onChange={(event) => setCode(event.target.value)}
             />
