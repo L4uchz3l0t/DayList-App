@@ -8,6 +8,12 @@ function isRateLimit(error: unknown): boolean {
   return status === 429 || (typeof code === 'string' && code.includes('rate_limit'))
 }
 
+/** Kurze Fehlerbeschreibung von Supabase, zum Beispiel "500: Error sending magic link email" */
+function errorText(error: unknown): string {
+  const { status, message } = (error ?? {}) as { status?: number; message?: string }
+  return [status, message].filter(Boolean).join(': ') || String(error)
+}
+
 interface CloudSettingsProps {
   cloud: CloudSync
 }
@@ -42,7 +48,8 @@ export function CloudSettings({ cloud }: CloudSettingsProps) {
         setCode('')
         setMessage(t.cloud.rateLimited)
       } else {
-        setMessage(t.cloud.sendFailed)
+        // Die Antwort von Supabase mit anzeigen, damit sich Fehler beim Mailversand (SMTP) finden lassen
+        setMessage(`${t.cloud.sendFailed} (${errorText(error)})`)
       }
     } finally {
       setBusy(false)

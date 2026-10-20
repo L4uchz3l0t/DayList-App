@@ -11,6 +11,7 @@ import {
   type DragStartEvent,
 } from '@dnd-kit/core'
 import { useMemo, useRef, useState } from 'react'
+import { DoneSection } from '../components/DoneSection'
 import { EmptyState } from '../components/EmptyState'
 import { Icon } from '../components/Icon'
 import { TaskItem } from '../components/TaskItem'
@@ -133,7 +134,8 @@ export function CalendarView({ tasks, todayKey, onToggle, onOpen, onMove, onMove
 
   const kind = getDayKind(selectedKey, todayKey)
   const dayName = kind === 'today' ? t.days.today : kind === 'tomorrow' ? t.days.tomorrow : formatWeekday(selectedKey, t.locale)
-  const openCount = selected.tasks.filter((task) => task.status === 'open').length
+  const openTasks = selected.tasks.filter((task) => task.status === 'open')
+  const doneTasks = selected.tasks.filter((task) => task.status === 'done')
 
   return (
     <DndContext
@@ -183,8 +185,7 @@ export function CalendarView({ tasks, todayKey, onToggle, onOpen, onMove, onMove
 
       <TaskSection
         title={`${dayName} · ${formatShortDate(selectedKey, t.locale)}`}
-        tasks={selected.tasks}
-        count={openCount}
+        tasks={openTasks}
         {...sectionProps}
         action={
           <button
@@ -197,8 +198,12 @@ export function CalendarView({ tasks, todayKey, onToggle, onOpen, onMove, onMove
           </button>
         }
       >
-        {selected.tasks.length === 0 && (
-          <EmptyState title={t.empty.nothingPlanned} compact onClick={() => onAdd(selectedKey)} />
+        {openTasks.length === 0 && (
+          <EmptyState
+            title={doneTasks.length > 0 ? t.empty.noOpen : t.empty.nothingPlanned}
+            compact
+            onClick={() => onAdd(selectedKey)}
+          />
         )}
         {selected.deadlines.map((task) => (
           <button key={task.id} type="button" className="week-view__deadline" onClick={() => onOpen(task.id)}>
@@ -209,6 +214,14 @@ export function CalendarView({ tasks, todayKey, onToggle, onOpen, onMove, onMove
           </button>
         ))}
       </TaskSection>
+
+      <DoneSection
+        storageKey="calendar-done"
+        tasks={doneTasks}
+        todayKey={todayKey}
+        onToggle={guardedToggle}
+        onOpen={guardedOpen}
+      />
 
       {overdue.length > 0 && <TaskSection title={t.sections.overdue} tone="danger" tasks={overdue} {...sectionProps} />}
 
