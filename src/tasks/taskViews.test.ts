@@ -1,10 +1,12 @@
 import { describe, expect, it } from 'vitest'
 import {
+  countTasksByDay,
   describePlannedDay,
   getInboxTasks,
   getOverdueTasks,
   getUpcomingTasks,
   getWeekDays,
+  heatLevel,
   searchTasks,
 } from './taskViews'
 import type { Task } from './types'
@@ -143,5 +145,23 @@ describe('describePlannedDay', () => {
 
   it('erkennt Morgen auch am Monatsende', () => {
     expect(describePlannedDay('2026-11-01', '2026-10-31')).toBe('Morgen')
+  })
+})
+
+describe('Kalender', () => {
+  it('zählt geplante Aufgaben je Tag, offene und erledigte', () => {
+    const counts = countTasksByDay([
+      task('a', { plannedDate: TODAY }),
+      task('b', { plannedDate: TODAY, status: 'done' }),
+      task('c', { plannedDate: '2026-10-20' }),
+      task('d'),
+    ])
+    expect(counts.get(TODAY)).toBe(2)
+    expect(counts.get('2026-10-20')).toBe(1)
+    expect(counts.size).toBe(2)
+  })
+
+  it('färbt Tage mit mehr Aufgaben kräftiger', () => {
+    expect([0, 1, 2, 3, 4, 5, 6, 12].map(heatLevel)).toEqual([0, 1, 2, 2, 3, 3, 4, 4])
   })
 })

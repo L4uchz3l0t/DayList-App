@@ -28,8 +28,8 @@ export default defineConfig({
         scope: base,
         display: 'standalone',
         // Startbildschirm: dunkler App-Hintergrund, auf dem das Verlaufs-Symbol leuchtet
-        background_color: '#121019',
-        theme_color: '#121019',
+        background_color: '#141319',
+        theme_color: '#141319',
         icons: [
           { src: 'pwa-192x192.png', sizes: '192x192', type: 'image/png' },
           { src: 'pwa-512x512.png', sizes: '512x512', type: 'image/png' },

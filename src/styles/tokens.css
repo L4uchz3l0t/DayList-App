@@ -4,34 +4,46 @@
   unterscheiden sich nur hier, nicht in den einzelnen Komponenten.
 
   Farbrollen:
-  - accent:  Violett, für Heute, Navigation und Schaltflächen
-  - warm:    Koralle, zweite Akzentfarbe im Verlauf von Plus-Button und Fortschritt
+  - accent:  Lila, die Hauptfarbe: Datum, Navigation, Schaltflächen, Plus-Knopf
+  - warm:    zweite Akzentfarbe für "Wichtig"
   - danger:  Rot, für Überfälliges
-  - warning: Bernstein, für Fristen und wichtige Aufgaben
-  - success: Grün, für Erledigtes
+  - warning: Bernstein, für Fristen
+  - success: Grün, die zweite Hauptfarbe: Fortschritt und Erledigtes
+  - heat:    Grüntöne im Kalender, von 0 (keine Aufgabe) bis 4 (viele Aufgaben)
 */
 :root {
   /* "only" verbietet dem Browser, die Seite selbst abzudunkeln (Chrome auf Android macht das sonst
      bei eingeschaltetem Dark Mode). Das dunkle Design kommt ausschließlich von uns, siehe unten. */
   color-scheme: only light;
 
-  --color-bg: #f4f0e8;
-  --color-surface: #fffdf9;
-  --color-surface-muted: #ebe5da;
-  --color-border: #e2dacb;
-  --color-text: #1c1a26;
-  --color-text-muted: #6f6a7d;
+  --color-bg: #f6f5f1;
+  --color-surface: #ffffff;
+  --color-surface-muted: #ecebe5;
+  --color-border: #e3e1da;
+  --color-text: #1d1b24;
+  --color-text-muted: #5f5c68;
   --color-on-accent: #ffffff;
 
-  --color-accent: #6b4ef0;
-  --color-accent-soft: #ece7ff;
-  --color-warm: #ff6a3d;
-  --color-danger: #e0384c;
-  --color-danger-soft: #ffe8ea;
-  --color-warning: #c27c00;
-  --color-warning-soft: #fff1d6;
-  --color-success: #23a26d;
-  --color-success-soft: #e0f5ea;
+  --color-accent: #5b3fd0;
+  --color-accent-soft: #ece8fb;
+  --color-warm: #5b3fd0;
+  --color-danger: #d1344a;
+  --color-danger-soft: #fde8ea;
+  --color-warning: #a86a00;
+  --color-warning-soft: #fdf0d8;
+  --color-success: #24855a;
+  --color-success-soft: #dcefe3;
+
+  --heat-0: #ecebe5;
+  --heat-1: #d4ecdd;
+  --heat-2: #a3d6b8;
+  --heat-3: #55b283;
+  --heat-4: #1f7a4f;
+  --heat-text-0: #5f5c68;
+  --heat-text-1: #1d1b24;
+  --heat-text-2: #1d1b24;
+  --heat-text-3: #10271b;
+  --heat-text-4: #ffffff;
 
   /* Bewegung: Einblenden etwas langsamer als Ausblenden wirkt ruhiger */
   --duration-enter: 240ms;
@@ -39,10 +51,8 @@
   --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
   --ease-in: cubic-bezier(0.4, 0, 1, 1);
 
-  --gradient-brand: linear-gradient(135deg, var(--color-accent), var(--color-warm));
-
   --shadow-sm: 0 1px 2px rgb(40 30 20 / 6%), 0 2px 8px rgb(40 30 20 / 5%);
-  --shadow-lg: 0 10px 28px rgb(107 78 240 / 30%);
+  --shadow-lg: 0 8px 22px rgb(60 40 140 / 22%);
   --backdrop: rgb(28 26 38 / 40%);
 }
 
@@ -52,23 +62,34 @@
   :root[data-theme='system'] {
     color-scheme: dark;
 
-    --color-bg: #121019;
-    --color-surface: #1d1a27;
-    --color-surface-muted: #2a2637;
-    --color-border: #312c41;
-    --color-text: #f3f0fa;
-    --color-text-muted: #a39db5;
-    --color-accent: #9b85ff;
-    --color-accent-soft: #2b2450;
-    --color-warm: #ff7d55;
+    --color-bg: #141319;
+    --color-surface: #1e1d25;
+    --color-surface-muted: #2a2833;
+    --color-border: #2e2c37;
+    --color-text: #f1f0f5;
+    --color-text-muted: #a9a6b4;
+    --color-on-accent: #141319;
+    --color-accent: #a890ff;
+    --color-accent-soft: #2c2550;
+    --color-warm: #a890ff;
     --color-danger: #ff6b7d;
     --color-danger-soft: #3a1c26;
     --color-warning: #f5b740;
     --color-warning-soft: #3a2d14;
-    --color-success: #3ccf8e;
-    --color-success-soft: #15342a;
+    --color-success: #4cc38a;
+    --color-success-soft: #173326;
+    --heat-0: #23222b;
+    --heat-1: #1d3a2c;
+    --heat-2: #22583d;
+    --heat-3: #2e8257;
+    --heat-4: #4cc38a;
+    --heat-text-0: #a9a6b4;
+    --heat-text-1: #e6f4ec;
+    --heat-text-2: #f1f0f5;
+    --heat-text-3: #ffffff;
+    --heat-text-4: #0e2418;
     --shadow-sm: 0 1px 2px rgb(0 0 0 / 30%);
-    --shadow-lg: 0 10px 28px rgb(155 133 255 / 25%);
+    --shadow-lg: 0 8px 22px rgb(0 0 0 / 35%);
     --backdrop: rgb(0 0 0 / 55%);
   }
 }
@@ -77,23 +98,34 @@
   /* Gleiche Werte wie oben: für die ausdrückliche Wahl "dunkel" in der App */
   color-scheme: dark;
 
-  --color-bg: #121019;
-  --color-surface: #1d1a27;
-  --color-surface-muted: #2a2637;
-  --color-border: #312c41;
-  --color-text: #f3f0fa;
-  --color-text-muted: #a39db5;
-  --color-accent: #9b85ff;
-  --color-accent-soft: #2b2450;
-  --color-warm: #ff7d55;
+  --color-bg: #141319;
+  --color-surface: #1e1d25;
+  --color-surface-muted: #2a2833;
+  --color-border: #2e2c37;
+  --color-text: #f1f0f5;
+  --color-text-muted: #a9a6b4;
+  --color-on-accent: #141319;
+  --color-accent: #a890ff;
+  --color-accent-soft: #2c2550;
+  --color-warm: #a890ff;
   --color-danger: #ff6b7d;
   --color-danger-soft: #3a1c26;
   --color-warning: #f5b740;
   --color-warning-soft: #3a2d14;
-  --color-success: #3ccf8e;
-  --color-success-soft: #15342a;
+  --color-success: #4cc38a;
+  --color-success-soft: #173326;
+  --heat-0: #23222b;
+  --heat-1: #1d3a2c;
+  --heat-2: #22583d;
+  --heat-3: #2e8257;
+  --heat-4: #4cc38a;
+  --heat-text-0: #a9a6b4;
+  --heat-text-1: #e6f4ec;
+  --heat-text-2: #f1f0f5;
+  --heat-text-3: #ffffff;
+  --heat-text-4: #0e2418;
   --shadow-sm: 0 1px 2px rgb(0 0 0 / 30%);
-  --shadow-lg: 0 10px 28px rgb(155 133 255 / 25%);
+  --shadow-lg: 0 8px 22px rgb(0 0 0 / 35%);
   --backdrop: rgb(0 0 0 / 55%);
 }
 

@@ -20,10 +20,7 @@
   font-weight: 800;
   line-height: 0.9;
   letter-spacing: -0.04em;
-  background: var(--gradient-brand);
-  background-clip: text;
-  -webkit-background-clip: text;
-  color: transparent;
+  color: var(--color-accent);
 }
 
 .app-header__date-text {

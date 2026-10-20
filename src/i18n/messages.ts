@@ -10,7 +10,7 @@ export const de = {
   locale: 'de-DE',
   nav: {
     today: 'Heute',
-    week: 'Woche',
+    week: 'Kalender',
     someday: 'Irgendwann',
     all: 'Alle',
     settings: 'Einstellungen',
@@ -63,6 +63,7 @@ export const de = {
   all: { search: 'Aufgaben durchsuchen …', searchLabel: 'Aufgaben durchsuchen', showDone: 'Erledigte zeigen' },
   week: {
     addFor: (day: string) => `Aufgabe für ${day} hinzufügen`,
+    taskCount: (count: number) => (count === 1 ? '1 Aufgabe' : `${count} Aufgaben`),
     deadline: 'Frist:',
     dragHint: 'Zum Verschieben lieber den Kalender-Knopf rechts an der Aufgabe verwenden.',
     picked: (title: string) => `${q(title)} aufgenommen.`,
@@ -131,12 +132,10 @@ export const de = {
     intro:
       'Melde dich mit deiner E-Mail-Adresse an. Dann sichert die App jede Änderung von selbst und holt deine Aufgaben auf jedem Gerät zurück.',
     emailLabel: 'E-Mail-Adresse',
-    sendCode: 'Anmeldelink schicken',
-    codeSent: (email: string) =>
-      `Wir haben dir eine E-Mail an ${email} geschickt. Tippe auf diesem Gerät auf den Link darin. Geht dabei ein Browser-Fenster auf, wechsle danach einfach zurück in die App.`,
-    codeHint:
-      'Geht der Link in einem anderen Browser oder auf einem anderen Gerät auf? Dann kopiere den Link aus der E-Mail (gedrückt halten oder Rechtsklick → Link-Adresse kopieren) und füge ihn hier ein:',
-    codeLabel: 'Link aus der E-Mail',
+    sendCode: 'Code schicken',
+    codeSent: (email: string) => `Wir haben dir einen Code an ${email} geschickt.`,
+    codeHint: 'Gib den Code aus der E-Mail hier ein. Das klappt auf jedem Gerät, auch wenn du die E-Mail woanders liest.',
+    codeLabel: 'Code aus der E-Mail',
     signIn: 'Anmelden',
     otherEmail: 'Andere Adresse',
     signedInAs: (email: string) => `Angemeldet als ${email}`,
@@ -149,8 +148,8 @@ export const de = {
     signOut: 'Abmelden',
     sendFailed: 'Die E-Mail konnte nicht verschickt werden. Prüfe die Adresse und versuch es gleich noch einmal.',
     rateLimited:
-      'Gerade wurden zu viele Anmelde-E-Mails verschickt. Nimm den Link aus der letzten E-Mail, die du bekommen und noch nicht benutzt hast, oder versuch es in einer Stunde noch einmal.',
-    wrongCode: 'Der Link stimmt nicht oder wurde schon benutzt. Lass dir einen neuen schicken.',
+      'Gerade wurden zu viele Anmelde-E-Mails verschickt. Nimm den Code aus der letzten E-Mail, oder versuch es später noch einmal.',
+    wrongCode: 'Der Code stimmt nicht oder ist abgelaufen. Lass dir einen neuen schicken.',
   },
   backup: {
     heading: 'Sicherung als Datei',
@@ -177,7 +176,7 @@ export const en: Messages = {
   locale: 'en-GB',
   nav: {
     today: 'Today',
-    week: 'Week',
+    week: 'Calendar',
     someday: 'Someday',
     all: 'All',
     settings: 'Settings',
@@ -214,6 +213,7 @@ export const en: Messages = {
   all: { search: 'Search tasks …', searchLabel: 'Search tasks', showDone: 'Show completed' },
   week: {
     addFor: (day) => `Add task for ${day}`,
+    taskCount: (count) => (count === 1 ? '1 task' : `${count} tasks`),
     deadline: 'Deadline:',
     dragHint: 'To move a task, use the calendar button on the right of the task.',
     picked: (title) => `Picked up ${qEn(title)}.`,
@@ -281,12 +281,10 @@ export const en: Messages = {
     heading: 'Automatic backup',
     intro: 'Sign in with your email address. The app then backs up every change by itself and restores your tasks on any device.',
     emailLabel: 'Email address',
-    sendCode: 'Send sign-in link',
-    codeSent: (email) =>
-      `We sent an email to ${email}. Tap the link in it on this device. If a browser window opens, just switch back to the app afterwards.`,
-    codeHint:
-      'Does the link open in a different browser or on another device? Then copy the link from the email (long-press or right-click → copy link address) and paste it here:',
-    codeLabel: 'Link from the email',
+    sendCode: 'Send code',
+    codeSent: (email) => `We sent a code to ${email}.`,
+    codeHint: 'Enter the code from the email here. This works on any device, even if you read the email somewhere else.',
+    codeLabel: 'Code from the email',
     signIn: 'Sign in',
     otherEmail: 'Different address',
     signedInAs: (email) => `Signed in as ${email}`,
@@ -299,8 +297,8 @@ export const en: Messages = {
     signOut: 'Sign out',
     sendFailed: 'The email could not be sent. Check the address and try again in a moment.',
     rateLimited:
-      'Too many sign-in emails were sent just now. Use the link from the last email you received and have not used yet, or try again in an hour.',
-    wrongCode: 'The link is wrong or has already been used. Request a new one.',
+      'Too many sign-in emails were sent just now. Use the code from the last email, or try again later.',
+    wrongCode: 'The code is wrong or has expired. Request a new one.',
   },
   backup: {
     heading: 'Backup file',

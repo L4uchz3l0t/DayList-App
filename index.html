@@ -7,14 +7,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <!-- Die App bringt ihr eigenes dunkles Design mit, der Browser soll nichts selbst abdunkeln -->
     <meta name="color-scheme" content="light dark" />
-    <meta name="theme-color" content="#f4f0e8" />
+    <meta name="theme-color" content="#f6f5f1" />
     <script>
       // Gewähltes Design sofort setzen, bevor die Seite gezeichnet wird (kein kurzes Aufblitzen)
       try {
         var stored = localStorage.getItem('theme') || 'light'
         var dark = stored === 'system' ? matchMedia('(prefers-color-scheme: dark)').matches : stored === 'dark'
         document.documentElement.dataset.theme = stored
-        document.querySelector('meta[name="theme-color"]').content = dark ? '#121019' : '#f4f0e8'
+        document.querySelector('meta[name="theme-color"]').content = dark ? '#141319' : '#f6f5f1'
       } catch (e) {}
     </script>
     <meta name="apple-mobile-web-app-title" content="DayList" />

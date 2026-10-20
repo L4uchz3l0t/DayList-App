@@ -9,7 +9,7 @@
   height: 60px;
   border: none;
   border-radius: 20px;
-  background: var(--gradient-brand);
+  background: var(--color-accent);
   color: var(--color-on-accent);
   box-shadow: var(--shadow-lg);
   transition: transform 0.15s ease;

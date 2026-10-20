@@ -98,7 +98,7 @@
 }
 
 .calendar__day[aria-pressed='true'] {
-  background: var(--gradient-brand);
+  background: var(--color-accent);
   box-shadow: none;
   color: var(--color-on-accent);
 }

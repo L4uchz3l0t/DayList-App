@@ -40,21 +40,41 @@ export interface WeekDay {
   deadlines: Task[]
 }
 
+/** Ein Tag mit seinen geplanten Aufgaben und Fristen. */
+export function getDay(tasks: Task[], dateKey: string): WeekDay {
+  const planned = tasks.filter((task) => task.plannedDate === dateKey)
+  return {
+    dateKey,
+    tasks: [
+      ...planned.filter((task) => task.status === 'open').sort(byPriority),
+      ...planned.filter((task) => task.status === 'done'),
+    ],
+    deadlines: tasks.filter((task) => task.status === 'open' && task.dueDate === dateKey),
+  }
+}
+
 /** Die nächsten `count` Tage ab heute mit ihren Aufgaben und Fristen. */
 export function getWeekDays(tasks: Task[], todayKey: string, count = 7): WeekDay[] {
   const start = parseDateKey(todayKey)
-  return Array.from({ length: count }, (_, index) => {
-    const dateKey = toDateKey(addDays(start, index))
-    const planned = tasks.filter((task) => task.plannedDate === dateKey)
-    return {
-      dateKey,
-      tasks: [
-        ...planned.filter((task) => task.status === 'open').sort(byPriority),
-        ...planned.filter((task) => task.status === 'done'),
-      ],
-      deadlines: tasks.filter((task) => task.status === 'open' && task.dueDate === dateKey),
-    }
-  })
+  return Array.from({ length: count }, (_, index) => getDay(tasks, toDateKey(addDays(start, index))))
+}
+
+/** Anzahl der geplanten Aufgaben (offen und erledigt) je Tag, für die Färbung im Kalender. */
+export function countTasksByDay(tasks: Task[]): Map<string, number> {
+  const counts = new Map<string, number>()
+  for (const task of tasks) {
+    if (task.plannedDate) counts.set(task.plannedDate, (counts.get(task.plannedDate) ?? 0) + 1)
+  }
+  return counts
+}
+
+/** Farbstufe eines Kalendertags: 0 = keine Aufgabe, 1 = eine, 2 = zwei bis drei, 3 = vier bis fünf, 4 = sechs und mehr. */
+export function heatLevel(count: number): 0 | 1 | 2 | 3 | 4 {
+  if (count <= 0) return 0
+  if (count === 1) return 1
+  if (count <= 3) return 2
+  if (count <= 5) return 3
+  return 4
 }
 
 /** Aufgaben, deren Titel den Suchtext enthält (Groß- und Kleinschreibung egal). Leere Suche = alle. */

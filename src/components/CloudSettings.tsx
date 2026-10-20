@@ -13,8 +13,8 @@ interface CloudSettingsProps {
 }
 
 /**
- * Optionen-Karte "Automatische Sicherung": Anmelden mit einem Link per E-Mail, danach Stand der Sicherung.
- * Enthält die E-Mail einen Code (nur mit angepasster Supabase-Vorlage), geht auch der.
+ * Optionen-Karte "Automatische Sicherung": Anmelden mit einem Code per E-Mail, danach Stand der Sicherung.
+ * Statt des Codes geht auch der Link aus der E-Mail (antippen oder ins Feld einfügen).
  */
 export function CloudSettings({ cloud }: CloudSettingsProps) {
   const { t } = useI18n()
@@ -116,7 +116,8 @@ export function CloudSettings({ cloud }: CloudSettingsProps) {
             <input
               className="field"
               type="text"
-              autoComplete="off"
+              inputMode="numeric"
+              autoComplete="one-time-code"
               spellCheck={false}
               value={code}
               onChange={(event) => setCode(event.target.value)}

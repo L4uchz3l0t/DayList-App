@@ -21,7 +21,7 @@ import { InboxView } from './views/InboxView'
 import { PlaceholderView } from './views/PlaceholderView'
 import { SettingsView } from './views/SettingsView'
 import { TodayView } from './views/TodayView'
-import { WeekView } from './views/WeekView'
+import { CalendarView } from './views/CalendarView'
 import './App.css'
 
 /** Rückmeldung nach dem Verschieben, besonders wenn die Aufgabe aus der aktuellen Ansicht verschwindet */
@@ -109,7 +109,7 @@ function App() {
       case 'today':
         return <TodayView {...viewProps} onAdd={() => setQuickAddDay(todayKey)} />
       case 'week':
-        return <WeekView {...viewProps} onMoveTo={handleMove} onAdd={setQuickAddDay} />
+        return <CalendarView {...viewProps} onMoveTo={handleMove} onAdd={setQuickAddDay} />
       case 'inbox':
         return <InboxView {...viewProps} onAdd={() => setQuickAddDay('')} />
       case 'all':

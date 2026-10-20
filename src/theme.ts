@@ -5,7 +5,7 @@ export type ThemePreference = Theme | 'system'
 const STORAGE_KEY = 'theme'
 
 /** Farbe der Statusleiste auf dem Handy, passend zum Hintergrund des Designs */
-const THEME_COLORS: Record<Theme, string> = { light: '#f4f0e8', dark: '#121019' }
+const THEME_COLORS: Record<Theme, string> = { light: '#f6f5f1', dark: '#141319' }
 
 /** Liest die gespeicherte Wahl. Ohne gespeicherte Wahl ist die App hell. */
 export function getThemePreference(): ThemePreference {

@@ -5,22 +5,95 @@
   color: var(--color-text-muted);
 }
 
-/* Woche: jeder Tag ist eine Ablagefläche fürs Ziehen */
-.week-view__day {
-  margin: 0 calc(var(--space-2) * -1);
-  padding: var(--space-2) var(--space-2) 0;
-  border: 2px solid transparent;
-  border-radius: var(--radius-lg);
-  transition: background-color 0.15s, border-color 0.15s;
+/* Kalender: ein Monat, jeder Tag ein Block. Je mehr Aufgaben, desto kräftiger das Grün (Stufen 0 bis 4). */
+.calendar-view {
+  margin-bottom: var(--space-5);
 }
 
-.week-view__day > .task-section {
+.calendar-view__head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
   margin-bottom: var(--space-3);
 }
 
-.week-view__day--over {
-  border-color: var(--color-accent);
-  background: var(--color-accent-soft);
+.calendar-view__month {
+  flex: 1;
+  margin: 0;
+  font-size: var(--font-size-lg);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--color-accent);
+}
+
+.calendar-view__nav {
+  display: grid;
+  place-items: center;
+  width: var(--tap-size);
+  height: var(--tap-size);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+.calendar-view__nav:hover {
+  background: var(--color-surface-muted);
+}
+
+.calendar-view__grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 5px;
+}
+
+.calendar-view__weekday {
+  padding-bottom: var(--space-1);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-align: center;
+  color: var(--color-text-muted);
+}
+
+.calendar-view__day {
+  display: flex;
+  align-items: flex-start;
+  min-height: 48px;
+  padding: 6px 7px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: var(--heat-0);
+  color: var(--heat-text-0);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  transition: background-color 0.15s, box-shadow 0.15s, transform 0.15s;
+}
+
+.calendar-view__day--level-1 { background: var(--heat-1); color: var(--heat-text-1); }
+.calendar-view__day--level-2 { background: var(--heat-2); color: var(--heat-text-2); }
+.calendar-view__day--level-3 { background: var(--heat-3); color: var(--heat-text-3); }
+.calendar-view__day--level-4 { background: var(--heat-4); color: var(--heat-text-4); }
+
+.calendar-view__day--past {
+  opacity: 0.6;
+}
+
+.calendar-view__day--today {
+  font-weight: 800;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+
+.calendar-view__day[aria-pressed='true'] {
+  box-shadow: inset 0 0 0 2.5px var(--color-accent);
+  opacity: 1;
+}
+
+/* Eine Aufgabe wird gerade über diesen Tag gezogen */
+.calendar-view__day--over {
+  box-shadow: inset 0 0 0 2.5px var(--color-accent);
+  transform: scale(1.08);
 }
 
 .week-view__overlay {
