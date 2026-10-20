@@ -125,6 +125,21 @@ export const de = {
     designDark: 'Dunkel',
     about: 'Deine Aufgaben werden nur auf diesem Gerät in diesem Browser gespeichert.',
   },
+  backup: {
+    heading: 'Datensicherung',
+    intro: 'Speichert alle Aufgaben als Datei in deinen Downloads. Leg sie am besten zusätzlich in deine Cloud oder schick sie dir per Mail.',
+    save: 'Aufgaben sichern',
+    load: 'Sicherung laden',
+    loadHint: 'Beim Laden kommen fehlende Aufgaben dazu. Es wird nichts gelöscht.',
+    lastBackup: (when: string) => `Zuletzt gesichert: ${when}`,
+    never: 'Noch nie gesichert',
+    saved: 'Sicherung gespeichert',
+    loaded: (added: number, updated: number) =>
+      `Sicherung geladen: ${added} neu, ${updated} aktualisiert`,
+    nothingNew: 'Sicherung geladen, alle Aufgaben waren schon da',
+    invalid: 'Diese Datei ist keine DayList-Sicherung',
+    fileName: 'daylist-sicherung',
+  },
 }
 
 export type Messages = typeof de
@@ -233,6 +248,20 @@ export const en: Messages = {
     designLight: 'Light',
     designDark: 'Dark',
     about: 'Your tasks are only stored on this device, in this browser.',
+  },
+  backup: {
+    heading: 'Backup',
+    intro: 'Saves all tasks as a file in your downloads. Ideally also put it in your cloud or email it to yourself.',
+    save: 'Back up tasks',
+    load: 'Load backup',
+    loadHint: 'Loading adds missing tasks. Nothing gets deleted.',
+    lastBackup: (when) => `Last backup: ${when}`,
+    never: 'Never backed up',
+    saved: 'Backup saved',
+    loaded: (added, updated) => `Backup loaded: ${added} new, ${updated} updated`,
+    nothingNew: 'Backup loaded, all tasks were already here',
+    invalid: 'This file is not a DayList backup',
+    fileName: 'daylist-backup',
   },
 }
 

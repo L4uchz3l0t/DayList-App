@@ -1,15 +1,22 @@
 import { useI18n } from '../i18n/useI18n'
 import { LANGUAGE_NAMES, type Language } from '../i18n/messages'
 import type { ThemePreference } from '../theme'
+import { BackupSettings } from '../components/BackupSettings'
+import type { MergeResult } from '../storage/backup'
+import type { Task } from '../tasks/types'
 import './views.css'
 
 interface SettingsViewProps {
   themePreference: ThemePreference
   onThemeChange: (preference: ThemePreference) => void
+  tasks: Task[]
+  todayKey: string
+  onImport: (tasks: Task[]) => MergeResult
+  onMessage: (text: string) => void
 }
 
-/** Einstellungen: Sprache und Design. Weitere (Erinnerungen, Datensicherung) folgen später. */
-export function SettingsView({ themePreference, onThemeChange }: SettingsViewProps) {
+/** Einstellungen: Sprache, Design und Datensicherung. Weitere (zum Beispiel Erinnerungen) folgen später. */
+export function SettingsView({ themePreference, onThemeChange, tasks, todayKey, onImport, onMessage }: SettingsViewProps) {
   const { t, language, setLanguage } = useI18n()
   const themes: { value: ThemePreference; label: string }[] = [
     { value: 'light', label: t.settings.designLight },
@@ -59,6 +66,8 @@ export function SettingsView({ themePreference, onThemeChange }: SettingsViewPro
           ))}
         </div>
       </section>
+
+      <BackupSettings tasks={tasks} todayKey={todayKey} onImport={onImport} onMessage={onMessage} />
 
       <p className="view-intro">{t.settings.about}</p>
     </div>

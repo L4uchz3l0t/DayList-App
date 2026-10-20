@@ -37,7 +37,8 @@ function App() {
   const showSaveError = useCallback(() => {
     setToast({ id: Date.now(), text: t.status.saveError })
   }, [t])
-  const { tasks, status, reload, addTask, editTask, toggleTask, removeTask, undoRemove } = useTasks(showSaveError)
+  const { tasks, status, reload, addTask, editTask, toggleTask, removeTask, undoRemove, importTasks } =
+    useTasks(showSaveError)
   const [activeView, setActiveView] = useState<ViewId>('today')
   /** Vorgewählter Tag der offenen Schnellaufnahme ('' = Irgendwann), null = geschlossen */
   const [quickAddDay, setQuickAddDay] = useState<string | null>(null)
@@ -112,7 +113,16 @@ function App() {
       case 'all':
         return <AllView {...viewProps} onAdd={() => setQuickAddDay('')} />
       case 'settings':
-        return <SettingsView themePreference={themePreference} onThemeChange={changeTheme} />
+        return (
+          <SettingsView
+            themePreference={themePreference}
+            onThemeChange={changeTheme}
+            tasks={tasks}
+            todayKey={todayKey}
+            onImport={importTasks}
+            onMessage={showToast}
+          />
+        )
     }
   }
 

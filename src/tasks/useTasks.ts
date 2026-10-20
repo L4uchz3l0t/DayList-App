@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { mergeTasks } from '../storage/backup'
 import { loadTasks, removeStoredTask, requestPersistentStorage, saveTask } from '../storage/taskStore'
 import {
   createTask,
@@ -113,5 +114,16 @@ export function useTasks(onSaveError: () => void) {
     [apply, persist],
   )
 
-  return { tasks, status, reload, addTask, editTask, toggleTask, removeTask, undoRemove }
+  /** Liest Aufgaben aus einer Sicherung ein: fehlende kommen dazu, neuere Fassungen ersetzen ältere. */
+  const importTasks = useCallback(
+    (incoming: Task[]) => {
+      const result = mergeTasks(tasksRef.current, incoming)
+      apply(result.tasks)
+      for (const task of result.changed) persist(saveTask(task))
+      return result
+    },
+    [apply, persist],
+  )
+
+  return { tasks, status, reload, addTask, editTask, toggleTask, removeTask, undoRemove, importTasks }
 }
