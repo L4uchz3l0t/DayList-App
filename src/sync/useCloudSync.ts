@@ -123,7 +123,19 @@ export function useCloudSync(
       const { data } = supabase.auth.onAuthStateChange((_event, next) => {
         if (!cancelled) setSession(next)
       })
-      unsubscribe = () => data.subscription.unsubscribe()
+      // Der Anmeldelink aus der E-Mail öffnet sich oft in einem Browser-Tab statt in der App.
+      // Die Anmeldung landet trotzdem im gemeinsamen Speicher; bei Rückkehr in die App nachsehen.
+      const recheck = () => {
+        if (document.visibilityState !== 'visible') return
+        void supabase.auth.getSession().then(({ data: current }) => {
+          if (!cancelled) setSession(current.session)
+        })
+      }
+      document.addEventListener('visibilitychange', recheck)
+      unsubscribe = () => {
+        data.subscription.unsubscribe()
+        document.removeEventListener('visibilitychange', recheck)
+      }
     })
     return () => {
       cancelled = true

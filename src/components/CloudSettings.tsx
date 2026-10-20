@@ -7,9 +7,8 @@ interface CloudSettingsProps {
 }
 
 /**
- * Optionen-Karte "Automatische Sicherung": Anmelden mit E-Mail und Code, danach Stand der Sicherung.
- * Ein Code statt nur eines Links, weil ein Link aus der E-Mail auf dem Handy im Browser
- * statt in der installierten App aufgehen würde.
+ * Optionen-Karte "Automatische Sicherung": Anmelden mit einem Link per E-Mail, danach Stand der Sicherung.
+ * Enthält die E-Mail einen Code (nur mit angepasster Supabase-Vorlage), geht auch der.
  */
 export function CloudSettings({ cloud }: CloudSettingsProps) {
   const { t } = useI18n()
@@ -98,6 +97,7 @@ export function CloudSettings({ cloud }: CloudSettingsProps) {
       {codeSentTo ? (
         <form className="settings__form" onSubmit={handleVerify}>
           <p className="settings__text">{t.cloud.codeSent(codeSentTo)}</p>
+          <p className="settings__text">{t.cloud.codeHint}</p>
           <label className="task-field">
             <span className="task-field__label">{t.cloud.codeLabel}</span>
             <input

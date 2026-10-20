@@ -131,8 +131,10 @@ export const de = {
     intro:
       'Melde dich mit deiner E-Mail-Adresse an. Dann sichert die App jede Änderung von selbst und holt deine Aufgaben auf jedem Gerät zurück.',
     emailLabel: 'E-Mail-Adresse',
-    sendCode: 'Code schicken',
-    codeSent: (email: string) => `Wir haben dir eine E-Mail an ${email} geschickt. Gib den Code daraus hier ein.`,
+    sendCode: 'Anmeldelink schicken',
+    codeSent: (email: string) =>
+      `Wir haben dir eine E-Mail an ${email} geschickt. Tippe auf diesem Gerät auf den Link darin. Geht dabei ein Browser-Fenster auf, wechsle danach einfach zurück in die App.`,
+    codeHint: 'Steht in der E-Mail stattdessen ein Code, kannst du ihn hier eingeben:',
     codeLabel: 'Code aus der E-Mail',
     signIn: 'Anmelden',
     otherEmail: 'Andere Adresse',
@@ -276,8 +278,10 @@ export const en: Messages = {
     heading: 'Automatic backup',
     intro: 'Sign in with your email address. The app then backs up every change by itself and restores your tasks on any device.',
     emailLabel: 'Email address',
-    sendCode: 'Send code',
-    codeSent: (email) => `We sent an email to ${email}. Enter the code from it here.`,
+    sendCode: 'Send sign-in link',
+    codeSent: (email) =>
+      `We sent an email to ${email}. Tap the link in it on this device. If a browser window opens, just switch back to the app afterwards.`,
+    codeHint: 'If the email contains a code instead, you can enter it here:',
     codeLabel: 'Code from the email',
     signIn: 'Sign in',
     otherEmail: 'Different address',
