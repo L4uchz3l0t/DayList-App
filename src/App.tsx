@@ -7,6 +7,7 @@ import { QuickAdd } from './components/QuickAdd'
 import { TaskDetail } from './components/TaskDetail'
 import { Toast, type ToastMessage } from './components/Toast'
 import { usePresence } from './usePresence'
+import { useCloudSync } from './sync/useCloudSync'
 import { NAV_ITEMS, type ViewId } from './navigation'
 import { formatWeekdayDate, toDateKey } from './tasks/dates'
 import { useI18n } from './i18n/useI18n'
@@ -37,8 +38,9 @@ function App() {
   const showSaveError = useCallback(() => {
     setToast({ id: Date.now(), text: t.status.saveError })
   }, [t])
-  const { tasks, status, reload, addTask, editTask, toggleTask, removeTask, undoRemove, importTasks } =
+  const { tasks, status, reload, addTask, editTask, toggleTask, removeTask, undoRemove, importTasks, getTasks, applySync } =
     useTasks(showSaveError)
+  const cloud = useCloudSync(tasks, status === 'ready', getTasks, applySync)
   const [activeView, setActiveView] = useState<ViewId>('today')
   /** Vorgewählter Tag der offenen Schnellaufnahme ('' = Irgendwann), null = geschlossen */
   const [quickAddDay, setQuickAddDay] = useState<string | null>(null)
@@ -121,6 +123,7 @@ function App() {
             todayKey={todayKey}
             onImport={importTasks}
             onMessage={showToast}
+            cloud={cloud}
           />
         )
     }

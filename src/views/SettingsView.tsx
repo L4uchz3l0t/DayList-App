@@ -2,6 +2,8 @@ import { useI18n } from '../i18n/useI18n'
 import { LANGUAGE_NAMES, type Language } from '../i18n/messages'
 import type { ThemePreference } from '../theme'
 import { BackupSettings } from '../components/BackupSettings'
+import { CloudSettings } from '../components/CloudSettings'
+import type { CloudSync } from '../sync/useCloudSync'
 import type { MergeResult } from '../storage/backup'
 import type { Task } from '../tasks/types'
 import './views.css'
@@ -13,10 +15,19 @@ interface SettingsViewProps {
   todayKey: string
   onImport: (tasks: Task[]) => MergeResult
   onMessage: (text: string) => void
+  cloud: CloudSync
 }
 
 /** Einstellungen: Sprache, Design und Datensicherung. Weitere (zum Beispiel Erinnerungen) folgen später. */
-export function SettingsView({ themePreference, onThemeChange, tasks, todayKey, onImport, onMessage }: SettingsViewProps) {
+export function SettingsView({
+  themePreference,
+  onThemeChange,
+  tasks,
+  todayKey,
+  onImport,
+  onMessage,
+  cloud,
+}: SettingsViewProps) {
   const { t, language, setLanguage } = useI18n()
   const themes: { value: ThemePreference; label: string }[] = [
     { value: 'light', label: t.settings.designLight },
@@ -67,9 +78,11 @@ export function SettingsView({ themePreference, onThemeChange, tasks, todayKey, 
         </div>
       </section>
 
+      {cloud.available && <CloudSettings cloud={cloud} />}
+
       <BackupSettings tasks={tasks} todayKey={todayKey} onImport={onImport} onMessage={onMessage} />
 
-      <p className="view-intro">{t.settings.about}</p>
+      <p className="view-intro">{cloud.email ? t.settings.aboutCloud : t.settings.about}</p>
     </div>
   )
 }

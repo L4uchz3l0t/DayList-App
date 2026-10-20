@@ -24,6 +24,8 @@ export function registerServiceWorker() {
   navigator.serviceWorker
     .register(`${base}sw.js`, { scope: base })
     .then((registration) => {
+      // Manche Umgebungen (zum Beispiel Testbrowser mit gesperrten Service Workern) liefern keine Anmeldung
+      if (!registration) return
       const checkForUpdate = () => {
         if (document.visibilityState === 'visible' && navigator.onLine) {
           registration.update().catch(() => {})

@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { mergeTasks } from '../storage/backup'
+import { addPendingDelete, removePendingDeletes } from '../sync/pendingDeletes'
+import type { ReconcileResult } from '../sync/reconcile'
 import { loadTasks, removeStoredTask, requestPersistentStorage, saveTask } from '../storage/taskStore'
 import {
   createTask,
@@ -102,14 +104,19 @@ export function useTasks(onSaveError: () => void) {
     (id: string) => {
       apply(deleteTask(tasksRef.current, id))
       persist(removeStoredTask(id))
+      // Die Cloud-Sicherung soll die Löschung auch erfahren
+      addPendingDelete(id, nowIso())
     },
     [apply, persist],
   )
 
   const undoRemove = useCallback(
     (task: Task) => {
-      apply(restoreTask(tasksRef.current, task))
-      persist(saveTask(task))
+      // Neuer Zeitstempel: die wiederhergestellte Fassung ist neuer als die Löschung
+      const restored = { ...task, updatedAt: nowIso() }
+      removePendingDeletes([task.id])
+      apply(restoreTask(tasksRef.current, restored))
+      persist(saveTask(restored))
     },
     [apply, persist],
   )
@@ -125,5 +132,31 @@ export function useTasks(onSaveError: () => void) {
     [apply, persist],
   )
 
-  return { tasks, status, reload, addTask, editTask, toggleTask, removeTask, undoRemove, importTasks }
+  /** Aktuelle Liste, auch außerhalb des Zeichnens (für den Cloud-Abgleich) */
+  const getTasks = useCallback(() => tasksRef.current, [])
+
+  /** Übernimmt das Ergebnis eines Cloud-Abgleichs und speichert es auf dem Gerät. */
+  const applySync = useCallback(
+    (result: ReconcileResult) => {
+      if (result.saveLocally.length === 0 && result.removeLocally.length === 0) return
+      apply(result.tasks)
+      for (const task of result.saveLocally) persist(saveTask(task))
+      for (const id of result.removeLocally) persist(removeStoredTask(id))
+    },
+    [apply, persist],
+  )
+
+  return {
+    tasks,
+    status,
+    reload,
+    addTask,
+    editTask,
+    toggleTask,
+    removeTask,
+    undoRemove,
+    importTasks,
+    getTasks,
+    applySync,
+  }
 }

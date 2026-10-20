@@ -10,13 +10,18 @@
   transition: background-color var(--duration-enter) var(--ease-out);
 }
 
-/* Eingeklappt: nichts abdunkeln, Tipps gehen an die App dahinter, nur das Fenster selbst bleibt bedienbar */
+/* Eingeklappt: nichts abdunkeln, Tipps gehen an die App dahinter, nur das Fenster selbst bleibt bedienbar.
+   Auf dem Handy sitzt es über der Leiste unten, damit man weiter zwischen den Bereichen wechseln kann. */
 .sheet__backdrop--minimized {
+  padding: 0 var(--space-3) calc(var(--nav-height) + var(--space-3) * 2 + env(safe-area-inset-bottom));
   background: transparent;
   pointer-events: none;
 }
 
 .sheet__backdrop--minimized .sheet {
+  padding-bottom: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
   pointer-events: auto;
 }
 
@@ -67,8 +72,7 @@
   /* Am Computer rutscht das eingeklappte Fenster ebenfalls an den unteren Rand */
   .sheet__backdrop--minimized {
     align-items: flex-end;
-    padding-top: 0;
-    padding-bottom: var(--space-6);
+    padding: 0 0 var(--space-6);
   }
 }
 

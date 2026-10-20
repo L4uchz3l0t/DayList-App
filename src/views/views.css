@@ -143,6 +143,10 @@
   margin-bottom: var(--space-3);
 }
 
+.settings__form .task-field {
+  margin-bottom: var(--space-3);
+}
+
 .settings__hint {
   margin-bottom: 0;
 }
