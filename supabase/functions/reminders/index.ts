@@ -1,7 +1,7 @@
 // DayList-Erinnerungsdienst (Supabase Edge Function "reminders")
 //
 // GET                      → liefert den öffentlichen Schlüssel für Push-Nachrichten
-// POST mit x-cron-secret   → schickt alle fälligen Erinnerungen (läuft jede Minute per Cron)
+// POST mit x-cron-secret   → schickt alle fälligen Erinnerungen, eigene und aus Gruppen (läuft jede Minute per Cron)
 // POST von der App         → schickt eine Test-Nachricht an die Geräte des angemeldeten Kontos
 //
 // Geheimnisse (Edge Functions → Secrets): VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_CONTACT, CRON_SECRET.
@@ -95,10 +95,16 @@ async function subscriptionsOf(userIds: string[]): Promise<Subscription[]> {
   return data ?? []
 }
 
-/** Fällige Erinnerungen suchen, jede nur einmal verschicken (Tabelle push_sent) */
-async function sendDueReminders() {
-  const now = new Date()
-  const from = new Date(now.getTime() - WINDOW_MINUTES * 60 * 1000)
+interface Due {
+  user_id: string
+  /** Schlüssel für push_sent: Aufgaben-ID, bei Gruppenaufgaben mit "g:" davor */
+  key: string
+  remind_at: string
+  payload: { title: string; body: string; tag: string }
+}
+
+/** Fällige eigene Aufgaben (Tabelle tasks, gesichert von der App) */
+async function dueTasks(from: Date, now: Date): Promise<Due[]> {
   const { data: rows, error } = await admin
     .from('tasks')
     .select('user_id, id, data')
@@ -106,15 +112,63 @@ async function sendDueReminders() {
     .gt('data->>remindAt', from.toISOString())
     .lte('data->>remindAt', now.toISOString())
   if (error) throw error
+  return (rows ?? [])
+    .filter((row) => (row.data as TaskData | null)?.status === 'open')
+    .map((row) => {
+      const data = row.data as TaskData
+      return { user_id: row.user_id, key: row.id, remind_at: data.remindAt!, payload: { ...message(data), tag: row.id } }
+    })
+}
 
-  const due = (rows ?? []).filter((row) => (row.data as TaskData | null)?.status === 'open')
+/** Fällige Gruppenaufgaben, an die zugeteilte Person, wenn sie Gruppenaufgaben in ihrem Kalender zeigt */
+async function dueGroupTasks(from: Date, now: Date): Promise<Due[]> {
+  const { data: rows, error } = await admin
+    .from('group_tasks')
+    .select('id, group_id, title, assignee, time, reminder, remind_at, groups(name)')
+    .is('done_at', null)
+    .eq('skipped', false)
+    .gt('remind_at', from.toISOString())
+    .lte('remind_at', now.toISOString())
+  if (error) throw error
+  if (!rows || rows.length === 0) return []
+  const { data: members, error: memberError } = await admin
+    .from('group_members')
+    .select('group_id, email, user_id, show_in_calendar')
+    .in('group_id', [...new Set(rows.map((row) => row.group_id))])
+  if (memberError) throw memberError
+  const due: Due[] = []
+  for (const row of rows) {
+    const member = members?.find((m) => m.group_id === row.group_id && m.email === row.assignee)
+    if (!member?.user_id || !member.show_in_calendar) continue
+    const text = message({ title: row.title, time: row.time ?? undefined, reminder: row.reminder ?? 0 })
+    const groupName = (row.groups as { name?: string } | null)?.name
+    due.push({
+      user_id: member.user_id,
+      key: `g:${row.id}`,
+      remind_at: row.remind_at,
+      payload: { title: text.title, body: groupName ? `${groupName} · ${text.body}` : text.body, tag: `g:${row.id}` },
+    })
+  }
+  return due
+}
+
+/** Fällige Erinnerungen suchen und jede nur einmal verschicken (Tabelle push_sent) */
+async function sendDueReminders() {
+  const now = new Date()
+  const from = new Date(now.getTime() - WINDOW_MINUTES * 60 * 1000)
+  // Gruppen sind optional: fehlt die Tabelle noch, gibt es nur eigene Erinnerungen
+  const groupDue = await dueGroupTasks(from, now).catch((error) => {
+    console.error('Gruppenaufgaben nicht lesbar', error.message)
+    return [] as Due[]
+  })
+  const due = [...(await dueTasks(from, now)), ...groupDue]
   if (due.length === 0) return { due: 0, sent: 0 }
 
   // Nur Erinnerungen, die noch nicht verschickt wurden: neue Zeilen kommen zurück, vorhandene nicht
   const { data: fresh, error: markError } = await admin
     .from('push_sent')
     .upsert(
-      due.map((row) => ({ user_id: row.user_id, task_id: row.id, remind_at: (row.data as TaskData).remindAt })),
+      due.map((item) => ({ user_id: item.user_id, task_id: item.key, remind_at: item.remind_at })),
       { onConflict: 'user_id,task_id,remind_at', ignoreDuplicates: true },
     )
     .select('user_id, task_id')
@@ -123,10 +177,10 @@ async function sendDueReminders() {
   const subscriptions = await subscriptionsOf([...new Set((fresh ?? []).map((row) => row.user_id))])
   let sent = 0
   for (const { user_id, task_id } of fresh ?? []) {
-    const row = due.find((candidate) => candidate.user_id === user_id && candidate.id === task_id)
-    if (!row) continue
+    const item = due.find((candidate) => candidate.user_id === user_id && candidate.key === task_id)
+    if (!item) continue
     const devices = subscriptions.filter((subscription) => subscription.user_id === user_id)
-    sent += await send(devices, { ...message(row.data as TaskData), tag: task_id })
+    sent += await send(devices, item.payload)
   }
 
   // Alte Einträge aufräumen

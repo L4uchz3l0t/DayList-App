@@ -38,6 +38,11 @@
   color: var(--color-text-muted);
 }
 
+.app-header__actions {
+  display: flex;
+  gap: var(--space-2);
+}
+
 .app-header__theme {
   display: grid;
   place-items: center;

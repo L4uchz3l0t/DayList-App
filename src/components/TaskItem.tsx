@@ -29,15 +29,7 @@ interface TaskItemProps {
  * Überfällige Aufgaben zeigen immer nur ihren ursprünglich geplanten Tag.
  * Die Frist erscheint nicht in der Liste, sondern später in der Detailansicht.
  */
-export function TaskItem({
-  task,
-  todayKey,
-  onToggle,
-  onOpen,
-  onMove,
-  showPlannedDate = false,
-  drag,
-}: TaskItemProps) {
+export function TaskItem({ task, todayKey, onToggle, onOpen, onMove, showPlannedDate = false, drag }: TaskItemProps) {
   const { t } = useI18n()
   const isDone = task.status === 'done'
   const isOverdue = checkOverdue(task, todayKey)
@@ -65,7 +57,7 @@ export function TaskItem({
 
       <button type="button" className="task-item__body" onClick={() => onOpen(task.id)}>
         <span className="task-item__title">{task.title}</span>
-        {(isOverdue || showPriority || showDate || showTime) && (
+        {(isOverdue || showPriority || showDate || showTime || task.group) && (
           <span className="task-item__meta">
             {isOverdue && task.plannedDate && (
               <span className="task-item__tag task-item__tag--overdue">
@@ -83,6 +75,11 @@ export function TaskItem({
                 {task.reminder !== undefined && <span className="visually-hidden">, {t.task.withReminder}</span>}
               </span>
             )}
+            {task.group && (
+              <span className="task-item__tag task-item__tag--group">
+                <Icon name="groups" size={12} /> {t.groups.groupTag(task.group.name)}
+              </span>
+            )}
             {showPriority && (
               <span className="task-item__tag task-item__tag--priority">
                 <Icon name="flag" size={12} /> {t.common.important}
@@ -92,7 +89,8 @@ export function TaskItem({
         )}
       </button>
 
-      {onMove && !isDone && (
+      {/* Gruppenaufgaben verschiebt nur ein Verwalter in der Gruppe selbst */}
+      {onMove && !isDone && !task.group && (
         <button
           type="button"
           className="task-item__move"

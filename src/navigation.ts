@@ -1,7 +1,8 @@
 import type { IconName } from './components/Icon'
 import type { Messages } from './i18n/messages'
 
-export type ViewId = 'today' | 'week' | 'inbox' | 'all' | 'settings'
+/** 'all' (Suche über alle Aufgaben) steht nicht in der Leiste, sondern hinter der Lupe oben */
+export type ViewId = 'today' | 'week' | 'inbox' | 'groups' | 'all' | 'settings'
 
 type NavLabel = Exclude<keyof Messages['nav'], 'label'>
 
@@ -13,6 +14,6 @@ export const NAV_ITEMS: { id: ViewId; labelKey: NavLabel; shortLabelKey?: NavLab
   { id: 'today', labelKey: 'today', icon: 'today' },
   { id: 'week', labelKey: 'week', icon: 'week' },
   { id: 'inbox', labelKey: 'someday', icon: 'coffee' },
-  { id: 'all', labelKey: 'all', icon: 'all' },
+  { id: 'groups', labelKey: 'groups', icon: 'groups' },
   { id: 'settings', labelKey: 'settings', shortLabelKey: 'settingsShort', icon: 'settings' },
 ]

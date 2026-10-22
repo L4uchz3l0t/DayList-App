@@ -4,8 +4,11 @@ import { TaskItem } from './TaskItem'
 
 type DraggableTaskItemProps = Omit<ComponentProps<typeof TaskItem>, 'drag'>
 
-/** Eine Aufgabenkarte, die sich auf einen anderen Tag ziehen lässt. Braucht einen DndContext außen herum. */
+/** Eine Aufgabenkarte, die sich auf einen anderen Tag ziehen lässt (Gruppenaufgaben nicht). Braucht einen DndContext außen herum. */
 export function DraggableTaskItem(props: DraggableTaskItemProps) {
-  const { setNodeRef, listeners, isDragging } = useDraggable({ id: props.task.id })
+  const { setNodeRef, listeners, isDragging } = useDraggable({
+    id: props.task.id,
+    disabled: props.task.group !== undefined,
+  })
   return <TaskItem {...props} drag={{ setNodeRef, listeners, isDragging }} />
 }

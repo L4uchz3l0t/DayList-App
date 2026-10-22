@@ -24,6 +24,11 @@ export interface Task {
    * Der Erinnerungsdienst in der Cloud braucht ihn, weil er die Zeitzone des Geräts nicht kennt.
    */
   remindAt?: string
+  /**
+   * Nur bei Aufgaben aus einer Gruppe, die in Heute und im Kalender mit angezeigt werden.
+   * Solche Aufgaben werden nicht auf dem Gerät gespeichert, sie kommen aus der Cloud (siehe groups/).
+   */
+  group?: { id: string; name: string }
   /** Zeitpunkt der Erstellung (ISO-Zeitstempel) */
   createdAt: string
   /** Zeitpunkt der letzten Änderung (ISO-Zeitstempel) */

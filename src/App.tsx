@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { AddButton } from './components/AddButton'
 import { AppHeader } from './components/AppHeader'
 import { MainNav } from './components/MainNav'
@@ -22,6 +22,11 @@ import { PlaceholderView } from './views/PlaceholderView'
 import { SettingsView } from './views/SettingsView'
 import { TodayView } from './views/TodayView'
 import { CalendarView } from './views/CalendarView'
+import { GroupsView } from './groups/components/GroupsView'
+import { setGroupTaskDone } from './groups/groupStore'
+import { fromCalendarId, isGroupTaskId, toCalendarTasks } from './groups/groupViews'
+import { describeGroupError } from './groups/components/groupErrors'
+import { useGroups } from './groups/useGroups'
 import './App.css'
 
 /** Rückmeldung nach dem Verschieben, besonders wenn die Aufgabe aus der aktuellen Ansicht verschwindet */
@@ -38,10 +43,23 @@ function App() {
   const showSaveError = useCallback(() => {
     setToast({ id: Date.now(), text: t.status.saveError })
   }, [t])
-  const { tasks, status, reload, addTask, editTask, toggleTask, removeTask, undoRemove, importTasks, getTasks, applySync } =
-    useTasks(showSaveError)
+  const {
+    tasks,
+    status,
+    reload,
+    addTask,
+    editTask,
+    toggleTask,
+    removeTask,
+    undoRemove,
+    importTasks,
+    getTasks,
+    applySync,
+  } = useTasks(showSaveError)
   const cloud = useCloudSync(tasks, status === 'ready', getTasks, applySync)
+  const groups = useGroups(cloud.email)
   const [activeView, setActiveView] = useState<ViewId>('today')
+  const [openGroupId, setOpenGroupId] = useState<string | null>(null)
   /** Vorgewählter Tag der offenen Schnellaufnahme ('' = Irgendwann), null = geschlossen */
   const [quickAddDay, setQuickAddDay] = useState<string | null>(null)
   const [openTaskId, setOpenTaskId] = useState<string | null>(null)
@@ -78,7 +96,11 @@ function App() {
     const before = tasks.find((task) => task.id === id)
     editTask(id, changes)
     setOpenTaskId(null)
-    showToast(before && before.plannedDate !== changes.plannedDate ? describeMove(changes.plannedDate, todayKey, t) : t.toast.saved)
+    showToast(
+      before && before.plannedDate !== changes.plannedDate
+        ? describeMove(changes.plannedDate, todayKey, t)
+        : t.toast.saved,
+    )
   }
 
   function handleMove(id: string, plannedDate: string) {
@@ -100,20 +122,68 @@ function App() {
     showToast(t.toast.deleted(task.title), { label: t.common.undo, onClick: () => undoRemove(task) })
   }
 
+  // Eigene Gruppenaufgaben erscheinen zusätzlich unter Heute und im Kalender (nur angezeigt, nicht auf dem Gerät gespeichert)
+  const groupCalendarTasks = useMemo(() => toCalendarTasks(groups.groups, groups.email), [groups.groups, groups.email])
+  const tasksWithGroups = useMemo(() => [...tasks, ...groupCalendarTasks], [tasks, groupCalendarTasks])
+
+  function handleToggle(id: string) {
+    if (!isGroupTaskId(id)) {
+      toggleTask(id)
+      return
+    }
+    const task = groupCalendarTasks.find((candidate) => candidate.id === id)
+    if (!task) return
+    groups
+      .run(() => setGroupTaskDone(fromCalendarId(id), task.status === 'open'))
+      .catch((error: unknown) => {
+        console.error('Gruppenaufgabe abhaken fehlgeschlagen', error)
+        showToast(describeGroupError(error, t))
+      })
+  }
+
+  /** Gruppenaufgaben öffnen sich in ihrer Gruppe, alle anderen im Detailfenster */
+  function handleOpen(id: string) {
+    if (!isGroupTaskId(id)) {
+      setOpenTaskId(id)
+      return
+    }
+    const task = groupCalendarTasks.find((candidate) => candidate.id === id)
+    if (!task?.group) return
+    setOpenGroupId(task.group.id)
+    setActiveView('groups')
+  }
+
+  function selectView(view: ViewId) {
+    if (view === 'groups') setOpenGroupId(null)
+    setActiveView(view)
+  }
+
   const navItem = NAV_ITEMS.find((item) => item.id === activeView)
-  const viewTitle = navItem ? t.nav[navItem.labelKey] : ''
+  const viewTitle = activeView === 'all' ? t.nav.all : navItem ? t.nav[navItem.labelKey] : ''
   const viewProps = { tasks, todayKey, onToggle: toggleTask, onOpen: setOpenTaskId, onMove: setMoveTaskId }
+  const calendarProps = { ...viewProps, tasks: tasksWithGroups, onToggle: handleToggle, onOpen: handleOpen }
 
   function renderView() {
     switch (activeView) {
       case 'today':
-        return <TodayView {...viewProps} onAdd={() => setQuickAddDay(todayKey)} />
+        return <TodayView {...calendarProps} onAdd={() => setQuickAddDay(todayKey)} />
       case 'week':
-        return <CalendarView {...viewProps} onMoveTo={handleMove} onAdd={setQuickAddDay} />
+        return <CalendarView {...calendarProps} onMoveTo={handleMove} onAdd={setQuickAddDay} />
       case 'inbox':
         return <InboxView {...viewProps} onAdd={() => setQuickAddDay('')} />
       case 'all':
         return <AllView {...viewProps} onAdd={() => setQuickAddDay('')} />
+      case 'groups':
+        return (
+          <GroupsView
+            data={groups}
+            todayKey={todayKey}
+            openGroupId={openGroupId}
+            onOpenGroup={setOpenGroupId}
+            onMessage={showToast}
+            onGoToSettings={() => setActiveView('settings')}
+          />
+        )
       case 'settings':
         return (
           <SettingsView
@@ -131,17 +201,20 @@ function App() {
 
   return (
     <div className="app">
-      <MainNav activeView={activeView} onSelect={setActiveView} />
+      <MainNav activeView={activeView} onSelect={selectView} />
 
       <main className="app__main">
-        <AppHeader title={viewTitle} today={today} theme={theme} onToggleTheme={() => changeTheme(theme === 'dark' ? 'light' : 'dark')} />
+        <AppHeader
+          title={viewTitle}
+          today={today}
+          theme={theme}
+          onToggleTheme={() => changeTheme(theme === 'dark' ? 'light' : 'dark')}
+          onSearch={() => setActiveView('all')}
+        />
         {status === 'loading' ? (
           <PlaceholderView text={t.status.loading} />
         ) : status === 'error' ? (
-          <PlaceholderView
-            text={t.status.loadError}
-            action={{ label: t.common.retry, onClick: reload }}
-          />
+          <PlaceholderView text={t.status.loadError} action={{ label: t.common.retry, onClick: reload }} />
         ) : (
           // Neuer Schlüssel pro Ansicht: beim Wechsel blendet die Ansicht sanft ein
           <div key={activeView} className="view-enter">
@@ -150,7 +223,10 @@ function App() {
         )}
       </main>
 
-      {status === 'ready' && <AddButton onClick={() => setQuickAddDay(activeView === 'today' ? todayKey : '')} />}
+      {/* In Gruppen hat der Plus-Knopf eine eigene Aufgabe (neue Gruppe, Aufgabe zuteilen) */}
+      {status === 'ready' && activeView !== 'groups' && (
+        <AddButton onClick={() => setQuickAddDay(activeView === 'today' ? todayKey : '')} />
+      )}
       {quickAdd.shown !== null && (
         <QuickAdd
           todayKey={todayKey}
