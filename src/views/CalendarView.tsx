@@ -16,7 +16,9 @@ import { EmptyState } from '../components/EmptyState'
 import { Icon } from '../components/Icon'
 import { TaskItem } from '../components/TaskItem'
 import { TaskSection } from '../components/TaskSection'
+import { useSwipe } from '../components/useSwipe'
 import {
+  addDays,
   formatMonthYear,
   formatShortDate,
   formatWeekday,
@@ -24,6 +26,7 @@ import {
   getMonthGrid,
   getWeekdayNames,
   parseDateKey,
+  toDateKey,
 } from '../tasks/dates'
 import { countTasksByDay, getDay, getDayKind, getOverdueTasks, heatLevel } from '../tasks/taskViews'
 import type { Task } from '../tasks/types'
@@ -77,7 +80,8 @@ function CalendarDay({ dateKey, count, todayKey, selected, onSelect }: CalendarD
 
 /**
  * Ein ganzer Monat als Kalender. Jeder Tag wird kräftiger grün, je mehr Aufgaben er hat.
- * Unter dem Kalender stehen die Aufgaben des gewählten Tages. Diese lassen sich auf einen anderen Tag ziehen:
+ * Unter dem Kalender stehen die Aufgaben des gewählten Tages. Wischen wechselt den Monat (im Kalender) bzw. den Tag
+ * (darunter). Aufgaben lassen sich auf einen anderen Tag ziehen:
  * am Computer mit der Maus, auf dem Handy nach kurzem Gedrückthalten (damit normales Scrollen weiter funktioniert).
  */
 export function CalendarView({ tasks, todayKey, onToggle, onOpen, onMove, onMoveTo, onAdd }: CalendarViewProps) {
@@ -85,6 +89,8 @@ export function CalendarView({ tasks, todayKey, onToggle, onOpen, onMove, onMove
   const today = parseDateKey(todayKey)
   const [month, setMonth] = useState({ year: today.getFullYear(), month: today.getMonth() })
   const [selectedKey, setSelectedKey] = useState(todayKey)
+  // Richtung des letzten Wechsels, damit Monat und Tag von der passenden Seite hereingleiten
+  const [direction, setDirection] = useState<'next' | 'previous' | null>(null)
   const [draggedId, setDraggedId] = useState<string | null>(null)
   const draggedTask = tasks.find((task) => task.id === draggedId)
   // Nach dem Ablegen auf derselben Karte würde der Browser sonst noch einen Tipp auslösen
@@ -101,11 +107,24 @@ export function CalendarView({ tasks, todayKey, onToggle, onOpen, onMove, onMove
   )
 
   function changeMonth(step: number) {
+    setDirection(step > 0 ? 'next' : 'previous')
     setMonth(({ year, month }) => {
       const next = new Date(year, month + step, 1)
       return { year: next.getFullYear(), month: next.getMonth() }
     })
   }
+
+  /** Vortag oder nächster Tag; liegt er in einem anderen Monat, blättert der Kalender mit. */
+  function changeDay(step: number) {
+    const next = addDays(parseDateKey(selectedKey), step)
+    setDirection(step > 0 ? 'next' : 'previous')
+    setSelectedKey(toDateKey(next))
+    setMonth({ year: next.getFullYear(), month: next.getMonth() })
+  }
+
+  const monthSwipe = useSwipe(() => changeMonth(1), () => changeMonth(-1), draggedId !== null)
+  const daySwipe = useSwipe(() => changeDay(1), () => changeDay(-1), draggedId !== null)
+  const slideClass = direction ? ` calendar-view__slide--${direction}` : ''
 
   const titleOf = (id: string | number) => tasks.find((task) => task.id === id)?.title ?? ''
   const dayOf = (id: string | number) => formatWeekdayDate(String(id), t.locale)
@@ -133,7 +152,8 @@ export function CalendarView({ tasks, todayKey, onToggle, onOpen, onMove, onMove
   const sectionProps = { todayKey, onToggle: guardedToggle, onOpen: guardedOpen, onMove, draggable: true }
 
   const kind = getDayKind(selectedKey, todayKey)
-  const dayName = kind === 'today' ? t.days.today : kind === 'tomorrow' ? t.days.tomorrow : formatWeekday(selectedKey, t.locale)
+  const dayName =
+    kind === 'today' ? t.days.today : kind === 'tomorrow' ? t.days.tomorrow : formatWeekday(selectedKey, t.locale)
   const openTasks = selected.tasks.filter((task) => task.status === 'open')
   const doneTasks = selected.tasks.filter((task) => task.status === 'done')
 
@@ -153,14 +173,24 @@ export function CalendarView({ tasks, todayKey, onToggle, onOpen, onMove, onMove
       <section className="calendar-view" aria-label={formatMonthYear(month.year, month.month, t.locale)}>
         <div className="calendar-view__head">
           <h2 className="calendar-view__month">{formatMonthYear(month.year, month.month, t.locale)}</h2>
-          <button type="button" className="calendar-view__nav" aria-label={t.fields.prevMonth} onClick={() => changeMonth(-1)}>
+          <button
+            type="button"
+            className="calendar-view__nav"
+            aria-label={t.fields.prevMonth}
+            onClick={() => changeMonth(-1)}
+          >
             <Icon name="chevronLeft" size={20} />
           </button>
-          <button type="button" className="calendar-view__nav" aria-label={t.fields.nextMonth} onClick={() => changeMonth(1)}>
+          <button
+            type="button"
+            className="calendar-view__nav"
+            aria-label={t.fields.nextMonth}
+            onClick={() => changeMonth(1)}
+          >
             <Icon name="chevronRight" size={20} />
           </button>
         </div>
-        <div className="calendar-view__grid">
+        <div key={`${month.year}-${month.month}`} className={`calendar-view__grid${slideClass}`} {...monthSwipe}>
           {getWeekdayNames(t.locale).map((name) => (
             <span key={name} className="calendar-view__weekday" aria-hidden="true">
               {name}
@@ -174,7 +204,10 @@ export function CalendarView({ tasks, todayKey, onToggle, onOpen, onMove, onMove
                 count={counts.get(dateKey) ?? 0}
                 todayKey={todayKey}
                 selected={dateKey === selectedKey}
-                onSelect={setSelectedKey}
+                onSelect={(dateKey) => {
+                  setDirection(null)
+                  setSelectedKey(dateKey)
+                }}
               />
             ) : (
               <span key={`leer-${index}`} aria-hidden="true" />
@@ -183,45 +216,48 @@ export function CalendarView({ tasks, todayKey, onToggle, onOpen, onMove, onMove
         </div>
       </section>
 
-      <TaskSection
-        title={`${dayName} · ${formatShortDate(selectedKey, t.locale)}`}
-        tasks={openTasks}
-        {...sectionProps}
-        action={
-          <button
-            type="button"
-            className="week-view__add"
-            aria-label={t.week.addFor(formatWeekdayDate(selectedKey, t.locale))}
-            onClick={() => onAdd(selectedKey)}
-          >
-            <Icon name="plus" size={20} />
-          </button>
-        }
-      >
-        {openTasks.length === 0 && (
-          <EmptyState
-            title={doneTasks.length > 0 ? t.empty.noOpen : t.empty.nothingPlanned}
-            compact
-            onClick={() => onAdd(selectedKey)}
-          />
-        )}
-        {selected.deadlines.map((task) => (
-          <button key={task.id} type="button" className="week-view__deadline" onClick={() => onOpen(task.id)}>
-            <Icon name="clock" size={16} />
-            <span>
-              {t.week.deadline} <strong>{task.title}</strong>
-            </span>
-          </button>
-        ))}
-      </TaskSection>
+      {/* Wischen im Bereich des gewählten Tages wechselt zum Vortag oder nächsten Tag */}
+      <div key={selectedKey} className={`calendar-view__day-tasks${slideClass}`} {...daySwipe}>
+        <TaskSection
+          title={`${dayName} · ${formatShortDate(selectedKey, t.locale)}`}
+          tasks={openTasks}
+          {...sectionProps}
+          action={
+            <button
+              type="button"
+              className="week-view__add"
+              aria-label={t.week.addFor(formatWeekdayDate(selectedKey, t.locale))}
+              onClick={() => onAdd(selectedKey)}
+            >
+              <Icon name="plus" size={20} />
+            </button>
+          }
+        >
+          {openTasks.length === 0 && (
+            <EmptyState
+              title={doneTasks.length > 0 ? t.empty.noOpen : t.empty.nothingPlanned}
+              compact
+              onClick={() => onAdd(selectedKey)}
+            />
+          )}
+          {selected.deadlines.map((task) => (
+            <button key={task.id} type="button" className="week-view__deadline" onClick={() => onOpen(task.id)}>
+              <Icon name="clock" size={16} />
+              <span>
+                {t.week.deadline} <strong>{task.title}</strong>
+              </span>
+            </button>
+          ))}
+        </TaskSection>
 
-      <DoneSection
-        storageKey="calendar-done"
-        tasks={doneTasks}
-        todayKey={todayKey}
-        onToggle={guardedToggle}
-        onOpen={guardedOpen}
-      />
+        <DoneSection
+          storageKey="calendar-done"
+          tasks={doneTasks}
+          todayKey={todayKey}
+          onToggle={guardedToggle}
+          onOpen={guardedOpen}
+        />
+      </div>
 
       {overdue.length > 0 && <TaskSection title={t.sections.overdue} tone="danger" tasks={overdue} {...sectionProps} />}
 

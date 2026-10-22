@@ -228,3 +228,32 @@
   min-height: var(--tap-size);
   padding: 0 var(--space-4);
 }
+
+/* Kalender: nach dem Wischen gleitet der neue Monat bzw. Tag von der passenden Seite herein */
+.calendar-view__slide--next {
+  animation: slide-from-right var(--duration-enter) var(--ease-out);
+}
+
+.calendar-view__slide--previous {
+  animation: slide-from-left var(--duration-enter) var(--ease-out);
+}
+
+@keyframes slide-from-right {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+}
+
+@keyframes slide-from-left {
+  from {
+    opacity: 0;
+    transform: translateX(-24px);
+  }
+}
+
+/* Seitliches Wischen gehört hier dem Kalender: der Browser soll dabei nicht zurückblättern */
+.calendar-view__grid,
+.calendar-view__day-tasks {
+  touch-action: pan-y;
+}

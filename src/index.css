@@ -11,6 +11,8 @@
 html {
   /* Kein hellblaues Rechteck beim Antippen auf dem Handy */
   -webkit-tap-highlight-color: transparent;
+  /* Seitliches Wischen blättert nicht im Browserverlauf zurück (im Kalender wechselt es Monat und Tag) */
+  overscroll-behavior-x: none;
 }
 
 body {
