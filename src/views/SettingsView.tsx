@@ -4,6 +4,8 @@ import type { ThemePreference } from '../theme'
 import { BackupSettings } from '../components/BackupSettings'
 import { CloudSettings } from '../components/CloudSettings'
 import { ReminderSettings } from '../components/ReminderSettings'
+import { GoogleSettings } from '../components/GoogleSettings'
+import type { GoogleCalendarData } from '../google/useGoogleCalendar'
 import type { CloudSync } from '../sync/useCloudSync'
 import type { MergeResult } from '../storage/backup'
 import type { Task } from '../tasks/types'
@@ -17,9 +19,10 @@ interface SettingsViewProps {
   onImport: (tasks: Task[]) => MergeResult
   onMessage: (text: string) => void
   cloud: CloudSync
+  google: GoogleCalendarData
 }
 
-/** Einstellungen: Sprache, Design, Datensicherung und Erinnerungen. */
+/** Einstellungen: Sprache, Design, Cloud-Sicherung, Erinnerungen, Google Kalender und Datensicherung. */
 export function SettingsView({
   themePreference,
   onThemeChange,
@@ -28,6 +31,7 @@ export function SettingsView({
   onImport,
   onMessage,
   cloud,
+  google,
 }: SettingsViewProps) {
   const { t, language, setLanguage } = useI18n()
   const themes: { value: ThemePreference; label: string }[] = [
@@ -81,6 +85,7 @@ export function SettingsView({
 
       {cloud.available && <CloudSettings cloud={cloud} />}
       {cloud.available && <ReminderSettings signedIn={cloud.email !== null} />}
+      {cloud.available && <GoogleSettings google={google} />}
 
       <BackupSettings tasks={tasks} todayKey={todayKey} onImport={onImport} onMessage={onMessage} />
 

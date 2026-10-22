@@ -20,6 +20,8 @@ export const de = {
   },
   days: { today: 'Heute', tomorrow: 'Morgen', someday: 'Irgendwann' },
   sections: {
+    tasks: 'Aufgaben',
+    events: 'Termine',
     overdue: 'Überfällig',
     today: 'Heute',
     done: 'Erledigt',
@@ -75,6 +77,7 @@ export const de = {
     cancelled: (title: string) => `Verschieben von ${q(title)} abgebrochen.`,
   },
   task: {
+    allDay: 'ganztägig',
     complete: (title: string) => `${q(title)} erledigen`,
     reopen: (title: string) => `${q(title)} wieder öffnen`,
     move: (title: string) => `${q(title)} verschieben`,
@@ -87,6 +90,7 @@ export const de = {
   },
   quickAdd: {
     title: 'Neue Aufgabe',
+    titleEvent: 'Neuer Termin',
     placeholder: 'Was möchtest du nicht vergessen?',
     inputLabel: 'Titel der Aufgabe',
     more: 'Mehr Optionen',
@@ -94,6 +98,7 @@ export const de = {
     saved: (title: string, day: string) => `✓ ${q(title)} gespeichert (${day})`,
   },
   detail: {
+    titleEvent: 'Termin bearbeiten',
     title: 'Aufgabe bearbeiten',
     titleField: 'Titel',
     done: 'Erledigt',
@@ -102,6 +107,10 @@ export const de = {
     confirmDelete: 'Wirklich löschen?',
   },
   fields: {
+    kind: 'Was ist es?',
+    kindTask: 'Aufgabe',
+    kindEvent: 'Termin',
+    eventDay: 'Am',
     plannedFor: 'Geplant für',
     otherDay: 'Anderer Tag',
     otherDayPlaceholder: 'Anderer Tag …',
@@ -188,6 +197,9 @@ export const de = {
     failed: 'Das hat nicht geklappt. Ist der Erinnerungsdienst in Supabase eingerichtet?',
   },
   groups: {
+    pin: (name: string) => `${q(name)} anpinnen`,
+    unpin: (name: string) => `${q(name)} nicht mehr anpinnen`,
+    pinned: 'Angepinnt',
     signedOut: 'Gruppen brauchen ein Konto. Melde dich unter Optionen bei der automatischen Sicherung an.',
     toSettings: 'Zu den Optionen',
     notSetUp: 'Gruppen sind in Supabase noch nicht eingerichtet. Führe einmal das Skript supabase/groups.sql aus.',
@@ -268,6 +280,24 @@ export const de = {
     groupTag: (name: string) => name,
     fromGroup: (name: string) => `aus ${q(name)}`,
   },
+  google: {
+    heading: 'Google Kalender',
+    intro: 'Zeigt deine Google-Termine im Kalender und unter Heute. DayList liest sie nur und ändert nichts.',
+    connect: 'Mit Google verbinden',
+    connecting: 'Verbinde …',
+    connectedAs: (email: string) => `Verbunden mit ${email}`,
+    calendars: 'Diese Kalender anzeigen',
+    disconnect: 'Verbindung trennen',
+    confirmDisconnect: 'Wirklich trennen?',
+    notSetUp:
+      'Die Verbindung zu Google ist in Supabase noch nicht eingerichtet. Die Schritte stehen in der Anleitung google-kalender-einrichten.md.',
+    needsSignIn: 'Melde dich zuerst oben bei der automatischen Sicherung an.',
+    error: 'Google Kalender ist gerade nicht erreichbar.',
+    expired: 'Die Verbindung zu Google ist abgelaufen. Bitte verbinde dich neu.',
+    connected: 'Google Kalender verbunden',
+    disconnected: 'Google Kalender getrennt',
+    openInGoogle: 'In Google Kalender öffnen',
+  },
   backup: {
     heading: 'Sicherung als Datei',
     intro:
@@ -302,7 +332,10 @@ export const en: Messages = {
     label: 'Main navigation',
   },
   days: { today: 'Today', tomorrow: 'Tomorrow', someday: 'Someday' },
-  sections: { overdue: 'Overdue', today: 'Today', done: 'Done', noDay: 'No day', planned: 'Planned' },
+  sections: {
+    tasks: 'Tasks',
+    events: 'Appointments',
+    overdue: 'Overdue', today: 'Today', done: 'Done', noDay: 'No day', planned: 'Planned' },
   common: { close: 'Close', save: 'Save', retry: 'Try again', undo: 'Undo', important: 'Important' },
   status: {
     loading: 'Loading tasks …',
@@ -341,6 +374,7 @@ export const en: Messages = {
     cancelled: (title) => `Moving ${qEn(title)} cancelled.`,
   },
   task: {
+    allDay: 'all day',
     complete: (title) => `Complete ${qEn(title)}`,
     reopen: (title) => `Reopen ${qEn(title)}`,
     move: (title) => `Move ${qEn(title)}`,
@@ -353,6 +387,7 @@ export const en: Messages = {
   },
   quickAdd: {
     title: 'New task',
+    titleEvent: 'New appointment',
     placeholder: 'What don’t you want to forget?',
     inputLabel: 'Task title',
     more: 'More options',
@@ -360,6 +395,7 @@ export const en: Messages = {
     saved: (title, day) => `✓ ${qEn(title)} saved (${day})`,
   },
   detail: {
+    titleEvent: 'Edit appointment',
     title: 'Edit task',
     titleField: 'Title',
     done: 'Done',
@@ -368,6 +404,10 @@ export const en: Messages = {
     confirmDelete: 'Really delete?',
   },
   fields: {
+    kind: 'What is it?',
+    kindTask: 'Task',
+    kindEvent: 'Appointment',
+    eventDay: 'On',
     plannedFor: 'Planned for',
     otherDay: 'Other day',
     otherDayPlaceholder: 'Other day …',
@@ -451,6 +491,9 @@ export const en: Messages = {
     failed: 'That did not work. Is the reminder service set up in Supabase?',
   },
   groups: {
+    pin: (name) => `Pin ${qEn(name)}`,
+    unpin: (name) => `Unpin ${qEn(name)}`,
+    pinned: 'Pinned',
     signedOut: 'Groups need an account. Sign in to automatic backup under Settings.',
     toSettings: 'Go to settings',
     notSetUp: 'Groups are not set up in Supabase yet. Run the script supabase/groups.sql once.',
@@ -530,6 +573,23 @@ export const en: Messages = {
     alreadyMember: 'This address is already in the group.',
     groupTag: (name) => name,
     fromGroup: (name) => `from ${qEn(name)}`,
+  },
+  google: {
+    heading: 'Google Calendar',
+    intro: 'Shows your Google appointments in the calendar and under Today. DayList only reads them and changes nothing.',
+    connect: 'Connect with Google',
+    connecting: 'Connecting …',
+    connectedAs: (email) => `Connected to ${email}`,
+    calendars: 'Show these calendars',
+    disconnect: 'Disconnect',
+    confirmDisconnect: 'Really disconnect?',
+    notSetUp: 'The Google connection is not set up in Supabase yet. See the guide google-kalender-einrichten.md.',
+    needsSignIn: 'Sign in to automatic backup above first.',
+    error: 'Google Calendar is not reachable right now.',
+    expired: 'The connection to Google has expired. Please connect again.',
+    connected: 'Google Calendar connected',
+    disconnected: 'Google Calendar disconnected',
+    openInGoogle: 'Open in Google Calendar',
   },
   backup: {
     heading: 'Backup file',

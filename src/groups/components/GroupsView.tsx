@@ -5,8 +5,8 @@ import { Icon } from '../../components/Icon'
 import { useI18n } from '../../i18n/useI18n'
 import { usePresence } from '../../usePresence'
 import { PlaceholderView } from '../../views/PlaceholderView'
-import { createGroup } from '../groupStore'
-import { isAdmin, openCountFor } from '../groupViews'
+import { createGroup, setGroupPinned } from '../groupStore'
+import { findMember, isAdmin, openCountFor, sortGroups } from '../groupViews'
 import type { GroupsData } from '../useGroups'
 import { Avatar } from './Avatar'
 import { describeGroupError } from './groupErrors'
@@ -30,6 +30,8 @@ export function GroupsView({ data, todayKey, openGroupId, onOpenGroup, onMessage
   const { status, groups, email, run } = data
   const [creating, setCreating] = useState(false)
   const newSheet = usePresence(creating ? true : null)
+  // Angepinnt springt sofort um, auch wenn die Cloud noch antwortet
+  const [pinOverride, setPinOverride] = useState<Record<string, boolean>>({})
 
   /** Führt eine Änderung aus, meldet Erfolg oder einen verständlichen Fehler. Gibt zurück, ob es geklappt hat. */
   const act = useCallback(
@@ -75,6 +77,22 @@ export function GroupsView({ data, todayKey, openGroupId, onOpenGroup, onMessage
     )
   }
 
+  const isPinned = (groupId: string, fromCloud: boolean) => pinOverride[groupId] ?? fromCloud
+  const sorted = sortGroups(
+    groups.map((group) => ({
+      ...group,
+      members: group.members.map((member) =>
+        member.email === email ? { ...member, pinned: isPinned(group.id, member.pinned) } : member,
+      ),
+    })),
+    email,
+  )
+
+  function togglePin(groupId: string, pin: boolean) {
+    setPinOverride((current) => ({ ...current, [groupId]: pin }))
+    void act(() => setGroupPinned(groupId, pin)).finally(() => setPinOverride(({ [groupId]: _done, ...rest }) => rest))
+  }
+
   async function handleCreate(name: string, myName: string) {
     let newId = ''
     const created = await act(async () => {
@@ -93,13 +111,14 @@ export function GroupsView({ data, todayKey, openGroupId, onOpenGroup, onMessage
         <EmptyState title={t.groups.empty} text={t.groups.emptyText} onClick={() => setCreating(true)} />
       ) : (
         <ul className="groups__list">
-          {groups.map((group) => {
+          {sorted.map((group) => {
             const open = openCountFor(group, email)
+            const pinned = findMember(group, email)?.pinned ?? false
             return (
-              <li key={group.id}>
+              <li key={group.id} className={`group-card${pinned ? ' group-card--pinned' : ''}`}>
                 <button
                   type="button"
-                  className="group-card"
+                  className="group-card__main"
                   aria-label={t.groups.open(group.name)}
                   onClick={() => onOpenGroup(group.id)}
                 >
@@ -120,7 +139,16 @@ export function GroupsView({ data, todayKey, openGroupId, onOpenGroup, onMessage
                       <Avatar key={member.email} name={member.display_name} colorKey={member.email} size={26} />
                     ))}
                   </span>
-                  <Icon name="chevronRight" size={20} />
+                </button>
+                <button
+                  type="button"
+                  className="group-card__pin"
+                  aria-pressed={pinned}
+                  aria-label={pinned ? t.groups.unpin(group.name) : t.groups.pin(group.name)}
+                  title={pinned ? t.groups.unpin(group.name) : t.groups.pin(group.name)}
+                  onClick={() => togglePin(group.id, !pinned)}
+                >
+                  <Icon name="pin" size={20} />
                 </button>
               </li>
             )

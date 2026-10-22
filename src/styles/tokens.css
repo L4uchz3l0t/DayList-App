@@ -9,6 +9,7 @@
   - danger:  Rot, für Überfälliges
   - warning: Bernstein, für Fristen
   - success: Grün, die zweite Hauptfarbe: Fortschritt und Erledigtes
+  - event:   Blau, für Termine (damit sie sich deutlich von Aufgaben unterscheiden)
   - heat:    Grüntöne im Kalender, von 0 (keine Aufgabe) bis 4 (viele Aufgaben)
 */
 :root {
@@ -33,6 +34,8 @@
   --color-warning-soft: #fdf0d8;
   --color-success: #24855a;
   --color-success-soft: #dcefe3;
+  --color-event: #2f6db5;
+  --color-event-soft: #e3eefa;
 
   --heat-0: #ecebe5;
   --heat-1: #d4ecdd;
@@ -78,6 +81,8 @@
     --color-warning-soft: #3a2d14;
     --color-success: #4cc38a;
     --color-success-soft: #173326;
+    --color-event: #78aef0;
+    --color-event-soft: #1a2a40;
     --heat-0: #23222b;
     --heat-1: #1d3a2c;
     --heat-2: #22583d;
@@ -114,6 +119,8 @@
   --color-warning-soft: #3a2d14;
   --color-success: #4cc38a;
   --color-success-soft: #173326;
+  --color-event: #78aef0;
+  --color-event-soft: #1a2a40;
   --heat-0: #23222b;
   --heat-1: #1d3a2c;
   --heat-2: #22583d;

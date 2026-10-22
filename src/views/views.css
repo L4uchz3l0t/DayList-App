@@ -42,6 +42,7 @@
 }
 
 .calendar-view__grid {
+  touch-action: pan-y pinch-zoom;
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: 5px;
@@ -56,6 +57,7 @@
 }
 
 .calendar-view__day {
+  position: relative;
   display: flex;
   align-items: flex-start;
   min-height: 48px;
@@ -254,6 +256,57 @@
 
 /* Seitliches Wischen gehört hier dem Kalender: der Browser soll dabei nicht zurückblättern */
 .calendar-view__grid,
-.calendar-view__day-tasks {
-  touch-action: pan-y;
+/* Alles unter dem Kalender reagiert auf Wischen, auch die freie Fläche an leeren Tagen */
+.calendar-view__below {
+  min-height: 60vh;
+  touch-action: pan-y pinch-zoom;
+}
+
+.calendar-view__day-title {
+  margin: 0 0 var(--space-3);
+  font-size: var(--font-size-lg);
+}
+
+/* Punkt unten rechts im Tag: an diesem Tag gibt es einen Termin */
+.calendar-view__event-dot {
+  position: absolute;
+  right: 5px;
+  bottom: 5px;
+  width: 7px;
+  height: 7px;
+  border: 1.5px solid var(--color-surface);
+  border-radius: var(--radius-full);
+  background: var(--color-event);
+}
+
+/* Google Kalender: Auswahl der angezeigten Kalender */
+.google-calendars {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0 0 var(--space-3);
+  padding: 0;
+  border: none;
+}
+
+.google-calendars__item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 36px;
+  cursor: pointer;
+}
+
+.google-calendars__item input {
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  accent-color: var(--color-event);
+}
+
+.google-calendars__color {
+  flex: none;
+  width: 12px;
+  height: 12px;
+  border-radius: var(--radius-full);
 }

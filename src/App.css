@@ -3,6 +3,11 @@
   margin: 0 auto;
   /* Platz unten, damit Navigation und Plus-Button nichts verdecken */
   padding: 0 var(--space-4) calc(var(--nav-height) + 120px);
+  /* Seitliches Wischen wechselt den Tab (App.tsx), senkrechtes Scrollen und Zoomen bleiben beim Browser */
+  min-height: 100dvh;
+  touch-action: pan-y pinch-zoom;
+  /* Hereingleitende Ansichten erzeugen keinen seitlichen Scrollbalken */
+  overflow-x: clip;
 }
 
 /* Große Bildschirme: rechts neben der Seitenleiste (220px breit) */

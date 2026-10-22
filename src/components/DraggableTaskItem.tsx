@@ -8,7 +8,7 @@ type DraggableTaskItemProps = Omit<ComponentProps<typeof TaskItem>, 'drag'>
 export function DraggableTaskItem(props: DraggableTaskItemProps) {
   const { setNodeRef, listeners, isDragging } = useDraggable({
     id: props.task.id,
-    disabled: props.task.group !== undefined,
+    disabled: props.task.group !== undefined || props.task.google !== undefined,
   })
   return <TaskItem {...props} drag={{ setNodeRef, listeners, isDragging }} />
 }

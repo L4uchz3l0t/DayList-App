@@ -28,7 +28,7 @@ import {
   parseDateKey,
   toDateKey,
 } from '../tasks/dates'
-import { countTasksByDay, getDay, getDayKind, getOverdueTasks, heatLevel } from '../tasks/taskViews'
+import { countTasksByDay, getDay, getDayKind, getEventDays, getOverdueTasks, heatLevel } from '../tasks/taskViews'
 import type { Task } from '../tasks/types'
 import './views.css'
 import { useI18n } from '../i18n/useI18n'
@@ -48,13 +48,15 @@ interface CalendarViewProps {
 interface CalendarDayProps {
   dateKey: string
   count: number
+  /** An diesem Tag liegt mindestens ein Termin (kleiner Punkt) */
+  hasEvent: boolean
   todayKey: string
   selected: boolean
   onSelect: (dateKey: string) => void
 }
 
 /** Ein Tag im Monat: antippen zeigt seine Aufgaben, und man kann Aufgaben darauf ziehen. */
-function CalendarDay({ dateKey, count, todayKey, selected, onSelect }: CalendarDayProps) {
+function CalendarDay({ dateKey, count, hasEvent, todayKey, selected, onSelect }: CalendarDayProps) {
   const { t } = useI18n()
   const { setNodeRef, isOver } = useDroppable({ id: dateKey })
   const classes = [
@@ -74,14 +76,16 @@ function CalendarDay({ dateKey, count, todayKey, selected, onSelect }: CalendarD
       onClick={() => onSelect(dateKey)}
     >
       {parseDateKey(dateKey).getDate()}
+      {hasEvent && <span className="calendar-view__event-dot" aria-hidden="true" />}
     </button>
   )
 }
 
 /**
- * Ein ganzer Monat als Kalender. Jeder Tag wird kräftiger grün, je mehr Aufgaben er hat.
- * Unter dem Kalender stehen die Aufgaben des gewählten Tages. Wischen wechselt den Monat (im Kalender) bzw. den Tag
- * (darunter). Aufgaben lassen sich auf einen anderen Tag ziehen:
+ * Ein ganzer Monat als Kalender. Jeder Tag wird kräftiger grün, je mehr Aufgaben er hat; ein Punkt zeigt Termine.
+ * Unter dem Kalender stehen erst die Termine, dann die Aufgaben des gewählten Tages.
+ * Wischen innen wechselt den Monat (im Kalender) bzw. den Tag (darunter), Wischen vom Rand wechselt den Tab (App.tsx).
+ * Aufgaben lassen sich auf einen anderen Tag ziehen:
  * am Computer mit der Maus, auf dem Handy nach kurzem Gedrückthalten (damit normales Scrollen weiter funktioniert).
  */
 export function CalendarView({ tasks, todayKey, onToggle, onOpen, onMove, onMoveTo, onAdd }: CalendarViewProps) {
@@ -97,6 +101,7 @@ export function CalendarView({ tasks, todayKey, onToggle, onOpen, onMove, onMove
   const lastDropAt = useRef(0)
 
   const counts = useMemo(() => countTasksByDay(tasks), [tasks])
+  const eventDays = useMemo(() => getEventDays(tasks), [tasks])
   const grid = getMonthGrid(month.year, month.month)
   const selected = getDay(tasks, selectedKey)
   const overdue = getOverdueTasks(tasks, todayKey)
@@ -122,8 +127,19 @@ export function CalendarView({ tasks, todayKey, onToggle, onOpen, onMove, onMove
     setMonth({ year: next.getFullYear(), month: next.getMonth() })
   }
 
-  const monthSwipe = useSwipe(() => changeMonth(1), () => changeMonth(-1), draggedId !== null)
-  const daySwipe = useSwipe(() => changeDay(1), () => changeDay(-1), draggedId !== null)
+  // Nur Wischen, das innen beginnt; vom Rand aus wechselt der Tab
+  const monthSwipe = useSwipe(
+    () => changeMonth(1),
+    () => changeMonth(-1),
+    draggedId !== null,
+    'inner',
+  )
+  const daySwipe = useSwipe(
+    () => changeDay(1),
+    () => changeDay(-1),
+    draggedId !== null,
+    'inner',
+  )
   const slideClass = direction ? ` calendar-view__slide--${direction}` : ''
 
   const titleOf = (id: string | number) => tasks.find((task) => task.id === id)?.title ?? ''
@@ -202,6 +218,7 @@ export function CalendarView({ tasks, todayKey, onToggle, onOpen, onMove, onMove
                 key={dateKey}
                 dateKey={dateKey}
                 count={counts.get(dateKey) ?? 0}
+                hasEvent={eventDays.has(dateKey)}
                 todayKey={todayKey}
                 selected={dateKey === selectedKey}
                 onSelect={(dateKey) => {
@@ -216,50 +233,75 @@ export function CalendarView({ tasks, todayKey, onToggle, onOpen, onMove, onMove
         </div>
       </section>
 
-      {/* Wischen im Bereich des gewählten Tages wechselt zum Vortag oder nächsten Tag */}
-      <div key={selectedKey} className={`calendar-view__day-tasks${slideClass}`} {...daySwipe}>
-        <TaskSection
-          title={`${dayName} · ${formatShortDate(selectedKey, t.locale)}`}
-          tasks={openTasks}
-          {...sectionProps}
-          action={
-            <button
-              type="button"
-              className="week-view__add"
-              aria-label={t.week.addFor(formatWeekdayDate(selectedKey, t.locale))}
-              onClick={() => onAdd(selectedKey)}
-            >
-              <Icon name="plus" size={20} />
-            </button>
-          }
-        >
-          {openTasks.length === 0 && (
-            <EmptyState
-              title={doneTasks.length > 0 ? t.empty.noOpen : t.empty.nothingPlanned}
-              compact
-              onClick={() => onAdd(selectedKey)}
+      {/* Der ganze Bereich unter dem Kalender: Wischen innen wechselt zum Vortag oder nächsten Tag */}
+      <div className="calendar-view__below" {...daySwipe}>
+        <div key={selectedKey} className={`calendar-view__day-tasks${slideClass}`}>
+          <h2 className="calendar-view__day-title">
+            {dayName} · {formatShortDate(selectedKey, t.locale)}
+          </h2>
+
+          {selected.events.length > 0 && (
+            <TaskSection
+              title={t.sections.events}
+              tone="event"
+              tasks={selected.events}
+              {...sectionProps}
+              draggable={false}
             />
           )}
-          {selected.deadlines.map((task) => (
-            <button key={task.id} type="button" className="week-view__deadline" onClick={() => onOpen(task.id)}>
-              <Icon name="clock" size={16} />
-              <span>
-                {t.week.deadline} <strong>{task.title}</strong>
-              </span>
-            </button>
-          ))}
-        </TaskSection>
 
-        <DoneSection
-          storageKey="calendar-done"
-          tasks={doneTasks}
-          todayKey={todayKey}
-          onToggle={guardedToggle}
-          onOpen={guardedOpen}
-        />
+          <TaskSection
+            title={t.sections.tasks}
+            tasks={openTasks}
+            {...sectionProps}
+            action={
+              <button
+                type="button"
+                className="week-view__add"
+                aria-label={t.week.addFor(formatWeekdayDate(selectedKey, t.locale))}
+                onClick={() => onAdd(selectedKey)}
+              >
+                <Icon name="plus" size={20} />
+              </button>
+            }
+          >
+            {openTasks.length === 0 && (
+              <EmptyState
+                title={doneTasks.length > 0 ? t.empty.noOpen : t.empty.nothingPlanned}
+                compact
+                onClick={() => onAdd(selectedKey)}
+              />
+            )}
+            {selected.deadlines.map((task) => (
+              <button key={task.id} type="button" className="week-view__deadline" onClick={() => onOpen(task.id)}>
+                <Icon name="clock" size={16} />
+                <span>
+                  {t.week.deadline} <strong>{task.title}</strong>
+                </span>
+              </button>
+            ))}
+          </TaskSection>
+
+          <DoneSection
+            storageKey="calendar-done"
+            tasks={doneTasks}
+            todayKey={todayKey}
+            onToggle={guardedToggle}
+            onOpen={guardedOpen}
+          />
+        </div>
+
+        {/* Überfälliges ist von Anfang an eingeklappt, damit der gewählte Tag übersichtlich bleibt */}
+        {overdue.length > 0 && (
+          <TaskSection
+            title={t.sections.overdue}
+            tone="danger"
+            tasks={overdue}
+            {...sectionProps}
+            collapsible={{ storageKey: 'calendar-overdue', defaultCollapsed: true }}
+          />
+        )}
       </div>
-
-      {overdue.length > 0 && <TaskSection title={t.sections.overdue} tone="danger" tasks={overdue} {...sectionProps} />}
 
       <DragOverlay dropAnimation={null}>
         {draggedTask && (

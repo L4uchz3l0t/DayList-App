@@ -5,6 +5,8 @@ import {
   describePlannedDay,
   getInboxTasks,
   getOverdueTasks,
+  getDay,
+  getEventDays,
   getUpcomingTasks,
   getWeekDays,
   heatLevel,
@@ -176,5 +178,27 @@ describe('byTimeAndPriority', () => {
       task('früh', { time: '08:15' }),
     ].sort(byTimeAndPriority)
     expect(sorted.map((t) => t.id)).toEqual(['früh', 'spät', 'wichtig', 'ohne'])
+  })
+})
+
+describe('Termine', () => {
+  const tasks = [
+    task('a', { plannedDate: TODAY }),
+    task('t2', { plannedDate: TODAY, kind: 'event', time: '15:00' }),
+    task('t1', { plannedDate: TODAY, kind: 'event', time: '09:00' }),
+    task('ganz', { plannedDate: TODAY, kind: 'event' }),
+    task('alt', { plannedDate: '2026-10-10', kind: 'event' }),
+  ]
+
+  it('stehen in einem eigenen Bereich, ganztägige zuerst, dann nach Uhrzeit', () => {
+    const day = getDay(tasks, TODAY)
+    expect(day.tasks.map((t) => t.id)).toEqual(['a'])
+    expect(day.events.map((t) => t.id)).toEqual(['ganz', 't1', 't2'])
+  })
+
+  it('sind nie überfällig und färben den Kalender nicht', () => {
+    expect(getOverdueTasks(tasks, TODAY)).toEqual([])
+    expect(countTasksByDay(tasks).get(TODAY)).toBe(1)
+    expect([...getEventDays(tasks)].sort()).toEqual(['2026-10-10', TODAY])
   })
 })

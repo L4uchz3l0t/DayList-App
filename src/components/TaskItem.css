@@ -119,6 +119,39 @@
   color: var(--color-success);
 }
 
+.task-item__tag--google {
+  background: var(--color-event-soft);
+  color: var(--color-event);
+  overflow: hidden;
+  max-width: 100%;
+  text-overflow: ellipsis;
+}
+
+/* Termine: Uhrzeit links statt Haken */
+.task-item__when {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 52px;
+  min-height: 26px;
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-sm);
+  background: var(--tone, var(--color-event));
+  color: var(--color-on-accent);
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+}
+
+.task-item__until {
+  font-size: 11px;
+  font-weight: 600;
+  opacity: 0.85;
+}
+
 .task-item__tag--group {
   background: var(--color-accent-soft);
   color: var(--color-accent);

@@ -22,7 +22,7 @@ function check<T>({ data, error }: { data: T; error: unknown }): T {
 /** Fehlt die Tabelle (Skript noch nicht ausgeführt), meldet Supabase diesen Code */
 export function isMissingSetup(error: unknown): boolean {
   const { code } = (error ?? {}) as { code?: string }
-  return code === '42P01' || code === 'PGRST205' || code === 'PGRST202'
+  return code === '42P01' || code === '42703' || code === 'PGRST205' || code === 'PGRST202'
 }
 
 /** Ältere erledigte Aufgaben werden nicht mehr geladen */
@@ -40,7 +40,7 @@ export async function loadGroups(): Promise<Group[]> {
   const since = new Date(Date.now() - KEEP_DONE_DAYS * 24 * 60 * 60 * 1000).toISOString().slice(0, 10)
   const [groups, members, series, tasks] = await Promise.all([
     supabase.from('groups').select('id, name, timezone').order('created_at'),
-    supabase.from('group_members').select('group_id, email, display_name, user_id, role, show_in_calendar').order('created_at'),
+    supabase.from('group_members').select('group_id, email, display_name, user_id, role, show_in_calendar, pinned').order('created_at'),
     supabase.from('group_series').select('id, group_id, title, interval_weeks, rotation, first_due, time, reminder, active'),
     supabase
       .from('group_tasks')
@@ -106,6 +106,11 @@ export async function removeMember(groupId: string, email: string) {
 export async function setShowInCalendar(groupId: string, show: boolean) {
   const supabase = await connect()
   check(await supabase.rpc('set_group_calendar', { gid: groupId, show }))
+}
+
+export async function setGroupPinned(groupId: string, pin: boolean) {
+  const supabase = await connect()
+  check(await supabase.rpc('set_group_pinned', { gid: groupId, pin }))
 }
 
 export interface GroupTaskInput {

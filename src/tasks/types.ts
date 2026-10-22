@@ -6,12 +6,17 @@ export type TaskStatus = 'open' | 'done'
 
 export type TaskPriority = 'low' | 'normal' | 'high'
 
+/** Aufgabe (zum Abhaken) oder Termin (feste Zeit an einem Tag, wird nicht abgehakt) */
+export type TaskKind = 'task' | 'event'
+
 export interface Task {
   id: string
   title: string
   status: TaskStatus
   /** Tag, an dem ich die Aufgabe erledigen möchte. Leer = Aufgabe liegt unter Irgendwann. */
   plannedDate?: string
+  /** Leer = Aufgabe. Termine haben immer einen Tag und keine Frist. */
+  kind?: TaskKind
   /** Verbindliche Frist. Unabhängig vom geplanten Tag. */
   dueDate?: string
   priority?: TaskPriority
@@ -29,6 +34,11 @@ export interface Task {
    * Solche Aufgaben werden nicht auf dem Gerät gespeichert, sie kommen aus der Cloud (siehe groups/).
    */
   group?: { id: string; name: string }
+  /**
+   * Nur bei Terminen aus dem Google Kalender: nur angezeigt, nicht auf dem Gerät gespeichert und nicht änderbar.
+   * `link` öffnet den Termin in Google Kalender.
+   */
+  google?: { link: string; calendar: string; location?: string; endTime?: string }
   /** Zeitpunkt der Erstellung (ISO-Zeitstempel) */
   createdAt: string
   /** Zeitpunkt der letzten Änderung (ISO-Zeitstempel) */

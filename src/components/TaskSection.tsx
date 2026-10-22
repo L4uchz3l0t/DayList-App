@@ -6,8 +6,8 @@ import { TaskItem } from './TaskItem'
 import { useCollapsed } from './useCollapsed'
 import './TaskSection.css'
 
-/** Farbe eines Bereichs: Rot für Überfälliges, Violett für Geplantes, Grün für Erledigtes */
-export type SectionTone = 'danger' | 'accent' | 'success'
+/** Farbe eines Bereichs: Rot für Überfälliges, Violett für Aufgaben, Blau für Termine, Grün für Erledigtes */
+export type SectionTone = 'danger' | 'accent' | 'event' | 'success'
 
 interface TaskSectionProps {
   title: string

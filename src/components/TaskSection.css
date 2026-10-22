@@ -9,6 +9,11 @@
   --tone-soft: color-mix(in srgb, var(--color-accent) 8%, var(--color-surface));
 }
 
+.task-section--event {
+  --tone: var(--color-event);
+  --tone-soft: color-mix(in srgb, var(--color-event) 8%, var(--color-surface));
+}
+
 .task-section--success {
   --tone: var(--color-success);
   --tone-soft: var(--color-surface);

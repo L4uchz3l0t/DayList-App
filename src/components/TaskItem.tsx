@@ -31,33 +31,41 @@ interface TaskItemProps {
  */
 export function TaskItem({ task, todayKey, onToggle, onOpen, onMove, showPlannedDate = false, drag }: TaskItemProps) {
   const { t } = useI18n()
-  const isDone = task.status === 'done'
+  const isEvent = task.kind === 'event'
+  const isDone = task.status === 'done' && !isEvent
   const isOverdue = checkOverdue(task, todayKey)
-  // "Wichtig" ist bei Überfälligem überflüssig, die rote Markierung reicht
-  const showPriority = task.priority === 'high' && !isOverdue
   const showDate = showPlannedDate && !isOverdue && task.plannedDate !== undefined
-  const showTime = task.time !== undefined && task.plannedDate !== undefined && !isDone
+  // Termine zeigen ihre Uhrzeit links statt des Hakens
+  const showTime = task.time !== undefined && task.plannedDate !== undefined && !isDone && !isEvent
+  const showReminder = isEvent && task.time !== undefined && task.reminder !== undefined
 
   return (
     <li
       ref={drag?.setNodeRef}
-      className={`task-item${isDone ? ' task-item--done' : ''}${drag ? ' task-item--draggable' : ''}${drag?.isDragging ? ' task-item--dragging' : ''}`}
+      className={`task-item${isEvent ? ' task-item--event' : ''}${isDone ? ' task-item--done' : ''}${drag ? ' task-item--draggable' : ''}${drag?.isDragging ? ' task-item--dragging' : ''}`}
       {...drag?.listeners}
     >
-      <button
-        type="button"
-        role="checkbox"
-        aria-checked={isDone}
-        aria-label={isDone ? t.task.reopen(task.title) : t.task.complete(task.title)}
-        className="task-item__check"
-        onClick={() => onToggle(task.id)}
-      >
-        {isDone && <Icon name="check" size={16} />}
-      </button>
+      {isEvent ? (
+        <span className="task-item__when">
+          {task.time ?? t.task.allDay}
+          {task.google?.endTime && <span className="task-item__until">{task.google.endTime}</span>}
+        </span>
+      ) : (
+        <button
+          type="button"
+          role="checkbox"
+          aria-checked={isDone}
+          aria-label={isDone ? t.task.reopen(task.title) : t.task.complete(task.title)}
+          className="task-item__check"
+          onClick={() => onToggle(task.id)}
+        >
+          {isDone && <Icon name="check" size={16} />}
+        </button>
+      )}
 
       <button type="button" className="task-item__body" onClick={() => onOpen(task.id)}>
         <span className="task-item__title">{task.title}</span>
-        {(isOverdue || showPriority || showDate || showTime || task.group) && (
+        {(isOverdue || showDate || showTime || showReminder || task.group || task.google) && (
           <span className="task-item__meta">
             {isOverdue && task.plannedDate && (
               <span className="task-item__tag task-item__tag--overdue">
@@ -80,9 +88,16 @@ export function TaskItem({ task, todayKey, onToggle, onOpen, onMove, showPlanned
                 <Icon name="groups" size={12} /> {t.groups.groupTag(task.group.name)}
               </span>
             )}
-            {showPriority && (
-              <span className="task-item__tag task-item__tag--priority">
-                <Icon name="flag" size={12} /> {t.common.important}
+            {showReminder && (
+              <span className="task-item__tag task-item__tag--time">
+                <Icon name="bell" size={12} />
+                <span className="visually-hidden">{t.task.withReminder}</span>
+              </span>
+            )}
+            {task.google && (
+              <span className="task-item__tag task-item__tag--google">
+                {task.google.calendar}
+                {task.google.location && ` · ${task.google.location}`}
               </span>
             )}
           </span>
@@ -90,7 +105,7 @@ export function TaskItem({ task, todayKey, onToggle, onOpen, onMove, showPlanned
       </button>
 
       {/* Gruppenaufgaben verschiebt nur ein Verwalter in der Gruppe selbst */}
-      {onMove && !isDone && !task.group && (
+      {onMove && !isDone && !task.group && !task.google && (
         <button
           type="button"
           className="task-item__move"

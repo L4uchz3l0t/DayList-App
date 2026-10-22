@@ -11,6 +11,7 @@ const member = (email: string, name: string, fields: Partial<GroupMember> = {}):
   user_id: 'u-' + name,
   role: 'member',
   show_in_calendar: true,
+  pinned: false,
   ...fields,
 })
 

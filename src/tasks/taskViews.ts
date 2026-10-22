@@ -6,6 +6,14 @@ import type { Task } from './types'
   Reine Funktionen ohne Oberfläche, damit sie sich leicht testen lassen.
 */
 
+/** Termine werden nicht abgehakt und erscheinen in eigenen Bereichen */
+export const isEvent = (task: Task) => task.kind === 'event'
+
+/** Termine eines Tages: ganztägige zuerst, dann nach Uhrzeit (früh nach spät) */
+export function byEventTime(a: Task, b: Task): number {
+  return (a.time ?? '').localeCompare(b.time ?? '') || a.title.localeCompare(b.title)
+}
+
 /** Wichtige Aufgaben zuerst, sonst bleibt die Reihenfolge erhalten. */
 export function byPriority(a: Task, b: Task): number {
   return Number(b.priority === 'high') - Number(a.priority === 'high')
@@ -21,7 +29,7 @@ export function byTimeAndPriority(a: Task, b: Task): number {
 
 /** Offen und der geplante Tag liegt vor heute. */
 export function isOverdue(task: Task, todayKey: string): boolean {
-  return task.status === 'open' && task.plannedDate !== undefined && task.plannedDate < todayKey
+  return !isEvent(task) && task.status === 'open' && task.plannedDate !== undefined && task.plannedDate < todayKey
 }
 
 /** Überfällige Aufgaben, wichtige zuerst, dann die ältesten. */
@@ -33,7 +41,7 @@ export function getOverdueTasks(tasks: Task[], todayKey: string): Task[] {
 
 /** Aufgaben unter Irgendwann (ohne geplanten Tag), getrennt nach offen und erledigt. */
 export function getInboxTasks(tasks: Task[]): { open: Task[]; done: Task[] } {
-  const inbox = tasks.filter((task) => task.plannedDate === undefined)
+  const inbox = tasks.filter((task) => task.plannedDate === undefined && !isEvent(task))
   return {
     open: inbox.filter((task) => task.status === 'open').sort(byPriority),
     done: inbox.filter((task) => task.status === 'done'),
@@ -42,17 +50,21 @@ export function getInboxTasks(tasks: Task[]): { open: Task[]; done: Task[] } {
 
 export interface WeekDay {
   dateKey: string
-  /** Für diesen Tag geplante Aufgaben: offene (wichtige zuerst), dann erledigte */
+  /** Für diesen Tag geplante Aufgaben: offene (nach Uhrzeit), dann erledigte */
   tasks: Task[]
+  /** Termine an diesem Tag, ganztägige zuerst, dann nach Uhrzeit */
+  events: Task[]
   /** Offene Aufgaben, deren Frist an diesem Tag endet, egal wann sie geplant sind */
   deadlines: Task[]
 }
 
 /** Ein Tag mit seinen geplanten Aufgaben und Fristen. */
 export function getDay(tasks: Task[], dateKey: string): WeekDay {
-  const planned = tasks.filter((task) => task.plannedDate === dateKey)
+  const onDay = tasks.filter((task) => task.plannedDate === dateKey)
+  const planned = onDay.filter((task) => !isEvent(task))
   return {
     dateKey,
+    events: onDay.filter(isEvent).sort(byEventTime),
     tasks: [
       ...planned.filter((task) => task.status === 'open').sort(byTimeAndPriority),
       ...planned.filter((task) => task.status === 'done'),
@@ -67,13 +79,18 @@ export function getWeekDays(tasks: Task[], todayKey: string, count = 7): WeekDay
   return Array.from({ length: count }, (_, index) => getDay(tasks, toDateKey(addDays(start, index))))
 }
 
-/** Anzahl der geplanten Aufgaben (offen und erledigt) je Tag, für die Färbung im Kalender. */
+/** Anzahl der geplanten Aufgaben (offen und erledigt) je Tag, für die Färbung im Kalender. Termine zählen nicht mit. */
 export function countTasksByDay(tasks: Task[]): Map<string, number> {
   const counts = new Map<string, number>()
   for (const task of tasks) {
-    if (task.plannedDate) counts.set(task.plannedDate, (counts.get(task.plannedDate) ?? 0) + 1)
+    if (task.plannedDate && !isEvent(task)) counts.set(task.plannedDate, (counts.get(task.plannedDate) ?? 0) + 1)
   }
   return counts
+}
+
+/** Tage, an denen mindestens ein Termin liegt (Punkt im Kalender) */
+export function getEventDays(tasks: Task[]): Set<string> {
+  return new Set(tasks.filter((task) => isEvent(task) && task.plannedDate).map((task) => task.plannedDate!))
 }
 
 /** Farbstufe eines Kalendertags: 0 = keine Aufgabe, 1 = eine, 2 = zwei bis drei, 3 = vier bis fünf, 4 = sechs und mehr. */

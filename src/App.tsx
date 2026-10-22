@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { AddButton } from './components/AddButton'
 import { AppHeader } from './components/AppHeader'
 import { MainNav } from './components/MainNav'
@@ -7,6 +7,7 @@ import { QuickAdd } from './components/QuickAdd'
 import { TaskDetail } from './components/TaskDetail'
 import { Toast, type ToastMessage } from './components/Toast'
 import { usePresence } from './usePresence'
+import { useSwipe } from './components/useSwipe'
 import { useCloudSync } from './sync/useCloudSync'
 import { NAV_ITEMS, type ViewId } from './navigation'
 import { formatWeekdayDate, toDateKey } from './tasks/dates'
@@ -27,6 +28,8 @@ import { setGroupTaskDone } from './groups/groupStore'
 import { fromCalendarId, isGroupTaskId, toCalendarTasks } from './groups/groupViews'
 import { describeGroupError } from './groups/components/groupErrors'
 import { useGroups } from './groups/useGroups'
+import { isGoogleEventId } from './google/googleCalendar'
+import { useGoogleCalendar } from './google/useGoogleCalendar'
 import './App.css'
 
 /** Rückmeldung nach dem Verschieben, besonders wenn die Aufgabe aus der aktuellen Ansicht verschwindet */
@@ -38,6 +41,7 @@ function describeMove(plannedDate: string | undefined, todayKey: string, t: Mess
 
 function App() {
   const today = useToday()
+  const todayKey = toDateKey(today)
   const { t } = useI18n()
   const [toast, setToast] = useState<ToastMessage | null>(null)
   const showSaveError = useCallback(() => {
@@ -58,7 +62,10 @@ function App() {
   } = useTasks(showSaveError)
   const cloud = useCloudSync(tasks, status === 'ready', getTasks, applySync)
   const groups = useGroups(cloud.email)
-  const [activeView, setActiveView] = useState<ViewId>('today')
+  const google = useGoogleCalendar(cloud.email, todayKey)
+  // Nach der Anmeldung bei Google kommt die App mit ?google=connected (oder =error/=denied) zurück
+  const [googleReturn] = useState(() => new URLSearchParams(window.location.search).get('google'))
+  const [activeView, setActiveView] = useState<ViewId>(googleReturn ? 'settings' : 'today')
   const [openGroupId, setOpenGroupId] = useState<string | null>(null)
   /** Vorgewählter Tag der offenen Schnellaufnahme ('' = Irgendwann), null = geschlossen */
   const [quickAddDay, setQuickAddDay] = useState<string | null>(null)
@@ -67,7 +74,6 @@ function App() {
   const [themePreference, setThemePreference] = useState<ThemePreference>(getThemePreference)
   const theme = resolveTheme(themePreference)
 
-  const todayKey = toDateKey(today)
   const openTask = tasks.find((task) => task.id === openTaskId)
   const moveTask = tasks.find((task) => task.id === moveTaskId)
   // Geschlossene Fenster und Meldungen bleiben kurz zum Ausblenden sichtbar
@@ -86,6 +92,17 @@ function App() {
   function showToast(text: string, action?: ToastMessage['action']) {
     setToast({ id: Date.now(), text, action })
   }
+
+  // Rückkehr von Google: Meldung zeigen und den Zusatz aus der Adresse entfernen
+  useEffect(() => {
+    if (!googleReturn) return
+    const url = new URL(window.location.href)
+    url.searchParams.delete('google')
+    window.history.replaceState(null, '', url)
+    setToast({ id: Date.now(), text: googleReturn === 'connected' ? t.google.connected : t.google.error })
+    // Nur einmal beim Start
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   function changeTheme(preference: ThemePreference) {
     applyThemePreference(preference)
@@ -124,9 +141,14 @@ function App() {
 
   // Eigene Gruppenaufgaben erscheinen zusätzlich unter Heute und im Kalender (nur angezeigt, nicht auf dem Gerät gespeichert)
   const groupCalendarTasks = useMemo(() => toCalendarTasks(groups.groups, groups.email), [groups.groups, groups.email])
-  const tasksWithGroups = useMemo(() => [...tasks, ...groupCalendarTasks], [tasks, groupCalendarTasks])
+  // Dazu die Termine aus dem Google Kalender (ebenfalls nur angezeigt)
+  const tasksWithGroups = useMemo(
+    () => [...tasks, ...groupCalendarTasks, ...google.events],
+    [tasks, groupCalendarTasks, google.events],
+  )
 
   function handleToggle(id: string) {
+    if (isGoogleEventId(id)) return
     if (!isGroupTaskId(id)) {
       toggleTask(id)
       return
@@ -141,8 +163,13 @@ function App() {
       })
   }
 
-  /** Gruppenaufgaben öffnen sich in ihrer Gruppe, alle anderen im Detailfenster */
+  /** Gruppenaufgaben öffnen sich in ihrer Gruppe, Google-Termine in Google Kalender, alle anderen im Detailfenster */
   function handleOpen(id: string) {
+    if (isGoogleEventId(id)) {
+      const event = google.events.find((candidate) => candidate.id === id)
+      if (event?.google) window.open(event.google.link, '_blank', 'noopener')
+      return
+    }
     if (!isGroupTaskId(id)) {
       setOpenTaskId(id)
       return
@@ -153,10 +180,33 @@ function App() {
     setActiveView('groups')
   }
 
+  // Richtung des letzten Tab-Wechsels per Wischen, damit die neue Ansicht von der passenden Seite kommt
+  const [viewDirection, setViewDirection] = useState<'next' | 'previous' | null>(null)
+
   function selectView(view: ViewId) {
     if (view === 'groups') setOpenGroupId(null)
+    setViewDirection(null)
     setActiveView(view)
   }
+
+  /** Nächster oder vorheriger Tab in der Reihenfolge der Navigation */
+  function swipeView(step: number) {
+    const index = NAV_ITEMS.findIndex((item) => item.id === activeView)
+    const next = NAV_ITEMS[index + step]
+    if (index === -1 || !next) return
+    if (next.id === 'groups') setOpenGroupId(null)
+    setViewDirection(step > 0 ? 'next' : 'previous')
+    setActiveView(next.id)
+  }
+
+  // Seitliches Wischen wechselt den Tab. Im Kalender wechselt Wischen innen Monat und Tag,
+  // dort zählt für den Tab nur Wischen, das am Bildschirmrand beginnt.
+  const viewSwipe = useSwipe(
+    () => swipeView(1),
+    () => swipeView(-1),
+    quickAddDay !== null || openTaskId !== null || moveTaskId !== null,
+    activeView === 'week' ? 'edge' : 'any',
+  )
 
   const navItem = NAV_ITEMS.find((item) => item.id === activeView)
   const viewTitle = activeView === 'all' ? t.nav.all : navItem ? t.nav[navItem.labelKey] : ''
@@ -194,6 +244,7 @@ function App() {
             onImport={importTasks}
             onMessage={showToast}
             cloud={cloud}
+            google={google}
           />
         )
     }
@@ -203,7 +254,7 @@ function App() {
     <div className="app">
       <MainNav activeView={activeView} onSelect={selectView} />
 
-      <main className="app__main">
+      <main className="app__main" {...viewSwipe}>
         <AppHeader
           title={viewTitle}
           today={today}
@@ -217,7 +268,7 @@ function App() {
           <PlaceholderView text={t.status.loadError} action={{ label: t.common.retry, onClick: reload }} />
         ) : (
           // Neuer Schlüssel pro Ansicht: beim Wechsel blendet die Ansicht sanft ein
-          <div key={activeView} className="view-enter">
+          <div key={activeView} className={viewDirection ? `view-enter view-enter--${viewDirection}` : 'view-enter'}>
             {renderView()}
           </div>
         )}

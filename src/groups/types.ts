@@ -16,6 +16,8 @@ export interface GroupMember {
   role: GroupRole
   /** Eigene Gruppenaufgaben auch unter Heute und im Kalender zeigen und daran erinnern */
   show_in_calendar: boolean
+  /** Eigene Einstellung: Gruppe steht in der Übersicht oben */
+  pinned: boolean
 }
 
 export interface GroupSeries {

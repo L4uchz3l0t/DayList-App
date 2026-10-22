@@ -28,6 +28,8 @@ create table if not exists public.group_members (
   primary key (group_id, email)
 );
 create index if not exists group_members_user on public.group_members (user_id);
+-- Eigene Einstellung: Gruppe in der Übersicht oben anheften (auch für Datenbanken, die das Skript schon kannten)
+alter table public.group_members add column if not exists pinned boolean not null default false;
 
 -- Wiederkehrende Aufgaben: reihum, jede Woche (oder alle n Wochen) die nächste Person
 create table if not exists public.group_series (
@@ -213,6 +215,12 @@ language sql security definer set search_path = public as $$
   update group_members set show_in_calendar = show where group_id = gid and user_id = auth.uid()
 $$;
 
+-- Eigene Einstellung: Gruppe anpinnen
+create or replace function public.set_group_pinned(gid uuid, pin boolean) returns void
+language sql security definer set search_path = public as $$
+  update group_members set pinned = pin where group_id = gid and user_id = auth.uid()
+$$;
+
 -- Wiederkehrende Aufgaben: alle Runden anlegen, deren Frist höchstens 7 Tage in der Zukunft liegt.
 -- Schon angelegte Runden bleiben unverändert, so bleiben Anpassungen einzelner Wochen erhalten.
 create or replace function public.generate_group_tasks() returns int
@@ -246,6 +254,7 @@ grant execute on function public.create_group(text, text, text) to authenticated
 grant execute on function public.claim_group_invites() to authenticated;
 grant execute on function public.set_group_task_done(uuid, boolean) to authenticated;
 grant execute on function public.set_group_calendar(uuid, boolean) to authenticated;
+grant execute on function public.set_group_pinned(uuid, boolean) to authenticated;
 grant execute on function public.generate_group_tasks() to authenticated;
 
 -- Einmal am Tag neue Runden anlegen (zusätzlich legt die App sie beim Öffnen an)

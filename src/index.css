@@ -73,6 +73,29 @@ button {
   animation: fade-in var(--duration-enter) var(--ease-out);
 }
 
+/* Nach dem Wischen gleitet der neue Tab von der passenden Seite herein */
+.view-enter--next {
+  animation: view-from-right var(--duration-enter) var(--ease-out);
+}
+
+.view-enter--previous {
+  animation: view-from-left var(--duration-enter) var(--ease-out);
+}
+
+@keyframes view-from-right {
+  from {
+    opacity: 0;
+    transform: translateX(32px);
+  }
+}
+
+@keyframes view-from-left {
+  from {
+    opacity: 0;
+    transform: translateX(-32px);
+  }
+}
+
 /* Wer in den Systemeinstellungen weniger Bewegung wünscht, bekommt sie auch hier nicht */
 @media (prefers-reduced-motion: reduce) {
   *,

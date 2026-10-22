@@ -24,6 +24,12 @@ export function isAdmin(group: Group, email: string | null): boolean {
   return findMember(group, email)?.role === 'admin'
 }
 
+/** Angepinnte Gruppen zuerst, sonst bleibt die Reihenfolge (nach Erstellung) */
+export function sortGroups(groups: Group[], email: string | null): Group[] {
+  const pinned = (group: Group) => Number(findMember(group, email)?.pinned ?? false)
+  return [...groups].sort((a, b) => pinned(b) - pinned(a))
+}
+
 /** Anzeigename zu einer E-Mail-Adresse; ehemalige Mitglieder erscheinen mit ihrer Adresse */
 export function nameOf(group: Group, email: string): string {
   return group.members.find((member) => member.email === email)?.display_name ?? email

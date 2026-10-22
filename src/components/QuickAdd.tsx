@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import type { NewTaskInput } from '../tasks/taskOperations'
+import type { TaskKind } from '../tasks/types'
 import { describePlannedDay, getDayKind } from '../tasks/taskViews'
 import { Icon } from './Icon'
 import { Sheet } from './Sheet'
-import { DayPicker, DueDateField, ImportantToggle, TimeField } from './TaskFields'
+import { DayPicker, DueDateField, KindPicker, TimeField } from './TaskFields'
 import './QuickAdd.css'
 import { useI18n } from '../i18n/useI18n'
 
@@ -26,6 +27,7 @@ interface QuickAddProps {
 
 /**
  * Schnellaufnahme: Titel tippen, Enter drücken, fertig.
+ * Oben wählt ein kleiner Marker, ob es eine Aufgabe oder ein Termin ist. Termine brauchen einen Tag.
  * Ohne Auswahl landet die Aufgabe unter Irgendwann.
  * Nach dem Speichern schließt sie sich (unter Heute) oder klappt zum unteren Rand ein,
  * sodass Textfeld und Tag sichtbar bleiben. Ein Tipp ins Textfeld klappt sie wieder aus.
@@ -44,7 +46,7 @@ export function QuickAdd({
   const [title, setTitle] = useState('')
   const [plannedDate, setPlannedDate] = useState(initialPlannedDate)
   const [dueDate, setDueDate] = useState('')
-  const [isImportant, setImportant] = useState(false)
+  const [kind, setKind] = useState<TaskKind>('task')
   const [time, setTime] = useState('')
   const [reminder, setReminder] = useState<number | undefined>(undefined)
   const [showMore, setShowMore] = useState(false)
@@ -59,6 +61,13 @@ export function QuickAdd({
   // Ein anderer Tag als Heute/Morgen muss sichtbar sein, auch wenn die Optionen zugeklappt sind
   const dayLabel = describePlannedDay(plannedDate || undefined, todayKey, t.days, t.locale)
   const isOtherDay = getDayKind(plannedDate || undefined, todayKey) === 'other'
+  const isEvent = kind === 'event'
+
+  function changeKind(next: TaskKind) {
+    setKind(next)
+    // Ein Termin ohne Tag ergibt keinen Sinn: dann heute
+    if (next === 'event' && plannedDate === '') setPlannedDate(todayKey)
+  }
 
   function handleSubmit(event: FormEvent) {
     event.preventDefault()
@@ -66,9 +75,9 @@ export function QuickAdd({
     if (trimmed === '') return
     onSave({
       title: trimmed,
+      kind: isEvent ? 'event' : undefined,
       plannedDate: plannedDate || undefined,
-      dueDate: dueDate || undefined,
-      priority: isImportant ? 'high' : undefined,
+      dueDate: dueDate && !isEvent ? dueDate : undefined,
       time: plannedDate && time ? time : undefined,
       reminder: plannedDate && time ? reminder : undefined,
     })
@@ -79,10 +88,9 @@ export function QuickAdd({
       return
     }
     setSavedMessage(message)
-    // Titel, Uhrzeit, Frist und Wichtig gelten nur für diese Aufgabe, der Tag bleibt für die nächste stehen
+    // Titel, Uhrzeit und Frist gelten nur für diesen Eintrag, Tag und Marker bleiben für den nächsten stehen
     setTitle('')
     setDueDate('')
-    setImportant(false)
     setTime('')
     setReminder(undefined)
     setShowMore(false)
@@ -92,13 +100,14 @@ export function QuickAdd({
   }
 
   return (
-    <Sheet title={t.quickAdd.title} onClose={onClose} closing={closing} minimized={minimized}>
+    <Sheet title={isEvent ? t.quickAdd.titleEvent : t.quickAdd.title} onClose={onClose} closing={closing} minimized={minimized}>
       <form className="quick-add" onSubmit={handleSubmit}>
         {minimized && savedMessage && (
           <p className="quick-add__status" role="status">
             {savedMessage}
           </p>
         )}
+        {!minimized && <KindPicker value={kind} onChange={changeKind} />}
         <input
           ref={inputRef}
           className="field"
@@ -114,28 +123,40 @@ export function QuickAdd({
           }}
         />
 
-        <DayPicker value={plannedDate} onChange={setPlannedDate} todayKey={todayKey} showDateInput={showMore || isOtherDay} />
+        <DayPicker
+          value={plannedDate}
+          onChange={setPlannedDate}
+          todayKey={todayKey}
+          showDateInput={showMore || isOtherDay || isEvent}
+          allowSomeday={!isEvent}
+          label={isEvent ? t.fields.eventDay : undefined}
+        />
+        {/* Bei Terminen gehört die Uhrzeit dazu und steht gleich sichtbar da */}
+        {isEvent && !minimized && (
+          <TimeField time={time} reminder={reminder} onTimeChange={setTime} onReminderChange={setReminder} />
+        )}
 
         {/* Ausgeklappter Teil: verschwindet weich, wenn das Fenster zum unteren Rand einklappt */}
         <div className="quick-add__expandable" data-collapsed={minimized} inert={minimized}>
           <div className="quick-add__expandable-inner">
-            <button
-              type="button"
-              className="quick-add__more"
-              aria-expanded={showMore}
-              onClick={() => setShowMore(!showMore)}
-            >
-              {showMore ? t.quickAdd.less : t.quickAdd.more}
-              <Icon name="chevronDown" size={18} />
-            </button>
+            {!isEvent && (
+              <button
+                type="button"
+                className="quick-add__more"
+                aria-expanded={showMore}
+                onClick={() => setShowMore(!showMore)}
+              >
+                {showMore ? t.quickAdd.less : t.quickAdd.more}
+                <Icon name="chevronDown" size={18} />
+              </button>
+            )}
 
-            {showMore && (
+            {showMore && !isEvent && (
               <div className="quick-add__extra">
                 {plannedDate && (
                   <TimeField time={time} reminder={reminder} onTimeChange={setTime} onReminderChange={setReminder} />
                 )}
                 <DueDateField value={dueDate} onChange={setDueDate} todayKey={todayKey} />
-                <ImportantToggle value={isImportant} onChange={setImportant} />
               </div>
             )}
 

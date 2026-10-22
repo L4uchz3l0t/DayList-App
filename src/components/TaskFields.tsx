@@ -1,5 +1,6 @@
 import { useId } from 'react'
 import { addDays, parseDateKey, toDateKey } from '../tasks/dates'
+import type { TaskKind } from '../tasks/types'
 import { DateField } from './DateField'
 import { Icon } from './Icon'
 import './TaskFields.css'
@@ -17,14 +18,24 @@ interface DayPickerProps {
   todayKey: string
   /** Zusätzliches Datumsfeld für beliebige Tage anzeigen */
   showDateInput?: boolean
+  /** Termine haben immer einen Tag: dann gibt es kein "Irgendwann" */
+  allowSomeday?: boolean
+  label?: string
 }
 
 /** Auswahl des geplanten Tages: Irgendwann, Heute, Morgen und optional ein beliebiges Datum. */
-export function DayPicker({ value, onChange, todayKey, showDateInput = false }: DayPickerProps) {
+export function DayPicker({
+  value,
+  onChange,
+  todayKey,
+  showDateInput = false,
+  allowSomeday = true,
+  label,
+}: DayPickerProps) {
   const { t } = useI18n()
   const labelId = useId()
   const options = [
-    { label: t.days.someday, value: '' },
+    ...(allowSomeday ? [{ label: t.days.someday, value: '' }] : []),
     { label: t.days.today, value: todayKey },
     { label: t.days.tomorrow, value: toDateKey(addDays(parseDateKey(todayKey), 1)) },
   ]
@@ -32,7 +43,7 @@ export function DayPicker({ value, onChange, todayKey, showDateInput = false }: 
   return (
     <div className="task-field">
       <span className="task-field__label" id={labelId}>
-        {t.fields.plannedFor}
+        {label ?? t.fields.plannedFor}
       </span>
       <div className="chips" role="radiogroup" aria-labelledby={labelId}>
         {options.map((option) => (
@@ -74,7 +85,13 @@ export function DueDateField({ value, onChange, todayKey }: DueDateFieldProps) {
     <div className="task-field">
       <span className="task-field__label">{t.fields.deadline}</span>
       <div className="task-field__row">
-        <DateField label={t.fields.deadlineShort} placeholder={t.fields.noDeadline} value={value} onChange={onChange} todayKey={todayKey} />
+        <DateField
+          label={t.fields.deadlineShort}
+          placeholder={t.fields.noDeadline}
+          value={value}
+          onChange={onChange}
+          todayKey={todayKey}
+        />
         {value && (
           <button type="button" className="button button--secondary" onClick={() => onChange('')}>
             {t.fields.noDeadline}
@@ -85,23 +102,34 @@ export function DueDateField({ value, onChange, todayKey }: DueDateFieldProps) {
   )
 }
 
-interface ImportantToggleProps {
-  value: boolean
-  onChange: (value: boolean) => void
+interface KindPickerProps {
+  value: TaskKind
+  onChange: (value: TaskKind) => void
 }
 
-/** Schalter für hohe Priorität ("Wichtig"). */
-export function ImportantToggle({ value, onChange }: ImportantToggleProps) {
+/** Kleiner Marker: Aufgabe (lila, zum Abhaken) oder Termin (blau, feste Zeit) */
+export function KindPicker({ value, onChange }: KindPickerProps) {
   const { t } = useI18n()
+  const labelId = useId()
   return (
-    <button
-      type="button"
-      className="chip task-field__important"
-      aria-pressed={value}
-      onClick={() => onChange(!value)}
-    >
-      <Icon name="flag" size={14} /> {t.common.important}
-    </button>
+    <div className="kind-picker" role="radiogroup" aria-labelledby={labelId}>
+      <span className="visually-hidden" id={labelId}>
+        {t.fields.kind}
+      </span>
+      {(['task', 'event'] as const).map((kind) => (
+        <button
+          key={kind}
+          type="button"
+          role="radio"
+          aria-checked={value === kind}
+          className={`kind-picker__option kind-picker__option--${kind}`}
+          onClick={() => onChange(kind)}
+        >
+          <Icon name={kind === 'task' ? 'check' : 'clock'} size={14} />
+          {kind === 'task' ? t.fields.kindTask : t.fields.kindEvent}
+        </button>
+      ))}
+    </div>
   )
 }
 

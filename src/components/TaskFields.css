@@ -17,20 +17,44 @@
   gap: var(--space-2);
 }
 
-.task-field__important {
-  display: inline-flex;
-  align-items: center;
-  align-self: flex-start;
-  gap: var(--space-1);
-}
-
-.task-field__important[aria-pressed='true'] {
-  border-color: var(--color-warm);
-  background: color-mix(in srgb, var(--color-warm) 16%, transparent);
-  color: var(--color-warm);
-}
-
 .task-field__time {
   width: auto;
   min-width: 8rem;
+}
+
+/* Marker Aufgabe/Termin: zwei kleine Knöpfe, der gewählte in seiner Farbe */
+.kind-picker {
+  display: inline-flex;
+  align-self: flex-start;
+  gap: 2px;
+  padding: 3px;
+  border-radius: var(--radius-full);
+  background: var(--color-surface-muted);
+}
+
+.kind-picker__option {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-height: 32px;
+  padding: 0 var(--space-3);
+  border: none;
+  border-radius: var(--radius-full);
+  background: none;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+}
+
+.kind-picker__option[aria-checked='true'] {
+  background: var(--kind-color);
+  color: var(--color-on-accent);
+}
+
+.kind-picker__option--task {
+  --kind-color: var(--color-accent);
+}
+
+.kind-picker__option--event {
+  --kind-color: var(--color-event);
 }

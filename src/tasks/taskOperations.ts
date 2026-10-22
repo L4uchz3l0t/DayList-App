@@ -1,5 +1,5 @@
 import { createId } from './createId'
-import type { Task, TaskPriority, TaskStatus } from './types'
+import type { Task, TaskKind, TaskPriority, TaskStatus } from './types'
 
 /**
  * Alle Aufgaben-Aktionen als einfache Funktionen.
@@ -11,6 +11,7 @@ import type { Task, TaskPriority, TaskStatus } from './types'
 /** Felder, die beim Bearbeiten geändert werden können. `undefined` löscht einen Wert. */
 export interface TaskChanges {
   title?: string
+  kind?: TaskKind
   status?: TaskStatus
   plannedDate?: string | undefined
   dueDate?: string | undefined
@@ -22,6 +23,7 @@ export interface TaskChanges {
 /** Angaben für eine neue Aufgabe. Nur der Titel ist Pflicht. */
 export interface NewTaskInput {
   title: string
+  kind?: TaskKind
   plannedDate?: string
   dueDate?: string
   priority?: TaskPriority
@@ -45,6 +47,7 @@ export function withRemindAt(task: Task): Task {
 /** Erstellt eine neue, offene Aufgabe. Ohne geplanten Tag landet sie unter Irgendwann. */
 export function createTask(input: NewTaskInput, now: string): Task {
   const task: Task = { id: createId(), title: input.title.trim(), status: 'open', createdAt: now, updatedAt: now }
+  if (input.kind === 'event') task.kind = 'event'
   if (input.plannedDate) task.plannedDate = input.plannedDate
   if (input.dueDate) task.dueDate = input.dueDate
   if (input.priority) task.priority = input.priority
@@ -61,6 +64,8 @@ export function updateTask(tasks: Task[], id: string, changes: TaskChanges, now:
     const updated: Task = { ...task, updatedAt: now }
     if (changes.title !== undefined && changes.title.trim() !== '') updated.title = changes.title.trim()
     if (changes.status !== undefined) updated.status = changes.status
+    if (changes.kind === 'event') updated.kind = 'event'
+    else if ('kind' in changes) delete updated.kind
     for (const key of ['plannedDate', 'dueDate', 'priority', 'time', 'reminder'] as const) {
       if (!(key in changes)) continue
       const value = changes[key]
