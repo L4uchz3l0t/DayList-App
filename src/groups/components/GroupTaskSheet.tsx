@@ -123,6 +123,7 @@ export function GroupTaskSheet({ group, task, defaultAssignee, todayKey, act, on
           <input
             className="field"
             type="text"
+            maxLength={200}
             placeholder={t.groups.taskTitlePlaceholder}
             value={title}
             onChange={(event) => setTitle(event.target.value)}

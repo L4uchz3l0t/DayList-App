@@ -65,6 +65,9 @@ function readTask(value: unknown): Task {
   if (dueDate) task.dueDate = dueDate
   if (raw.priority) task.priority = raw.priority as TaskPriority
   if (raw.kind === 'event') task.kind = 'event'
+  if (raw.status === 'done' && typeof raw.doneAt === 'string' && !Number.isNaN(Date.parse(raw.doneAt))) {
+    task.doneAt = raw.doneAt
+  }
   // Uhrzeit und Erinnerung: Ungültiges wird still weggelassen, die Aufgabe bleibt erhalten
   if (typeof raw.time === 'string' && TIME.test(raw.time)) task.time = raw.time
   if (typeof raw.reminder === 'number' && Number.isInteger(raw.reminder) && raw.reminder >= 0) task.reminder = raw.reminder

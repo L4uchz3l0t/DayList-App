@@ -8,6 +8,12 @@ import type { PendingDeletes } from './reconcile'
 
 const STORAGE_KEY = 'pendingDeletes'
 
+/**
+ * Nach so vielen Tagen wird eine nie abgeglichene Löschung vergessen (zum Beispiel ohne Anmeldung).
+ * Genauso lange hebt die Cloud gelöschte Aufgaben auf (supabase/cleanup.sql).
+ */
+const KEEP_DAYS = 90
+
 export function readPendingDeletes(): PendingDeletes {
   try {
     const stored = localStorage.getItem(STORAGE_KEY)
@@ -18,6 +24,10 @@ export function readPendingDeletes(): PendingDeletes {
 }
 
 function write(pending: PendingDeletes) {
+  const oldest = Date.now() - KEEP_DAYS * 24 * 60 * 60 * 1000
+  for (const [id, at] of Object.entries(pending)) {
+    if (new Date(at).getTime() < oldest) delete pending[id]
+  }
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(pending))
   } catch {
@@ -26,8 +36,14 @@ function write(pending: PendingDeletes) {
 }
 
 export function addPendingDelete(id: string, deletedAt: string) {
-  if (!isCloudConfigured) return
-  write({ ...readPendingDeletes(), [id]: deletedAt })
+  addPendingDeletes([id], deletedAt)
+}
+
+export function addPendingDeletes(ids: string[], deletedAt: string) {
+  if (!isCloudConfigured || ids.length === 0) return
+  const pending = readPendingDeletes()
+  for (const id of ids) pending[id] = deletedAt
+  write(pending)
 }
 
 export function removePendingDeletes(ids: string[]) {

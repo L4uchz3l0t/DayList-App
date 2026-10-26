@@ -1,11 +1,14 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { mergeTasks } from '../storage/backup'
-import { addPendingDelete, removePendingDeletes } from '../sync/pendingDeletes'
+import { addPendingDelete, addPendingDeletes, removePendingDeletes } from '../sync/pendingDeletes'
 import type { ReconcileResult } from '../sync/reconcile'
 import { loadTasks, removeStoredTask, requestPersistentStorage, saveTask } from '../storage/taskStore'
+import { addDays, toDateKey } from './dates'
 import {
   createTask,
   deleteTask,
+  findExpiredTasks,
+  PAST_KEEP_DAYS,
   restoreTask,
   toggleTaskStatus,
   updateTask,
@@ -15,6 +18,9 @@ import {
 import type { Task } from './types'
 
 const nowIso = () => new Date().toISOString()
+
+/** So oft wird geprüft, ob alte erledigte Aufgaben aufgeräumt werden können */
+const CLEANUP_INTERVAL = 60 * 60 * 1000
 
 export type LoadStatus = 'loading' | 'ready' | 'error'
 
@@ -120,6 +126,24 @@ export function useTasks(onSaveError: () => void) {
     },
     [apply, persist],
   )
+
+  // Alte erledigte Aufgaben von selbst aufräumen: nach dem Laden und danach jede Stunde
+  useEffect(() => {
+    if (status !== 'ready') return
+    const cleanUp = () => {
+      const now = new Date()
+      const expired = findExpiredTasks(tasksRef.current, now.toISOString(), toDateKey(addDays(now, -PAST_KEEP_DAYS)))
+      if (expired.length === 0) return
+      const ids = new Set(expired.map((task) => task.id))
+      apply(tasksRef.current.filter((task) => !ids.has(task.id)))
+      for (const id of ids) persist(removeStoredTask(id))
+      // Die Cloud-Sicherung soll die Löschungen auch erfahren
+      addPendingDeletes([...ids], now.toISOString())
+    }
+    cleanUp()
+    const timer = window.setInterval(cleanUp, CLEANUP_INTERVAL)
+    return () => window.clearInterval(timer)
+  }, [status, apply, persist])
 
   /** Liest Aufgaben aus einer Sicherung ein: fehlende kommen dazu, neuere Fassungen ersetzen ältere. */
   const importTasks = useCallback(

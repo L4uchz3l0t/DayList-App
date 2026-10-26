@@ -10,9 +10,12 @@ interface AppHeaderProps {
   onToggleTheme: () => void
   /** Lupe: öffnet die Suche über alle Aufgaben */
   onSearch: () => void
+  /** Zahnrad: öffnet die Einstellungen */
+  onSettings: () => void
+  settingsOpen: boolean
 }
 
-export function AppHeader({ title, today, theme, onToggleTheme, onSearch }: AppHeaderProps) {
+export function AppHeader({ title, today, theme, onToggleTheme, onSearch, onSettings, settingsOpen }: AppHeaderProps) {
   const { t } = useI18n()
   const weekday = today.toLocaleDateString(t.locale, { weekday: 'long' })
   const monthYear = today.toLocaleDateString(t.locale, { month: 'long', year: 'numeric' })
@@ -38,6 +41,15 @@ export function AppHeader({ title, today, theme, onToggleTheme, onSearch }: AppH
             onClick={onToggleTheme}
           >
             <Icon name={theme === 'dark' ? 'sun' : 'moon'} size={20} />
+          </button>
+          <button
+            type="button"
+            className="app-header__theme"
+            aria-label={t.header.settings}
+            aria-pressed={settingsOpen}
+            onClick={onSettings}
+          >
+            <Icon name="settings" size={20} />
           </button>
         </div>
       </div>

@@ -17,6 +17,7 @@ import type { TaskChanges } from './tasks/taskOperations'
 import { useTasks } from './tasks/useTasks'
 import { applyThemePreference, getThemePreference, resolveTheme, type ThemePreference } from './theme'
 import { useToday } from './useToday'
+import { AiView } from './views/AiView'
 import { AllView } from './views/AllView'
 import { InboxView } from './views/InboxView'
 import { PlaceholderView } from './views/PlaceholderView'
@@ -209,7 +210,8 @@ function App() {
   )
 
   const navItem = NAV_ITEMS.find((item) => item.id === activeView)
-  const viewTitle = activeView === 'all' ? t.nav.all : navItem ? t.nav[navItem.labelKey] : ''
+  const viewTitle =
+    activeView === 'all' ? t.nav.all : activeView === 'settings' ? t.nav.settings : navItem ? t.nav[navItem.labelKey] : ''
   const viewProps = { tasks, todayKey, onToggle: toggleTask, onOpen: setOpenTaskId, onMove: setMoveTaskId }
   const calendarProps = { ...viewProps, tasks: tasksWithGroups, onToggle: handleToggle, onOpen: handleOpen }
 
@@ -232,6 +234,16 @@ function App() {
             onOpenGroup={setOpenGroupId}
             onMessage={showToast}
             onGoToSettings={() => setActiveView('settings')}
+          />
+        )
+      case 'ai':
+        return (
+          <AiView
+            tasks={tasksWithGroups}
+            todayKey={todayKey}
+            signedIn={cloud.email !== null}
+            onAdd={addTask}
+            onMessage={showToast}
           />
         )
       case 'settings':
@@ -261,6 +273,8 @@ function App() {
           theme={theme}
           onToggleTheme={() => changeTheme(theme === 'dark' ? 'light' : 'dark')}
           onSearch={() => setActiveView('all')}
+          onSettings={() => selectView(activeView === 'settings' ? 'today' : 'settings')}
+          settingsOpen={activeView === 'settings'}
         />
         {status === 'loading' ? (
           <PlaceholderView text={t.status.loading} />
@@ -275,7 +289,7 @@ function App() {
       </main>
 
       {/* In Gruppen hat der Plus-Knopf eine eigene Aufgabe (neue Gruppe, Aufgabe zuteilen) */}
-      {status === 'ready' && activeView !== 'groups' && (
+      {status === 'ready' && activeView !== 'groups' && activeView !== 'ai' && activeView !== 'settings' && (
         <AddButton onClick={() => setQuickAddDay(activeView === 'today' ? todayKey : '')} />
       )}
       {quickAdd.shown !== null && (

@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   createTask,
   deleteTask,
+  findExpiredTasks,
   moveTaskToInbox,
   restoreTask,
   scheduleTask,
@@ -165,5 +166,35 @@ describe('Uhrzeit und Erinnerung', () => {
     const [noReminder] = updateTask([task], task.id, { reminder: undefined }, LATER)
     expect(noReminder.remindAt).toBeUndefined()
     expect(noReminder.time).toBe('14:30')
+  })
+})
+
+describe('Aufräumen', () => {
+  it('merkt sich, wann eine Aufgabe erledigt wurde', () => {
+    const [done] = toggleTaskStatus([sampleTask()], 'a', LATER)
+    expect(done.doneAt).toBe(LATER)
+    const [open] = toggleTaskStatus([done], 'a', LATER)
+    expect(open.doneAt).toBeUndefined()
+  })
+
+  it('löscht erledigte Aufgaben unter Irgendwann erst nach einem Tag', () => {
+    const tasks = [
+      sampleTask({ id: 'frisch', status: 'done', doneAt: '2026-10-20T08:00:00.000Z' }),
+      sampleTask({ id: 'alt', status: 'done', doneAt: '2026-10-19T07:00:00.000Z' }),
+      sampleTask({ id: 'offen' }),
+    ]
+    const expired = findExpiredTasks(tasks, '2026-10-20T08:00:00.000Z', '2026-04-23')
+    expect(expired.map((task) => task.id)).toEqual(['alt'])
+  })
+
+  it('löscht im Kalender nur Erledigtes und Termine, die älter als die Grenze sind', () => {
+    const tasks = [
+      sampleTask({ id: 'alt-erledigt', status: 'done', plannedDate: '2026-01-05' }),
+      sampleTask({ id: 'alt-termin', kind: 'event', plannedDate: '2026-01-05' }),
+      sampleTask({ id: 'alt-offen', plannedDate: '2026-01-05' }),
+      sampleTask({ id: 'neu-erledigt', status: 'done', plannedDate: '2026-10-01' }),
+    ]
+    const expired = findExpiredTasks(tasks, '2026-10-20T08:00:00.000Z', '2026-04-23')
+    expect(expired.map((task) => task.id)).toEqual(['alt-erledigt', 'alt-termin'])
   })
 })

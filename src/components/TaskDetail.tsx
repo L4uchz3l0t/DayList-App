@@ -63,7 +63,7 @@ export function TaskDetail({ task, todayKey, onSave, onToggle, onDelete, onClose
         <KindPicker value={kind} onChange={changeKind} />
         <label className="task-field">
           <span className="task-field__label">{t.detail.titleField}</span>
-          <input className="field" type="text" value={title} onChange={(event) => setTitle(event.target.value)} />
+          <input className="field" type="text" maxLength={200} value={title} onChange={(event) => setTitle(event.target.value)} />
         </label>
 
         <DayPicker

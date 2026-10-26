@@ -1,4 +1,6 @@
-import { useEffect, useRef, useState, type FormEvent } from 'react'
+import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
+import { classify } from '../ai/assistant'
+import { readAutoDetect } from '../ai/autoDetect'
 import type { NewTaskInput } from '../tasks/taskOperations'
 import type { TaskKind } from '../tasks/types'
 import { describePlannedDay, getDayKind } from '../tasks/taskViews'
@@ -32,6 +34,8 @@ interface QuickAddProps {
  * Nach dem Speichern schließt sie sich (unter Heute) oder klappt zum unteren Rand ein,
  * sodass Textfeld und Tag sichtbar bleiben. Ein Tipp ins Textfeld klappt sie wieder aus.
  * Unter "Mehr Optionen" gibt es dieselben Angaben wie in der Detailansicht.
+ * Beim Tippen erkennt die KI, ob es ein Termin ist, und liest Tag und Uhrzeit aus dem Text
+ * ("Zahnarzt morgen 14:30"). Was du selbst auswählst, hat immer Vorrang.
  */
 export function QuickAdd({
   todayKey,
@@ -44,10 +48,13 @@ export function QuickAdd({
 }: QuickAddProps) {
   const { t } = useI18n()
   const [title, setTitle] = useState('')
-  const [plannedDate, setPlannedDate] = useState(initialPlannedDate)
+  const [chosenDate, setChosenDate] = useState(initialPlannedDate)
   const [dueDate, setDueDate] = useState('')
-  const [kind, setKind] = useState<TaskKind>('task')
-  const [time, setTime] = useState('')
+  // Selbst gewählt (null = noch nicht angefasst, dann entscheidet die Erkennung)
+  const [chosenKind, setChosenKind] = useState<TaskKind | null>(null)
+  const [dayChosen, setDayChosen] = useState(false)
+  const [chosenTime, setChosenTime] = useState<string | null>(null)
+  const [autoDetect] = useState(readAutoDetect)
   const [reminder, setReminder] = useState<number | undefined>(undefined)
   const [showMore, setShowMore] = useState(false)
   const [savedMessage, setSavedMessage] = useState<string | null>(null)
@@ -58,20 +65,45 @@ export function QuickAdd({
     inputRef.current?.focus()
   }, [])
 
+  const detected = useMemo(
+    () => (autoDetect && title.trim() !== '' ? classify(title, todayKey) : null),
+    [autoDetect, title, todayKey],
+  )
+  const kind: TaskKind = chosenKind ?? detected?.kind ?? 'task'
+  const dateFromText = !dayChosen && detected?.date ? detected.date : undefined
+  const timeFromText = chosenTime === null && detected?.time ? detected.time : undefined
+  // Ein Termin ohne Tag ergibt keinen Sinn: dann heute
+  const plannedDate = dateFromText ?? (kind === 'event' && chosenDate === '' ? todayKey : chosenDate)
+  const time = timeFromText ?? chosenTime ?? ''
+
+  function setPlannedDate(value: string) {
+    setChosenDate(value)
+    setDayChosen(true)
+  }
+
   // Ein anderer Tag als Heute/Morgen muss sichtbar sein, auch wenn die Optionen zugeklappt sind
   const dayLabel = describePlannedDay(plannedDate || undefined, todayKey, t.days, t.locale)
   const isOtherDay = getDayKind(plannedDate || undefined, todayKey) === 'other'
   const isEvent = kind === 'event'
 
   function changeKind(next: TaskKind) {
-    setKind(next)
-    // Ein Termin ohne Tag ergibt keinen Sinn: dann heute
-    if (next === 'event' && plannedDate === '') setPlannedDate(todayKey)
+    setChosenKind(next)
   }
+
+  // Tag und Uhrzeit aus dem Text übernommen: dann ohne diese Angaben speichern ("Zahnarzt" statt "Zahnarzt morgen 14:30")
+  const usedText = detected !== null && (dateFromText !== undefined || timeFromText !== undefined)
+  const detectedHint =
+    usedText || (detected?.kind === 'event' && chosenKind === null)
+      ? t.ai.detected(
+          kind === 'event' ? t.fields.kindEvent : t.fields.kindTask,
+          dateFromText ? dayLabel : undefined,
+          timeFromText,
+        )
+      : null
 
   function handleSubmit(event: FormEvent) {
     event.preventDefault()
-    const trimmed = title.trim()
+    const trimmed = usedText && detected ? detected.title : title.trim()
     if (trimmed === '') return
     onSave({
       title: trimmed,
@@ -91,7 +123,7 @@ export function QuickAdd({
     // Titel, Uhrzeit und Frist gelten nur für diesen Eintrag, Tag und Marker bleiben für den nächsten stehen
     setTitle('')
     setDueDate('')
-    setTime('')
+    setChosenTime(null)
     setReminder(undefined)
     setShowMore(false)
     // Einklappen und Tastatur schließen, damit die Liste dahinter wieder sichtbar ist
@@ -112,6 +144,7 @@ export function QuickAdd({
           ref={inputRef}
           className="field"
           type="text"
+          maxLength={200}
           placeholder={t.quickAdd.placeholder}
           aria-label={t.quickAdd.inputLabel}
           enterKeyHint="done"
@@ -123,6 +156,8 @@ export function QuickAdd({
           }}
         />
 
+        {detectedHint && !minimized && <p className="quick-add__detected">{detectedHint}</p>}
+
         <DayPicker
           value={plannedDate}
           onChange={setPlannedDate}
@@ -133,7 +168,7 @@ export function QuickAdd({
         />
         {/* Bei Terminen gehört die Uhrzeit dazu und steht gleich sichtbar da */}
         {isEvent && !minimized && (
-          <TimeField time={time} reminder={reminder} onTimeChange={setTime} onReminderChange={setReminder} />
+          <TimeField time={time} reminder={reminder} onTimeChange={setChosenTime} onReminderChange={setReminder} />
         )}
 
         {/* Ausgeklappter Teil: verschwindet weich, wenn das Fenster zum unteren Rand einklappt */}
@@ -154,7 +189,7 @@ export function QuickAdd({
             {showMore && !isEvent && (
               <div className="quick-add__extra">
                 {plannedDate && (
-                  <TimeField time={time} reminder={reminder} onTimeChange={setTime} onReminderChange={setReminder} />
+                  <TimeField time={time} reminder={reminder} onTimeChange={setChosenTime} onReminderChange={setReminder} />
                 )}
                 <DueDateField value={dueDate} onChange={setDueDate} todayKey={todayKey} />
               </div>

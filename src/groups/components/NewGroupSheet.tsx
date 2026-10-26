@@ -34,6 +34,7 @@ export function NewGroupSheet({ onCreate, onClose, closing }: NewGroupSheetProps
           <input
             className="field"
             type="text"
+            maxLength={60}
             placeholder={t.groups.groupNamePlaceholder}
             value={name}
             onChange={(event) => setName(event.target.value)}
@@ -44,6 +45,7 @@ export function NewGroupSheet({ onCreate, onClose, closing }: NewGroupSheetProps
           <input
             className="field"
             type="text"
+            maxLength={40}
             autoComplete="given-name"
             value={myName}
             onChange={(event) => setMyName(event.target.value)}

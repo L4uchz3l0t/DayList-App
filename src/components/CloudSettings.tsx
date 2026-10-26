@@ -8,7 +8,7 @@ function isRateLimit(error: unknown): boolean {
   return status === 429 || (typeof code === 'string' && code.includes('rate_limit'))
 }
 
-/** Kurze Fehlerbeschreibung von Supabase, zum Beispiel "500: Error sending magic link email" */
+/** Kurze Fehlerbeschreibung von Supabase, zum Beispiel "500: Error sending email" */
 function errorText(error: unknown): string {
   const { status, message } = (error ?? {}) as { status?: number; message?: string }
   return [status, message].filter(Boolean).join(': ') || String(error)
@@ -20,7 +20,6 @@ interface CloudSettingsProps {
 
 /**
  * Optionen-Karte "Automatische Sicherung": Anmelden mit einem Code per E-Mail, danach Stand der Sicherung.
- * Statt des Codes geht auch der Link aus der E-Mail (antippen oder ins Feld einfügen).
  */
 export function CloudSettings({ cloud }: CloudSettingsProps) {
   const { t } = useI18n()
@@ -43,7 +42,7 @@ export function CloudSettings({ cloud }: CloudSettingsProps) {
     } catch (error) {
       console.error('Code verschicken fehlgeschlagen', error)
       if (isRateLimit(error)) {
-        // Supabase verschickt nur wenige E-Mails pro Stunde. Der Link aus der letzten E-Mail gilt aber noch.
+        // Supabase verschickt nur wenige E-Mails pro Stunde. Der Code aus der letzten E-Mail gilt aber noch.
         setCodeSentTo(address)
         setCode('')
         setMessage(t.cloud.rateLimited)

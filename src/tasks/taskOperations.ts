@@ -63,7 +63,11 @@ export function updateTask(tasks: Task[], id: string, changes: TaskChanges, now:
 
     const updated: Task = { ...task, updatedAt: now }
     if (changes.title !== undefined && changes.title.trim() !== '') updated.title = changes.title.trim()
-    if (changes.status !== undefined) updated.status = changes.status
+    if (changes.status !== undefined && changes.status !== task.status) {
+      updated.status = changes.status
+      if (changes.status === 'done') updated.doneAt = now
+      else delete updated.doneAt
+    }
     if (changes.kind === 'event') updated.kind = 'event'
     else if ('kind' in changes) delete updated.kind
     for (const key of ['plannedDate', 'dueDate', 'priority', 'time', 'reminder'] as const) {
@@ -106,4 +110,27 @@ export function deleteTask(tasks: Task[], id: string): Task[] {
 export function restoreTask(tasks: Task[], task: Task): Task[] {
   if (tasks.some((t) => t.id === task.id)) return tasks
   return [...tasks, task]
+}
+
+/** Erledigte Aufgaben unter Irgendwann verschwinden einen Tag nach dem Abhaken */
+const INBOX_DONE_KEEP_MS = 24 * 60 * 60 * 1000
+
+/** Vergangene Tage im Kalender: erledigte Aufgaben und Termine bleiben so viele Tage sichtbar */
+export const PAST_KEEP_DAYS = 180
+
+/**
+ * Findet Aufgaben, die von selbst aufgeräumt werden, damit sich nicht endlos viel ansammelt:
+ * erledigte Aufgaben unter Irgendwann nach einem Tag, erledigte Aufgaben und Termine aus dem Kalender
+ * nach einem halben Jahr. Offene Aufgaben bleiben immer, auch wenn sie überfällig sind.
+ * `oldestKey` ist der älteste Tag ("JJJJ-MM-TT"), der im Kalender noch erhalten bleibt.
+ */
+export function findExpiredTasks(tasks: Task[], now: string, oldestKey: string): Task[] {
+  const cutoff = new Date(now).getTime() - INBOX_DONE_KEEP_MS
+  return tasks.filter((task) => {
+    if (task.plannedDate === undefined) {
+      return task.status === 'done' && new Date(task.doneAt ?? task.updatedAt).getTime() <= cutoff
+    }
+    const finished = task.status === 'done' || task.kind === 'event'
+    return finished && task.plannedDate < oldestKey
+  })
 }

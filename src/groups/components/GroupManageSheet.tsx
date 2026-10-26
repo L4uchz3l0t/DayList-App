@@ -126,6 +126,7 @@ export function GroupManageSheet({ group, myEmail, act, onGone, onClose, closing
               <input
                 className="field"
                 type="text"
+                maxLength={40}
                 value={inviteName}
                 onChange={(event) => setInviteName(event.target.value)}
               />
@@ -164,7 +165,7 @@ export function GroupManageSheet({ group, myEmail, act, onGone, onClose, closing
           >
             <label className="task-field">
               <span className="task-field__label">{t.groups.rename}</span>
-              <input className="field" type="text" value={name} onChange={(event) => setName(event.target.value)} />
+              <input className="field" type="text" maxLength={60} value={name} onChange={(event) => setName(event.target.value)} />
             </label>
             <div className="group-form__actions">
               <button

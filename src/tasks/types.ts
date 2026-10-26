@@ -39,6 +39,8 @@ export interface Task {
    * `link` öffnet den Termin in Google Kalender.
    */
   google?: { link: string; calendar: string; location?: string; endTime?: string }
+  /** Zeitpunkt, an dem die Aufgabe erledigt wurde (ISO-Zeitstempel). Nur bei erledigten Aufgaben. */
+  doneAt?: string
   /** Zeitpunkt der Erstellung (ISO-Zeitstempel) */
   createdAt: string
   /** Zeitpunkt der letzten Änderung (ISO-Zeitstempel) */
