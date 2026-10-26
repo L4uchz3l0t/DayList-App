@@ -10,6 +10,7 @@ import {
   getUpcomingTasks,
   getWeekDays,
   heatLevel,
+  isEventOver,
   searchTasks,
 } from './taskViews'
 import type { Task } from './types'
@@ -200,5 +201,23 @@ describe('Termine', () => {
     expect(getOverdueTasks(tasks, TODAY)).toEqual([])
     expect(countTasksByDay(tasks).get(TODAY)).toBe(1)
     expect([...getEventDays(tasks)].sort()).toEqual(['2026-10-10', TODAY])
+  })
+})
+
+describe('isEventOver', () => {
+  const event = (time?: string, endTime?: string) =>
+    ({ id: 'e', title: 'T', kind: 'event', status: 'open', time, plannedDate: '2026-10-26',
+      ...(endTime ? { google: { link: '', calendar: '', endTime } } : {}) }) as unknown as Parameters<typeof isEventOver>[0]
+
+  it('zeigt ganztägige Termine den ganzen Tag', () => {
+    expect(isEventOver(event(), '23:59')).toBe(false)
+  })
+  it('nimmt ohne Endzeit eine Stunde an', () => {
+    expect(isEventOver(event('10:00'), '10:59')).toBe(false)
+    expect(isEventOver(event('10:00'), '11:00')).toBe(true)
+  })
+  it('nutzt die Endzeit aus Google', () => {
+    expect(isEventOver(event('10:00', '12:30'), '12:00')).toBe(false)
+    expect(isEventOver(event('10:00', '12:30'), '12:30')).toBe(true)
   })
 })

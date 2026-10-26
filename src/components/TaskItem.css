@@ -188,3 +188,8 @@
 .task-item--dragging {
   opacity: 0.35;
 }
+
+.task-item__tag--repeat {
+  background: var(--color-surface-muted);
+  color: var(--color-text-muted);
+}

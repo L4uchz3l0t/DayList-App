@@ -3,6 +3,9 @@
   Komponenten verwenden nur diese Variablen. Das helle und das dunkle Design
   unterscheiden sich nur hier, nicht in den einzelnen Komponenten.
 
+  Das ist das Design "Klassisch". Die anderen Designs (styles/designs/) überschreiben diese Werte
+  und ein paar Formen, je nach data-design und data-mode (hell/dunkel) am <html>-Element.
+
   Farbrollen:
   - accent:  Lila, die Hauptfarbe: Datum, Navigation, Schaltflächen, Plus-Knopf
   - warm:    zweite Akzentfarbe für "Wichtig"
@@ -18,6 +21,8 @@
   color-scheme: only light;
 
   --color-bg: #f6f5f1;
+  /* Farbe der Statusleiste auf dem Handy */
+  --color-statusbar: #f6f5f1;
   --color-surface: #ffffff;
   --color-surface-muted: #ecebe5;
   --color-border: #e3e1da;
@@ -66,6 +71,7 @@
     color-scheme: dark;
 
     --color-bg: #141319;
+    --color-statusbar: #141319;
     --color-surface: #1e1d25;
     --color-surface-muted: #2a2833;
     --color-border: #2e2c37;
@@ -104,6 +110,7 @@
   color-scheme: dark;
 
   --color-bg: #141319;
+  --color-statusbar: #141319;
   --color-surface: #1e1d25;
   --color-surface-muted: #2a2833;
   --color-border: #2e2c37;

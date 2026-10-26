@@ -1,11 +1,11 @@
+import { updateThemeColor } from './design'
+
 export type Theme = 'light' | 'dark'
 /** Gewähltes Design: fest hell, fest dunkel oder wie das Gerät */
 export type ThemePreference = Theme | 'system'
 
 const STORAGE_KEY = 'theme'
 
-/** Farbe der Statusleiste auf dem Handy, passend zum Hintergrund des Designs */
-const THEME_COLORS: Record<Theme, string> = { light: '#f6f5f1', dark: '#141319' }
 
 /** Liest die gespeicherte Wahl. Ohne gespeicherte Wahl ist die App hell. */
 export function getThemePreference(): ThemePreference {
@@ -28,10 +28,25 @@ export function resolveTheme(preference: ThemePreference): Theme {
 export function applyThemePreference(preference: ThemePreference) {
   const root = document.documentElement
   root.dataset.theme = preference
-  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', THEME_COLORS[resolveTheme(preference)])
+  // Tatsächlich sichtbar: hell oder dunkel (die Designs in styles/designs/ richten sich danach)
+  root.dataset.mode = resolveTheme(preference)
+  updateThemeColor()
   try {
     localStorage.setItem(STORAGE_KEY, preference)
   } catch {
     // Wahl gilt dann nur bis zum Neuladen
   }
+}
+
+/** Bei "Wie Gerät" dem Gerät folgen, wenn es zwischen hell und dunkel wechselt */
+export function watchSystemTheme(onChange: () => void): () => void {
+  const query = window.matchMedia('(prefers-color-scheme: dark)')
+  const listener = () => {
+    if (getThemePreference() !== 'system') return
+    document.documentElement.dataset.mode = resolveTheme('system')
+    updateThemeColor()
+    onChange()
+  }
+  query.addEventListener('change', listener)
+  return () => query.removeEventListener('change', listener)
 }

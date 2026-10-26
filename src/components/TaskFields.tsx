@@ -1,6 +1,6 @@
 import { useId } from 'react'
 import { addDays, parseDateKey, toDateKey } from '../tasks/dates'
-import type { TaskKind } from '../tasks/types'
+import { REPEATS, type TaskKind, type TaskRepeat } from '../tasks/types'
 import { DateField } from './DateField'
 import { Icon } from './Icon'
 import './TaskFields.css'
@@ -188,5 +188,32 @@ export function TimeField({ time, reminder, onTimeChange, onReminderChange }: Ti
         </>
       )}
     </div>
+  )
+}
+
+interface RepeatFieldProps {
+  value: TaskRepeat | undefined
+  onChange: (value: TaskRepeat | undefined) => void
+}
+
+/** Wiederholung: nie, jeden Tag, werktags, jede Woche, alle 2 Wochen, jeden Monat oder jedes Jahr */
+export function RepeatField({ value, onChange }: RepeatFieldProps) {
+  const { t } = useI18n()
+  return (
+    <label className="task-field">
+      <span className="task-field__label">{t.fields.repeat}</span>
+      <select
+        className="field task-field__select"
+        value={value ?? ''}
+        onChange={(event) => onChange((event.target.value || undefined) as TaskRepeat | undefined)}
+      >
+        <option value="">{t.fields.repeatNames.none}</option>
+        {REPEATS.map((repeat) => (
+          <option key={repeat} value={repeat}>
+            {t.fields.repeatNames[repeat]}
+          </option>
+        ))}
+      </select>
+    </label>
   )
 }

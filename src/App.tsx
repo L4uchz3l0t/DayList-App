@@ -15,7 +15,8 @@ import { useI18n } from './i18n/useI18n'
 import type { Messages } from './i18n/messages'
 import type { TaskChanges } from './tasks/taskOperations'
 import { useTasks } from './tasks/useTasks'
-import { applyThemePreference, getThemePreference, resolveTheme, type ThemePreference } from './theme'
+import { applyDesign, getDesign, updateThemeColor, type DesignId } from './design'
+import { applyThemePreference, getThemePreference, resolveTheme, watchSystemTheme, type ThemePreference } from './theme'
 import { useToday } from './useToday'
 import { AiView } from './views/AiView'
 import { AllView } from './views/AllView'
@@ -104,6 +105,17 @@ function App() {
     // Nur einmal beim Start
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  const [design, setDesign] = useState<DesignId>(getDesign)
+  // Statusleiste passend zum Design färben, sobald die Styles geladen sind
+  useEffect(() => updateThemeColor(), [])
+  // "Wie Gerät": neu zeichnen, wenn das Gerät zwischen hell und dunkel wechselt
+  const [, setSystemChange] = useState(0)
+  useEffect(() => watchSystemTheme(() => setSystemChange((count) => count + 1)), [])
+  function changeDesign(next: DesignId) {
+    applyDesign(next)
+    setDesign(next)
+  }
 
   function changeTheme(preference: ThemePreference) {
     applyThemePreference(preference)
@@ -251,6 +263,8 @@ function App() {
           <SettingsView
             themePreference={themePreference}
             onThemeChange={changeTheme}
+            design={design}
+            onDesignChange={changeDesign}
             tasks={tasks}
             todayKey={todayKey}
             onImport={importTasks}

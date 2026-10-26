@@ -1,0 +1,328 @@
+/*
+  Design "Riso": wie ein Risographie-Druck mit zwei Farben, Blau und Pink, leicht versetzt übereinander.
+  Breite, fette Schrift (Archivo), Rasterpunkte statt Flächen, harte Schatten statt weicher.
+*/
+:root[data-design='riso'] {
+  --font-family: 'Archivo Variable', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --riso-pink: #ff48b0;
+  --riso-blue: #3255a4;
+  --riso-nav-text: #ffffff;
+  --riso-nav-active-text: #1d2a4d;
+
+  --color-statusbar: #f4f5f7;
+  --color-bg: #f4f5f7;
+  --color-surface: #ffffff;
+  --color-surface-muted: #e9ebf1;
+  --color-border: #d8dce6;
+  --color-text: #1d2a4d;
+  --color-text-muted: #4a5678;
+  --color-on-accent: #ffffff;
+  --color-accent: #3255a4;
+  --color-accent-soft: #e3e9f6;
+  --color-warm: #3255a4;
+  --color-danger: #b0175f;
+  --color-danger-soft: #fbe4ef;
+  --color-warning: #8a5a00;
+  --color-warning-soft: #fdf0d8;
+  --color-success: #3255a4;
+  --color-success-soft: #e3e9f6;
+  --color-event: #3255a4;
+  --color-event-soft: #e3e9f6;
+
+  /* Hitze im Kalender: Rasterpunkte in Blau auf hellem Grund */
+  --riso-dot: #3255a4;
+  --heat-0: #ffffff;
+  --heat-1: #ffffff;
+  --heat-2: #ffffff;
+  --heat-3: #ffffff;
+  --heat-4: #ffffff;
+  --heat-text-0: #4a5678;
+  --heat-text-1: #1d2a4d;
+  --heat-text-2: #1d2a4d;
+  --heat-text-3: #1d2a4d;
+  --heat-text-4: #1d2a4d;
+
+  --radius-sm: 0;
+  --radius-md: 0;
+  --radius-lg: 0;
+}
+
+:root[data-design='riso'][data-mode='dark'] {
+  --riso-pink: #ff7cc6;
+  --riso-blue: #3255a4;
+  --riso-nav-text: #ffffff;
+  --riso-nav-active-text: #191c29;
+
+  --color-statusbar: #191c29;
+  --color-bg: #191c29;
+  --color-surface: #242839;
+  --color-surface-muted: #2e3348;
+  --color-border: #3a4058;
+  --color-text: #f2f3f8;
+  --color-text-muted: #b8bed4;
+  --color-on-accent: #191c29;
+  --color-accent: #9db3ff;
+  --color-accent-soft: #2c3560;
+  --color-warm: #9db3ff;
+  --color-danger: #ff7cc6;
+  --color-danger-soft: #42213a;
+  --color-warning: #f5b740;
+  --color-warning-soft: #3a2d14;
+  --color-success: #9db3ff;
+  --color-success-soft: #2c3560;
+  --color-event: #7d9cff;
+  --color-event-soft: #2c3560;
+
+  --riso-dot: #7d9cff;
+  --heat-0: #242839;
+  --heat-1: #242839;
+  --heat-2: #242839;
+  --heat-3: #242839;
+  --heat-4: #242839;
+  --heat-text-0: #b8bed4;
+  --heat-text-1: #f2f3f8;
+  --heat-text-2: #f2f3f8;
+  --heat-text-3: #f2f3f8;
+  --heat-text-4: #f2f3f8;
+}
+
+[data-design='riso'] .app-header__title {
+  font-size: 2.5rem;
+  font-weight: 900;
+  font-stretch: 118%;
+  line-height: 1;
+  color: var(--color-accent);
+  text-shadow: 2px 3px 0 var(--riso-pink);
+}
+
+[data-design='riso'] .app-header__day {
+  font-weight: 900;
+  font-stretch: 125%;
+  color: var(--riso-pink);
+}
+
+[data-design='riso'] .app-header__month,
+[data-design='riso'] .task-section__title,
+[data-design='riso'] .calendar-view__month {
+  font-stretch: 112%;
+}
+
+[data-design='riso'] .app-header__theme {
+  border-color: transparent;
+  background: transparent;
+  color: var(--color-accent);
+}
+
+[data-design='riso'] .calendar-view__nav {
+  border: 2px solid var(--color-accent);
+  background: transparent;
+  color: var(--color-accent);
+}
+
+[data-design='riso'] .task-section__dot {
+  border-radius: 0;
+  background: var(--riso-pink);
+}
+
+[data-design='riso'] .task-section__title {
+  font-size: 1.25rem;
+  font-weight: 800;
+}
+
+[data-design='riso'] .task-section__list {
+  gap: var(--space-2);
+}
+
+/* Flache weiße Blöcke, keine weichen Schatten */
+[data-design='riso'] .task-item {
+  border: none;
+  border-radius: 0;
+  background: var(--color-surface);
+  box-shadow: none;
+}
+
+[data-design='riso'] .task-item__title {
+  font-weight: 600;
+}
+
+/* Pinke Quadrate; erledigt: pink gefüllt, der blaue Haken leicht verrutscht wie beim Druck */
+[data-design='riso'] .task-item__check {
+  color: var(--riso-blue);
+}
+
+[data-design='riso'] .task-item__check::before {
+  border: 3px solid var(--riso-pink);
+  border-radius: 0;
+  background: transparent;
+}
+
+[data-design='riso'] .task-item--done .task-item__check::before {
+  border-color: var(--riso-pink);
+  background: var(--riso-pink);
+}
+
+[data-design='riso'] .task-item__check svg {
+  transform: translate(2px, -2px) scale(1.15);
+  stroke-width: 3;
+}
+
+/* Termine: blauer Zeitblock über die ganze Höhe */
+[data-design='riso'] .task-item--event {
+  align-items: stretch;
+  padding: 0;
+  overflow: hidden;
+}
+
+[data-design='riso'] .task-item--event .task-item__body {
+  padding: var(--space-4) var(--space-4) var(--space-4) 0;
+}
+
+[data-design='riso'] .task-item__when {
+  min-width: 64px;
+  padding: var(--space-3) var(--space-2);
+  border-radius: 0;
+  background: var(--riso-blue);
+  color: #ffffff;
+  font-weight: 800;
+  font-stretch: 112%;
+}
+
+[data-design='riso'] .task-item__until {
+  color: #ffffff;
+}
+
+[data-design='riso'] .task-item__tag {
+  border-radius: 0;
+}
+
+[data-design='riso'] .task-section__now {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--riso-pink);
+  font-size: 0.875rem;
+  font-weight: 800;
+  font-stretch: 112%;
+}
+
+[data-design='riso'] .task-section__now-line {
+  flex: 1;
+  height: 3px;
+  background: var(--riso-pink);
+}
+
+/* Fortschritt als Raster aus pinken Punkten */
+[data-design='riso'] .day-progress {
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+[data-design='riso'] .day-progress__track {
+  height: 12px;
+  border-radius: 0;
+  background: var(--color-surface-muted);
+}
+
+[data-design='riso'] .day-progress__bar {
+  border-radius: 0;
+  background-color: transparent;
+  background-image: radial-gradient(circle, var(--riso-pink) 2.2px, transparent 2.6px);
+  background-size: 6px 6px;
+}
+
+[data-design='riso'] .day-progress__percent {
+  font-weight: 900;
+  color: var(--riso-pink);
+}
+
+/* Plus: blauer Kreis mit versetztem pinkem Schatten */
+[data-design='riso'] .add-button {
+  border-radius: var(--radius-full);
+  background: var(--riso-blue);
+  color: #ffffff;
+  box-shadow: 4px 4px 0 var(--riso-pink);
+}
+
+[data-design='riso'] .main-nav {
+  border: none;
+  border-radius: 0;
+  background: var(--riso-blue);
+  box-shadow: none;
+}
+
+[data-design='riso'] .main-nav__item {
+  border-radius: 0;
+  color: var(--riso-nav-text);
+}
+
+[data-design='riso'] .main-nav__item[aria-current='page'] {
+  background: var(--riso-pink);
+  color: var(--riso-nav-active-text);
+}
+
+[data-design='riso'] .main-nav__label {
+  font-weight: 700;
+  font-stretch: 112%;
+}
+
+@media (max-width: 767px) {
+  [data-design='riso'] .main-nav {
+    right: 0;
+    bottom: 0;
+    left: 0;
+    height: calc(var(--nav-height) + 6px + env(safe-area-inset-bottom));
+    padding: 0 0 env(safe-area-inset-bottom);
+  }
+}
+
+/* Kalender: Rasterpunkte werden mit jeder Stufe größer, die Zahl bekommt einen hellen Rand */
+[data-design='riso'] .calendar-view__day {
+  border-radius: 0;
+  font-weight: 800;
+  text-shadow:
+    0 0 3px var(--color-surface),
+    0 0 3px var(--color-surface),
+    0 0 3px var(--color-surface);
+}
+
+[data-design='riso'] .calendar-view__day--level-1,
+[data-design='riso'] .calendar-view__day--level-2,
+[data-design='riso'] .calendar-view__day--level-3,
+[data-design='riso'] .calendar-view__day--level-4 {
+  background-size: 6px 6px;
+}
+
+[data-design='riso'] .calendar-view__day--level-1 {
+  background-image: radial-gradient(circle, var(--riso-dot) 1px, transparent 1.4px);
+}
+
+[data-design='riso'] .calendar-view__day--level-2 {
+  background-image: radial-gradient(circle, var(--riso-dot) 1.6px, transparent 2px);
+}
+
+[data-design='riso'] .calendar-view__day--level-3 {
+  background-image: radial-gradient(circle, var(--riso-dot) 2.2px, transparent 2.6px);
+}
+
+[data-design='riso'] .calendar-view__day--level-4 {
+  background-image: radial-gradient(circle, var(--riso-dot) 2.9px, transparent 3.2px);
+}
+
+[data-design='riso'] .calendar-view__day--today {
+  text-decoration: none;
+  box-shadow: inset 0 0 0 3px var(--color-accent);
+}
+
+[data-design='riso'] .calendar-view__day[aria-pressed='true'] {
+  box-shadow: inset 0 0 0 3px var(--riso-pink);
+}
+
+[data-design='riso'] .calendar-view__event-dot {
+  width: 9px;
+  height: 9px;
+  border: none;
+  border-radius: 0;
+  background: var(--riso-blue);
+  box-shadow: 2px 2px 0 var(--riso-pink);
+}

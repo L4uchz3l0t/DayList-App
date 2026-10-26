@@ -39,6 +39,8 @@ export default defineConfig({
       workbox: {
         // App-Dateien (Code, Styles, Schrift, Symbole) auf dem Gerät speichern
         globPatterns: ['**/*.{js,css,html,svg,png,woff2}'],
+        // Schriften für andere Alphabete nur bei Bedarf laden, nicht vorab speichern
+        globIgnores: ['**/*-{latin-ext,vietnamese,cyrillic,cyrillic-ext,greek,greek-ext}-*.woff2'],
         // Eine neue Version übernimmt sofort alle offenen Fenster der App
         clientsClaim: true,
         skipWaiting: true,

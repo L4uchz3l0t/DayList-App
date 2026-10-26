@@ -1,5 +1,6 @@
 import { useI18n } from '../i18n/useI18n'
 import { LANGUAGE_NAMES, type Language } from '../i18n/messages'
+import { DESIGNS, type DesignId } from '../design'
 import type { ThemePreference } from '../theme'
 import { BackupSettings } from '../components/BackupSettings'
 import { CloudSettings } from '../components/CloudSettings'
@@ -14,6 +15,8 @@ import './views.css'
 interface SettingsViewProps {
   themePreference: ThemePreference
   onThemeChange: (preference: ThemePreference) => void
+  design: DesignId
+  onDesignChange: (design: DesignId) => void
   tasks: Task[]
   todayKey: string
   onImport: (tasks: Task[]) => MergeResult
@@ -26,6 +29,8 @@ interface SettingsViewProps {
 export function SettingsView({
   themePreference,
   onThemeChange,
+  design,
+  onDesignChange,
   tasks,
   todayKey,
   onImport,
@@ -58,6 +63,26 @@ export function SettingsView({
               onClick={() => setLanguage(code)}
             >
               {LANGUAGE_NAMES[code]}
+            </button>
+          ))}
+        </div>
+      </section>
+
+      <section className="settings__group">
+        <h2 className="settings__heading" id="settings-style">
+          {t.settings.style}
+        </h2>
+        <div className="chips" role="radiogroup" aria-labelledby="settings-style">
+          {DESIGNS.map((id) => (
+            <button
+              key={id}
+              type="button"
+              role="radio"
+              aria-checked={design === id}
+              className="chip settings__chip"
+              onClick={() => onDesignChange(id)}
+            >
+              {t.settings.styleNames[id]}
             </button>
           ))}
         </div>

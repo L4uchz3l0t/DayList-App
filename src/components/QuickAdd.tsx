@@ -2,11 +2,11 @@ import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
 import { classify } from '../ai/assistant'
 import { readAutoDetect } from '../ai/autoDetect'
 import type { NewTaskInput } from '../tasks/taskOperations'
-import type { TaskKind } from '../tasks/types'
+import type { TaskKind, TaskRepeat } from '../tasks/types'
 import { describePlannedDay, getDayKind } from '../tasks/taskViews'
 import { Icon } from './Icon'
 import { Sheet } from './Sheet'
-import { DayPicker, DueDateField, KindPicker, TimeField } from './TaskFields'
+import { DayPicker, DueDateField, KindPicker, RepeatField, TimeField } from './TaskFields'
 import './QuickAdd.css'
 import { useI18n } from '../i18n/useI18n'
 
@@ -56,6 +56,7 @@ export function QuickAdd({
   const [chosenTime, setChosenTime] = useState<string | null>(null)
   const [autoDetect] = useState(readAutoDetect)
   const [reminder, setReminder] = useState<number | undefined>(undefined)
+  const [repeat, setRepeat] = useState<TaskRepeat | undefined>(undefined)
   const [showMore, setShowMore] = useState(false)
   const [savedMessage, setSavedMessage] = useState<string | null>(null)
   const [minimized, setMinimized] = useState(false)
@@ -112,6 +113,7 @@ export function QuickAdd({
       dueDate: dueDate && !isEvent ? dueDate : undefined,
       time: plannedDate && time ? time : undefined,
       reminder: plannedDate && time ? reminder : undefined,
+      repeat: plannedDate ? repeat : undefined,
     })
     const message = t.quickAdd.saved(trimmed, dayLabel)
     if (closeAfterSave) {
@@ -125,6 +127,7 @@ export function QuickAdd({
     setDueDate('')
     setChosenTime(null)
     setReminder(undefined)
+    setRepeat(undefined)
     setShowMore(false)
     // Einklappen und Tastatur schließen, damit die Liste dahinter wieder sichtbar ist
     setMinimized(true)
@@ -168,7 +171,10 @@ export function QuickAdd({
         />
         {/* Bei Terminen gehört die Uhrzeit dazu und steht gleich sichtbar da */}
         {isEvent && !minimized && (
-          <TimeField time={time} reminder={reminder} onTimeChange={setChosenTime} onReminderChange={setReminder} />
+          <>
+            <TimeField time={time} reminder={reminder} onTimeChange={setChosenTime} onReminderChange={setReminder} />
+            <RepeatField value={repeat} onChange={setRepeat} />
+          </>
         )}
 
         {/* Ausgeklappter Teil: verschwindet weich, wenn das Fenster zum unteren Rand einklappt */}
@@ -189,7 +195,10 @@ export function QuickAdd({
             {showMore && !isEvent && (
               <div className="quick-add__extra">
                 {plannedDate && (
-                  <TimeField time={time} reminder={reminder} onTimeChange={setChosenTime} onReminderChange={setReminder} />
+                  <>
+                    <TimeField time={time} reminder={reminder} onTimeChange={setChosenTime} onReminderChange={setReminder} />
+                    <RepeatField value={repeat} onChange={setRepeat} />
+                  </>
                 )}
                 <DueDateField value={dueDate} onChange={setDueDate} todayKey={todayKey} />
               </div>

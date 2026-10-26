@@ -2,6 +2,7 @@ import type { Theme } from '../theme'
 import { Icon } from './Icon'
 import './AppHeader.css'
 import { useI18n } from '../i18n/useI18n'
+import { useNow } from '../useNow'
 
 interface AppHeaderProps {
   title: string
@@ -19,6 +20,7 @@ export function AppHeader({ title, today, theme, onToggleTheme, onSearch, onSett
   const { t } = useI18n()
   const weekday = today.toLocaleDateString(t.locale, { weekday: 'long' })
   const monthYear = today.toLocaleDateString(t.locale, { month: 'long', year: 'numeric' })
+  const now = useNow()
 
   return (
     <header className="app-header">
@@ -53,7 +55,13 @@ export function AppHeader({ title, today, theme, onToggleTheme, onSearch, onSett
           </button>
         </div>
       </div>
-      <h1 className="app-header__title">{title}</h1>
+      <div className="app-header__bottom">
+        <h1 className="app-header__title">{title}</h1>
+        {/* Uhr: nur in Designs, die sie zeigen (Fahrplan) */}
+        <span className="app-header__clock" aria-hidden="true">
+          {now}
+        </span>
+      </div>
     </header>
   )
 }

@@ -1,5 +1,7 @@
 import { createId } from './createId'
-import type { Task, TaskKind, TaskPriority, TaskStatus } from './types'
+import { toDateKey } from './dates'
+import { nextOccurrence } from './repeat'
+import type { Task, TaskKind, TaskPriority, TaskRepeat, TaskStatus } from './types'
 
 /**
  * Alle Aufgaben-Aktionen als einfache Funktionen.
@@ -18,6 +20,7 @@ export interface TaskChanges {
   priority?: TaskPriority | undefined
   time?: string | undefined
   reminder?: number | undefined
+  repeat?: TaskRepeat | undefined
 }
 
 /** Angaben für eine neue Aufgabe. Nur der Titel ist Pflicht. */
@@ -29,6 +32,7 @@ export interface NewTaskInput {
   priority?: TaskPriority
   time?: string
   reminder?: number
+  repeat?: TaskRepeat
 }
 
 /**
@@ -53,6 +57,7 @@ export function createTask(input: NewTaskInput, now: string): Task {
   if (input.priority) task.priority = input.priority
   if (input.time) task.time = input.time
   if (input.reminder !== undefined) task.reminder = input.reminder
+  if (input.repeat && task.plannedDate) task.repeat = input.repeat
   return withRemindAt(task)
 }
 
@@ -70,7 +75,7 @@ export function updateTask(tasks: Task[], id: string, changes: TaskChanges, now:
     }
     if (changes.kind === 'event') updated.kind = 'event'
     else if ('kind' in changes) delete updated.kind
-    for (const key of ['plannedDate', 'dueDate', 'priority', 'time', 'reminder'] as const) {
+    for (const key of ['plannedDate', 'dueDate', 'priority', 'time', 'reminder', 'repeat'] as const) {
       if (!(key in changes)) continue
       const value = changes[key]
       if (value === undefined || value === '') {
@@ -80,15 +85,39 @@ export function updateTask(tasks: Task[], id: string, changes: TaskChanges, now:
         ;(updated as unknown as Record<string, string | number>)[key] = value
       }
     }
+    // Ohne Tag keine Wiederholung
+    if (!updated.plannedDate) delete updated.repeat
     return withRemindAt(updated)
   })
 }
 
-/** Erledigt eine offene Aufgabe oder öffnet eine erledigte wieder. */
+/**
+ * Erledigt eine offene Aufgabe oder öffnet eine erledigte wieder.
+ * Wiederholt sich die Aufgabe, entsteht beim Erledigen der nächste Eintrag der Reihe.
+ * Wird sie gleich wieder geöffnet, verschwindet dieser Eintrag wieder (solange er unverändert ist).
+ */
 export function toggleTaskStatus(tasks: Task[], id: string, now: string): Task[] {
   const task = tasks.find((t) => t.id === id)
   if (!task) return tasks
-  return updateTask(tasks, id, { status: task.status === 'done' ? 'open' : 'done' }, now)
+  if (task.status === 'open') {
+    const todayKey = toDateKey(new Date(now))
+    // Erledigt vor dem geplanten Tag: der nächste Eintrag kommt nach diesem Tag, sonst nach heute
+    const after = task.plannedDate && task.plannedDate > todayKey ? task.plannedDate : todayKey
+    const next = task.kind === 'event' ? null : nextOccurrence(task, after, now)
+    const updated = updateTask(tasks, id, { status: 'done', repeat: undefined }, now)
+    if (!next) return updateTask(tasks, id, { status: 'done' }, now)
+    const result = updated.map((t) => (t.id === id ? { ...t, nextId: next.id } : t))
+    return result.some((t) => t.id === next.id) ? result : [...result, next]
+  }
+  const next = task.nextId ? tasks.find((t) => t.id === task.nextId) : undefined
+  const reopened = updateTask(tasks, id, { status: 'open' }, now).map((t) => {
+    if (t.id !== id || !next) return t
+    // Die Wiederholung kehrt zu diesem Eintrag zurück
+    const { nextId: _nextId, ...rest } = t
+    return { ...rest, repeat: next.repeat, seriesId: next.seriesId }
+  })
+  const untouched = next && next.status === 'open' && next.createdAt === next.updatedAt
+  return untouched ? reopened.filter((t) => t.id !== next.id) : reopened
 }
 
 /** Plant eine Aufgabe für einen bestimmten Tag ("JJJJ-MM-TT"). */
@@ -115,13 +144,13 @@ export function restoreTask(tasks: Task[], task: Task): Task[] {
 /** Erledigte Aufgaben unter Irgendwann verschwinden einen Tag nach dem Abhaken */
 const INBOX_DONE_KEEP_MS = 24 * 60 * 60 * 1000
 
-/** Vergangene Tage im Kalender: erledigte Aufgaben und Termine bleiben so viele Tage sichtbar */
-export const PAST_KEEP_DAYS = 180
+/** Vergangene Tage im Kalender: erledigte Aufgaben und Termine bleiben so viele Tage (ein Monat) */
+export const PAST_KEEP_DAYS = 30
 
 /**
  * Findet Aufgaben, die von selbst aufgeräumt werden, damit sich nicht endlos viel ansammelt:
  * erledigte Aufgaben unter Irgendwann nach einem Tag, erledigte Aufgaben und Termine aus dem Kalender
- * nach einem halben Jahr. Offene Aufgaben bleiben immer, auch wenn sie überfällig sind.
+ * nach einem Monat. Offene Aufgaben bleiben immer, auch wenn sie überfällig sind.
  * `oldestKey` ist der älteste Tag ("JJJJ-MM-TT"), der im Kalender noch erhalten bleibt.
  */
 export function findExpiredTasks(tasks: Task[], now: string, oldestKey: string): Task[] {

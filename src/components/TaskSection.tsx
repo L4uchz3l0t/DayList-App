@@ -28,6 +28,17 @@ interface TaskSectionProps {
   collapsible?: { storageKey: string; defaultCollapsed?: boolean }
   /** Karten lassen sich ziehen (nur innerhalb eines DndContext, zum Beispiel in der Woche) */
   draggable?: boolean
+  /** Markierung "Jetzt" vor dem Eintrag an dieser Stelle (nur manche Designs zeigen sie, z. B. Fahrplan) */
+  nowMarker?: { index: number; label: string }
+}
+
+function NowMarker({ label }: { label: string }) {
+  return (
+    <li className="task-section__now" aria-hidden="true">
+      <span>{label}</span>
+      <span className="task-section__now-line" />
+    </li>
+  )
 }
 
 /** Eine Überschrift mit einer Liste von Aufgaben darunter. */
@@ -45,6 +56,7 @@ export function TaskSection({
   children,
   collapsible,
   draggable = false,
+  nowMarker,
 }: TaskSectionProps) {
   const [isCollapsed, toggleCollapsed] = useCollapsed(
     collapsible?.storageKey ?? '',
@@ -65,7 +77,8 @@ export function TaskSection({
     <>
       {tasks.length > 0 && (
         <ul className="task-section__list">
-          {tasks.map((task) => (
+          {tasks.map((task, index) => [
+            nowMarker?.index === index && <NowMarker key="now" label={nowMarker.label} />,
             <Item
               key={task.id}
               task={task}
@@ -74,8 +87,9 @@ export function TaskSection({
               onOpen={onOpen}
               onMove={onMove}
               showPlannedDate={showPlannedDate}
-            />
-          ))}
+            />,
+          ])}
+          {nowMarker?.index === tasks.length && <NowMarker label={nowMarker.label} />}
         </ul>
       )}
       {children}

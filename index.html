@@ -7,14 +7,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <!-- Die App bringt ihr eigenes dunkles Design mit, der Browser soll nichts selbst abdunkeln -->
     <meta name="color-scheme" content="light dark" />
-    <meta name="theme-color" content="#f6f5f1" />
+    <meta name="theme-color" content="#dde2da" />
     <script>
       // Gewähltes Design sofort setzen, bevor die Seite gezeichnet wird (kein kurzes Aufblitzen)
       try {
         var stored = localStorage.getItem('theme') || 'light'
         var dark = stored === 'system' ? matchMedia('(prefers-color-scheme: dark)').matches : stored === 'dark'
+        var design = localStorage.getItem('design') || 'block'
         document.documentElement.dataset.theme = stored
-        document.querySelector('meta[name="theme-color"]').content = dark ? '#141319' : '#f6f5f1'
+        document.documentElement.dataset.design = design
+        document.documentElement.dataset.mode = dark ? 'dark' : 'light'
+        // Ungefähre Farbe der Statusleiste; die App setzt danach die genaue (design.ts)
+        document.querySelector('meta[name="theme-color"]').content = dark ? '#1b1a21' : '#dde2da'
       } catch (e) {}
     </script>
     <meta name="apple-mobile-web-app-title" content="DayList" />

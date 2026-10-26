@@ -4,6 +4,7 @@ import { addPendingDelete, addPendingDeletes, removePendingDeletes } from '../sy
 import type { ReconcileResult } from '../sync/reconcile'
 import { loadTasks, removeStoredTask, requestPersistentStorage, saveTask } from '../storage/taskStore'
 import { addDays, toDateKey } from './dates'
+import { rollRepeatingEvents } from './repeat'
 import {
   createTask,
   deleteTask,
@@ -85,13 +86,24 @@ export function useTasks(onSaveError: () => void) {
     [apply, persist],
   )
 
-  /** Wendet eine Änderung an und speichert die betroffene Aufgabe. */
+  /**
+   * Wendet eine Änderung an und speichert alles, was sich dabei geändert hat:
+   * neue und geänderte Aufgaben werden gespeichert, verschwundene gelöscht (z. B. bei Wiederholungen).
+   */
   const change = useCallback(
-    (id: string, operation: (current: Task[]) => Task[]) => {
-      const next = operation(tasksRef.current)
+    (_id: string, operation: (current: Task[]) => Task[]) => {
+      const before = tasksRef.current
+      const next = operation(before)
       apply(next)
-      const changed = next.find((task) => task.id === id)
-      if (changed) persist(saveTask(changed))
+      const old = new Map(before.map((task) => [task.id, task]))
+      const kept = new Set<string>()
+      for (const task of next) {
+        kept.add(task.id)
+        if (old.get(task.id) !== task) persist(saveTask(task))
+      }
+      const removed = before.filter((task) => !kept.has(task.id)).map((task) => task.id)
+      for (const id of removed) persist(removeStoredTask(id))
+      addPendingDeletes(removed, nowIso())
     },
     [apply, persist],
   )
@@ -127,11 +139,18 @@ export function useTasks(onSaveError: () => void) {
     [apply, persist],
   )
 
-  // Alte erledigte Aufgaben von selbst aufräumen: nach dem Laden und danach jede Stunde
+  // Alte erledigte Aufgaben von selbst aufräumen und bei wiederkehrenden Terminen den nächsten anlegen:
+  // nach dem Laden und danach jede Stunde
   useEffect(() => {
     if (status !== 'ready') return
     const cleanUp = () => {
       const now = new Date()
+      const rolled = rollRepeatingEvents(tasksRef.current, toDateKey(now), now.toISOString())
+      if (rolled.created.length > 0 || rolled.updated.length > 0) {
+        const replaced = new Map(rolled.updated.map((task) => [task.id, task]))
+        apply([...tasksRef.current.map((task) => replaced.get(task.id) ?? task), ...rolled.created])
+        for (const task of [...rolled.updated, ...rolled.created]) persist(saveTask(task))
+      }
       const expired = findExpiredTasks(tasksRef.current, now.toISOString(), toDateKey(addDays(now, -PAST_KEEP_DAYS)))
       if (expired.length === 0) return
       const ids = new Set(expired.map((task) => task.id))

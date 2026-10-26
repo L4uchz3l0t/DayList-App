@@ -65,7 +65,7 @@ export function TaskItem({ task, todayKey, onToggle, onOpen, onMove, showPlanned
 
       <button type="button" className="task-item__body" onClick={() => onOpen(task.id)}>
         <span className="task-item__title">{task.title}</span>
-        {(isOverdue || showDate || showTime || showReminder || task.group || task.google) && (
+        {(isOverdue || showDate || showTime || showReminder || task.repeat || task.group || task.google) && (
           <span className="task-item__meta">
             {isOverdue && task.plannedDate && (
               <span className="task-item__tag task-item__tag--overdue">
@@ -81,6 +81,11 @@ export function TaskItem({ task, todayKey, onToggle, onOpen, onMove, showPlanned
               <span className="task-item__tag task-item__tag--time">
                 <Icon name={task.reminder !== undefined ? 'bell' : 'clock'} size={12} /> {t.task.at(task.time!)}
                 {task.reminder !== undefined && <span className="visually-hidden">, {t.task.withReminder}</span>}
+              </span>
+            )}
+            {task.repeat && (
+              <span className="task-item__tag task-item__tag--repeat">
+                <Icon name="repeat" size={12} /> {t.fields.repeatNames[task.repeat]}
               </span>
             )}
             {task.group && (

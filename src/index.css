@@ -1,5 +1,17 @@
-@import '@fontsource-variable/bricolage-grotesque';
+/* Schriften aller Designs; geladen wird eine Schrift erst, wenn ein Design sie verwendet */
+@import '@fontsource-variable/bricolage-grotesque/wdth.css';
+@import '@fontsource/barlow/latin-400.css';
+@import '@fontsource/barlow/latin-500.css';
+@import '@fontsource/barlow/latin-600.css';
+@import '@fontsource/barlow-semi-condensed/latin-600.css';
+@import '@fontsource/barlow-semi-condensed/latin-700.css';
+@import '@fontsource-variable/shantell-sans';
+@import '@fontsource-variable/archivo/wdth.css';
 @import './styles/tokens.css';
+@import './styles/designs/block.css';
+@import './styles/designs/fahrplan.css';
+@import './styles/designs/karoheft.css';
+@import './styles/designs/riso.css';
 @import './styles/forms.css';
 
 *,

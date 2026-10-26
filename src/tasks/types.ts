@@ -6,6 +6,11 @@ export type TaskStatus = 'open' | 'done'
 
 export type TaskPriority = 'low' | 'normal' | 'high'
 
+/** Wie oft sich eine Aufgabe oder ein Termin wiederholt */
+export type TaskRepeat = 'daily' | 'weekdays' | 'weekly' | 'biweekly' | 'monthly' | 'yearly'
+
+export const REPEATS: TaskRepeat[] = ['daily', 'weekdays', 'weekly', 'biweekly', 'monthly', 'yearly']
+
 /** Aufgabe (zum Abhaken) oder Termin (feste Zeit an einem Tag, wird nicht abgehakt) */
 export type TaskKind = 'task' | 'event'
 
@@ -39,6 +44,15 @@ export interface Task {
    * `link` öffnet den Termin in Google Kalender.
    */
   google?: { link: string; calendar: string; location?: string; endTime?: string }
+  /**
+   * Wiederholung. Nur mit geplantem Tag. Wird eine Aufgabe erledigt (oder ist der Tag eines Termins erreicht),
+   * entsteht der nächste Eintrag der Reihe; der alte behält die Wiederholung dann nicht mehr.
+   */
+  repeat?: TaskRepeat
+  /** Erster Eintrag einer Wiederholung; daraus entstehen die IDs der Folge-Einträge */
+  seriesId?: string
+  /** ID des Folge-Eintrags, der beim Erledigen entstanden ist (für "wieder öffnen") */
+  nextId?: string
   /** Zeitpunkt, an dem die Aufgabe erledigt wurde (ISO-Zeitstempel). Nur bei erledigten Aufgaben. */
   doneAt?: string
   /** Zeitpunkt der Erstellung (ISO-Zeitstempel) */

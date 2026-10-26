@@ -1,4 +1,4 @@
-import type { Task, TaskPriority } from '../tasks/types'
+import { REPEATS, type Task, type TaskPriority, type TaskRepeat } from '../tasks/types'
 import { withRemindAt } from '../tasks/taskOperations'
 
 /*
@@ -65,6 +65,9 @@ function readTask(value: unknown): Task {
   if (dueDate) task.dueDate = dueDate
   if (raw.priority) task.priority = raw.priority as TaskPriority
   if (raw.kind === 'event') task.kind = 'event'
+  if (task.plannedDate && REPEATS.includes(raw.repeat as TaskRepeat)) task.repeat = raw.repeat as TaskRepeat
+  if (typeof raw.seriesId === 'string') task.seriesId = raw.seriesId
+  if (typeof raw.nextId === 'string') task.nextId = raw.nextId
   if (raw.status === 'done' && typeof raw.doneAt === 'string' && !Number.isNaN(Date.parse(raw.doneAt))) {
     task.doneAt = raw.doneAt
   }

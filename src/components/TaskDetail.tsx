@@ -2,7 +2,7 @@ import { useState, type FormEvent } from 'react'
 import type { TaskChanges } from '../tasks/taskOperations'
 import type { Task, TaskKind } from '../tasks/types'
 import { Sheet } from './Sheet'
-import { DayPicker, DueDateField, KindPicker, TimeField } from './TaskFields'
+import { DayPicker, DueDateField, KindPicker, RepeatField, TimeField } from './TaskFields'
 import './TaskDetail.css'
 import { useI18n } from '../i18n/useI18n'
 
@@ -30,6 +30,7 @@ export function TaskDetail({ task, todayKey, onSave, onToggle, onDelete, onClose
   const [kind, setKind] = useState<TaskKind>(task.kind ?? 'task')
   const [time, setTime] = useState(task.time ?? '')
   const [reminder, setReminder] = useState(task.reminder)
+  const [repeat, setRepeat] = useState(task.repeat)
   const [confirmDelete, setConfirmDelete] = useState(false)
 
   const isDone = task.status === 'done'
@@ -54,6 +55,7 @@ export function TaskDetail({ task, todayKey, onSave, onToggle, onDelete, onClose
       priority: undefined,
       time: time || undefined,
       reminder: time ? reminder : undefined,
+      repeat: plannedDate ? repeat : undefined,
     })
   }
 
@@ -75,7 +77,10 @@ export function TaskDetail({ task, todayKey, onSave, onToggle, onDelete, onClose
           label={isEvent ? t.fields.eventDay : undefined}
         />
         {plannedDate && (
-          <TimeField time={time} reminder={reminder} onTimeChange={setTime} onReminderChange={setReminder} />
+          <>
+            <TimeField time={time} reminder={reminder} onTimeChange={setTime} onReminderChange={setReminder} />
+            <RepeatField value={repeat} onChange={setRepeat} />
+          </>
         )}
         {!isEvent && <DueDateField value={dueDate} onChange={setDueDate} todayKey={todayKey} />}
 

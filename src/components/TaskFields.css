@@ -58,3 +58,7 @@
 .kind-picker__option--event {
   --kind-color: var(--color-event);
 }
+
+.task-field__select {
+  appearance: auto;
+}

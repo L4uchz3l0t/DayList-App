@@ -1,0 +1,235 @@
+/*
+  Design "Abreißkalender" (Standard): Die App ist ein Blatt auf einem Block, oben die lila Bindung,
+  eine riesige Tageszahl und eine Perforation unter dem Kopf. Lila für Aufgaben, Grün für Termine, kein Verlauf.
+*/
+:root[data-design='block'] {
+  --font-family: 'Bricolage Grotesque Variable', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  --color-statusbar: #dde2da;
+  --color-bg: #dde2da;
+  --color-surface: #ffffff;
+  --color-surface-muted: #eef0ec;
+  --color-border: #d3d8cf;
+  --color-text: #1c1a24;
+  --color-text-muted: #57536a;
+  --color-on-accent: #ffffff;
+  --color-accent: #5b3fd0;
+  --color-accent-soft: #ece8fb;
+  --color-warm: #5b3fd0;
+  --color-danger: #b42339;
+  --color-danger-soft: #fbe7ea;
+  --color-warning: #8f5700;
+  --color-warning-soft: #fdf0d8;
+  --color-success: #0f7b53;
+  --color-success-soft: #dcefe3;
+  --color-event: #0f7b53;
+  --color-event-soft: #dcefe3;
+
+  --heat-0: #eef0ec;
+  --heat-1: #d4ecdd;
+  --heat-2: #a3d6b8;
+  --heat-3: #55b283;
+  --heat-4: #1f7a4f;
+  --heat-text-0: #57536a;
+  --heat-text-1: #1c1a24;
+  --heat-text-2: #1c1a24;
+  --heat-text-3: #10271b;
+  --heat-text-4: #ffffff;
+
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 16px;
+
+  --block-binding: #5b3fd0;
+  --block-nav: #1c1a24;
+  --block-nav-text: #c9c5d8;
+}
+
+:root[data-design='block'][data-mode='dark'] {
+  --color-statusbar: #1b1a21;
+  --color-bg: #1b1a21;
+  --color-surface: #2a2833;
+  --color-surface-muted: #35323f;
+  --color-border: #3a3746;
+  --color-text: #f1f0f5;
+  --color-text-muted: #c9c5d8;
+  --color-on-accent: #1b1a21;
+  --color-accent: #b9a6ff;
+  --color-accent-soft: #3a3160;
+  --color-warm: #b9a6ff;
+  --color-danger: #ff8a98;
+  --color-danger-soft: #3d1f27;
+  --color-warning: #f5b740;
+  --color-warning-soft: #3a2d14;
+  --color-success: #3fbf86;
+  --color-success-soft: #1d3a2c;
+  --color-event: #3fbf86;
+  --color-event-soft: #1d3a2c;
+
+  --heat-0: #35323f;
+  --heat-1: #1f4a37;
+  --heat-2: #22684a;
+  --heat-3: #2a8a5f;
+  --heat-4: #4fc48a;
+  --heat-text-0: #c9c5d8;
+  --heat-text-1: #f1f0f5;
+  --heat-text-2: #f1f0f5;
+  --heat-text-3: #ffffff;
+  --heat-text-4: #10241a;
+
+  --block-binding: #7d63f0;
+  --block-nav: #0f0e14;
+  --block-nav-text: #c9c5d8;
+}
+
+/* Das Blatt mit der Bindung oben (zwei Löcher in der lila Leiste) */
+[data-design='block'] .app__main {
+  width: calc(100% - 20px);
+  margin-top: 10px;
+  border-radius: 4px 4px 0 0;
+  background: var(--color-surface);
+}
+
+[data-design='block'] .app__main::before {
+  content: '';
+  display: block;
+  height: 18px;
+  margin: 0 calc(var(--space-4) * -1);
+  border-radius: 4px 4px 0 0;
+  background:
+    radial-gradient(circle at 35% 50%, var(--color-bg) 5px, transparent 5.5px),
+    radial-gradient(circle at 65% 50%, var(--color-bg) 5px, transparent 5.5px),
+    var(--block-binding);
+}
+
+/* Kopf: riesige, schmale Tageszahl, darunter die Perforation */
+[data-design='block'] .app-header {
+  position: relative;
+  padding-bottom: var(--space-5);
+}
+
+[data-design='block'] .app-header::after {
+  content: '';
+  position: absolute;
+  right: calc(var(--space-4) * -1);
+  bottom: 4px;
+  left: calc(var(--space-4) * -1);
+  height: 8px;
+  background-image: radial-gradient(circle at 4px 4px, var(--color-bg) 2.5px, transparent 3px);
+  background-size: 12px 8px;
+}
+
+[data-design='block'] .app-header__day {
+  font-size: 7.5rem;
+  font-stretch: 75%;
+  line-height: 0.85;
+}
+
+[data-design='block'] .app-header__theme {
+  border-color: transparent;
+  background: transparent;
+}
+
+[data-design='block'] .app-header__title {
+  font-size: 2.125rem;
+}
+
+/* Aufgaben stehen als Zeilen auf dem Blatt, nicht als Karten */
+[data-design='block'] .task-section__list {
+  gap: 0;
+}
+
+[data-design='block'] .task-item {
+  padding: var(--space-2) 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+[data-design='block'] .task-item__title {
+  font-weight: 600;
+}
+
+[data-design='block'] .task-item--done .task-item__check::before {
+  border-color: var(--color-accent);
+  background: var(--color-accent);
+}
+
+[data-design='block'] .task-item__when {
+  border-radius: 4px;
+}
+
+[data-design='block'] .task-section__dot {
+  display: none;
+}
+
+[data-design='block'] .task-section__title {
+  font-size: 1.25rem;
+}
+
+[data-design='block'] .day-progress {
+  padding: 0;
+  border: none;
+  background: transparent;
+  box-shadow: none;
+}
+
+[data-design='block'] .day-progress__bar {
+  background: var(--color-accent);
+}
+
+[data-design='block'] .add-button {
+  border-radius: var(--radius-full);
+}
+
+[data-design='block'] .main-nav {
+  border-color: transparent;
+  background: var(--block-nav);
+  color: var(--block-nav-text);
+}
+
+[data-design='block'] .main-nav__item {
+  color: var(--block-nav-text);
+}
+
+[data-design='block'] .main-nav__item[aria-current='page'] {
+  background: transparent;
+  color: #ffffff;
+}
+
+/* Handy: Leiste über die ganze Breite, das aktive Symbol in einer lila Pille */
+@media (max-width: 767px) {
+  [data-design='block'] .main-nav {
+    right: 0;
+    bottom: 0;
+    left: 0;
+    height: calc(var(--nav-height) + 6px + env(safe-area-inset-bottom));
+    padding: var(--space-1) var(--space-1) env(safe-area-inset-bottom);
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  [data-design='block'] .main-nav__item[aria-current='page'] svg {
+    box-sizing: content-box;
+    padding: 4px 13px;
+    border-radius: var(--radius-full);
+    background: var(--block-binding);
+  }
+}
+
+@media (min-width: 768px) {
+  [data-design='block'] .main-nav__item[aria-current='page'] {
+    background: var(--block-binding);
+  }
+}
+
+[data-design='block'] .calendar-view__month {
+  font-size: 1.75rem;
+  font-stretch: 75%;
+}
+
+[data-design='block'] .calendar-view__nav {
+  border-color: transparent;
+  background: transparent;
+}

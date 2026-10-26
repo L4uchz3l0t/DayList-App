@@ -59,6 +59,11 @@
   text-align: center;
 }
 
+/* "Jetzt"-Linie zwischen den Terminen: nur in Designs, die sie zeigen (styles/designs/) */
+.task-section__now {
+  display: none;
+}
+
 .task-section__list {
   display: flex;
   flex-direction: column;

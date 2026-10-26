@@ -14,6 +14,19 @@ export function byEventTime(a: Task, b: Task): number {
   return (a.time ?? '').localeCompare(b.time ?? '') || a.title.localeCompare(b.title)
 }
 
+const toMinutes = (time: string) => Number(time.slice(0, 2)) * 60 + Number(time.slice(3, 5))
+
+/**
+ * Ist ein Termin von heute schon vorbei? Ende = Endzeit aus Google, sonst eine Stunde nach Beginn.
+ * Ganztägige Termine (ohne Uhrzeit) bleiben den ganzen Tag stehen.
+ */
+export function isEventOver(task: Task, now: string): boolean {
+  if (task.time === undefined) return false
+  const end = task.google?.endTime
+  const endMinutes = end !== undefined && end > task.time ? toMinutes(end) : toMinutes(task.time) + 60
+  return endMinutes <= toMinutes(now)
+}
+
 /** Wichtige Aufgaben zuerst, sonst bleibt die Reihenfolge erhalten. */
 export function byPriority(a: Task, b: Task): number {
   return Number(b.priority === 'high') - Number(a.priority === 'high')
